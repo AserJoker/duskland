@@ -65,7 +65,6 @@ void application::initialize(int argc, char *argv[]) {
   _tui->initialize();
   init_pair(1, COLOR_RED, 0);
   init_pair(2, COLOR_WHITE, 0);
-  init_pair(3, COLOR_MAGENTA, 0);
   _layout->initialize();
 }
 const std::vector<std::string> &application::argv() const { return _args; }

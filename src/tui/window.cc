@@ -144,13 +144,13 @@ void window::on_dective() {
 void window::on_command(int cmd) {}
 void window::on_update() {
   if (_is_active) {
-    wattron(_win, COLOR_PAIR(1));
+    wattron(_win, COLOR_PAIR(2));
     mvwprintw(_win, 1, 2, _name.c_str());
-    wattroff(_win, COLOR_PAIR(1));
+    wattroff(_win, COLOR_PAIR(2));
   } else {
-    wattron(_win, COLOR_PAIR(3));
+    wattron(_win, COLOR_PAIR(2) | WA_DIM);
     mvwprintw(_win, 1, 2, _name.c_str());
-    wattroff(_win, COLOR_PAIR(3));
+    wattroff(_win, COLOR_PAIR(2) | WA_DIM);
   }
 }
 void window::active() { _tui->set_active_window(this); }
