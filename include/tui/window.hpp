@@ -35,6 +35,7 @@ public:
   ~window() override;
   void update();
   void set_border(const util::border &border);
+  void set_border_style(const util::border_style &style);
   const util::border &get_border() const;
   const util::rect &get_rect() const;
   void set_rect(const util::rect &rc);

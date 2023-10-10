@@ -4,8 +4,8 @@
 using namespace duskland::tui;
 using namespace duskland;
 window::window(const util::rect &rc, const std::string &name)
-    : _border_style({0, 0, 0, 0, 0, 0, 0, 0}),
-      _border({false, false, false, false}), _is_active(false), _name(name) {
+    : _border_style(BORDER_DEFAULT), _border({false, false, false, false}),
+      _is_active(false), _name(name) {
   _tui = core::singleton<system_tui>::get();
   _rect = rc;
   _win = newwin(_rect.height, _rect.width, _rect.y, _rect.x);
@@ -36,9 +36,11 @@ void window::set_border(const util::border &border) {
   update();
 }
 const util::border &window::get_border() const { return _border; }
-
+void window::set_border_style(const util::border_style &style) {
+  _border_style = style;
+}
 void window::draw_border() {
-  util::border_style b = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+  util::border_style b = {L' ', L' ', L' ', L' ', L' ', L' ', L' ', L' '};
   if (_border.left) {
     b.ls = _border_style.ls;
   }
@@ -64,7 +66,16 @@ void window::draw_border() {
     b.br = _border_style.br;
   }
   wattron(_win, COLOR_PAIR(_border_color));
-  wborder(_win, b.ls, b.rs, b.ts, b.bs, b.tl, b.tr, b.bl, b.br);
+  //   wborder(_win, b.ls, b.rs, b.ts, b.bs, b.tl, b.tr, b.bl, b.br);
+  cchar_t ls = {0, {b.ls, 0}};
+  cchar_t rs = {0, {b.rs, 0}};
+  cchar_t ts = {0, {b.ts, 0}};
+  cchar_t bs = {0, {b.bs, 0}};
+  cchar_t tl = {0, {b.tl, 0}};
+  cchar_t tr = {0, {b.tr, 0}};
+  cchar_t bl = {0, {b.bl, 0}};
+  cchar_t br = {0, {b.br, 0}};
+  wborder_set(_win, &ls, &rs, &ts, &bs, &tl, &tr, &bl, &br);
   wattroff(_win, COLOR_PAIR(_border_color));
 }
 void window::update() {
@@ -135,10 +146,12 @@ void window::set_border_color(int index) {
 }
 void window::on_active() {
   _is_active = true;
+  set_border_style(BORDER_BOLD);
   update();
 }
 void window::on_dective() {
   _is_active = false;
+  set_border_style(BORDER_DEFAULT);
   update();
 }
 void window::on_command(int cmd) {}

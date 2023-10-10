@@ -2,14 +2,14 @@
 #include <ncurses.h>
 namespace duskland::util {
 struct border_style {
-  chtype ls;
-  chtype rs;
-  chtype ts;
-  chtype bs;
-  chtype tl;
-  chtype tr;
-  chtype bl;
-  chtype br;
+  wchar_t ls;
+  wchar_t rs;
+  wchar_t ts;
+  wchar_t bs;
+  wchar_t tl;
+  wchar_t tr;
+  wchar_t bl;
+  wchar_t br;
 };
 struct border {
   bool left;
@@ -17,4 +17,8 @@ struct border {
   bool top;
   bool bottom;
 };
+#define BORDER_DEFAULT                                                         \
+  { L'│', L'│', L'─', L'─', L'┌', L'┐', L'└', L'┘' }
+#define BORDER_BOLD                                                            \
+  { L'┃', L'┃', L'━', L'━', L'┏', L'┓', L'┗', L'┛' }
 }; // namespace duskland::util
