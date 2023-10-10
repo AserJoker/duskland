@@ -18,6 +18,6 @@ public:
   core::auto_release<layout_item> get_active_item();
   bool relayout();
   core::auto_release<layout_item> select(const std::string &name) const;
-  void remove(const core::auto_release<layout_item>& item);
+  void remove(const core::auto_release<layout_item> &item);
 };
 }; // namespace duskland::tui

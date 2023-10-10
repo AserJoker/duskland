@@ -1,5 +1,6 @@
 ﻿#include "tui/layout_item.hpp"
 #include "core/singleton.hpp"
+#include "tui/layout.hpp"
 using namespace duskland::tui;
 using namespace duskland;
 layout_item::layout_item(const std::string &name,
@@ -11,7 +12,9 @@ layout_item::layout_item(const std::string &name,
 layout_item::~layout_item() {}
 core::auto_release<window> layout_item::get_window() { return _win; }
 const std::string &layout_item::get_name() const { return _name; }
-void layout_item::split(const std::string &name, const int32_t &size) {
+void layout_item::split(const std::string &name,
+                        const core::auto_release<window> &win,
+                        const int32_t &size) {
   if (_rect.width < 20) {
     return;
   }
@@ -22,24 +25,26 @@ void layout_item::split(const std::string &name, const int32_t &size) {
   }
   if (new_width < 0) {
     new_width = _rect.width + new_width;
-  } else {
-    _win->set_rect({_rect.x, _rect.y, new_width, _rect.height});
-    _win->set_border({true, true, true, true});
-    _first = new layout_item(_name, _win);
-    auto win = new window({_rect.x + new_width - 1, _rect.y,
-                           _rect.width - new_width + 1, _rect.height},
-                          name);
-    win->set_border({true, true, true, true});
-    _second = new layout_item(name, win);
-    win->update();
-    win->active();
   }
+  _win->set_rect({_rect.x, _rect.y, new_width, _rect.height});
+  _win->set_border({true, true, true, true});
+  _first = new layout_item(_name, _win);
+  win->set_rect({_rect.x + new_width - 1, _rect.y, _rect.width - new_width + 1,
+                 _rect.height});
+  win->set_name(name);
+  win->set_border({true, true, true, true});
+  _second = new layout_item(name, win);
+
   _win = nullptr;
   _name = "";
   _first->_parent = this;
   _second->_parent = this;
+  win->update();
+  win->active();
 }
-void layout_item::vsplit(const std::string &name, const int32_t &size) {
+void layout_item::vsplit(const std::string &name,
+                         const core::auto_release<window> &win,
+                         const int32_t &size) {
   if (_rect.height < 6) {
     return;
   }
@@ -51,22 +56,29 @@ void layout_item::vsplit(const std::string &name, const int32_t &size) {
   }
   if (new_height < 0) {
     new_height = _rect.height + new_height;
-  } else {
-    _win->set_rect({_rect.x, _rect.y, _rect.width, new_height});
-    _win->set_border({true, true, true, true});
-    _first = new layout_item(_name, _win);
-    auto win = new window({_rect.x, _rect.y + new_height - 1, _rect.width,
-                           _rect.height - new_height + 1},
-                          name);
-    win->set_border({true, true, true, true});
-    _second = new layout_item(name, win);
-    win->update();
-    win->active();
   }
+  core::auto_release<layout_item> selector = nullptr;
+  if (_parent) {
+    selector = _parent->_first;
+    if (selector == this) {
+      selector = _parent->_second;
+    }
+  }
+  _win->set_rect({_rect.x, _rect.y, _rect.width, new_height});
+  _win->set_border({true, true, true, true});
+  _first = new layout_item(_name, _win);
+  win->set_rect({_rect.x, _rect.y + new_height - 1, _rect.width,
+                 _rect.height - new_height + 1});
+  win->set_name(name);
+  win->set_border({true, true, true, true});
+  _second = new layout_item(name, win);
+
   _win = nullptr;
   _name = "";
   _first->_parent = this;
   _second->_parent = this;
+  win->update();
+  win->active();
 }
 void layout_item::referesh() {
   if (_win != nullptr) {
@@ -98,7 +110,9 @@ bool layout_item::relayout() {
       _second->_rect.y = _rect.y + new_height - 1;
       _second->_rect.height = _rect.height - new_height + 1;
       _second->_rect.width = _rect.width;
-      return _first->relayout() && _second->relayout();
+      if (!_first->relayout() || !_second->relayout()) {
+        return false;
+      }
     } else {
       auto new_width = _split_size;
       if (new_width == 0) {
@@ -118,8 +132,11 @@ bool layout_item::relayout() {
       _second->_rect.y = _rect.y;
       _second->_rect.width = _rect.width - new_width + 1;
       _second->_rect.height = _rect.height;
-      return _first->relayout() && _second->relayout();
+      if (!_first->relayout() || !_second->relayout()) {
+        return false;
+      }
     }
   }
   return true;
 }
+void layout_item::set_name(const std::string &name) { _name = name; }

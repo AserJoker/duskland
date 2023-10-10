@@ -1,4 +1,5 @@
 ﻿#include "tui/system_tui.hpp"
+#include "util/attriabute.hpp"
 using namespace duskland::tui;
 using namespace duskland;
 void system_tui::initialize() {}

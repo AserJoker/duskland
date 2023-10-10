@@ -1,22 +1,57 @@
 ﻿#include "system/application.hpp"
 #include "tui/window.hpp"
+#include "tui/window_form.hpp"
 #include <fmt/format.h>
 #include <iostream>
 #include <ncurses.h>
 #include <stdexcept>
 using namespace duskland::system;
 using namespace duskland;
-core::auto_release<tui::window> win;
-core::auto_release<tui::window> win2;
-core::auto_release<tui::window> win3;
+class widget_text : public tui::widget_base {
+private:
+  std::wstring _text;
+  bool _hl;
+
+public:
+  void render(const core::auto_release<tui::window> &win) {
+    auto &rc = get_rect();
+    if (_hl) {
+      win->write(rc.x, rc.y, _text.c_str(), WA_STANDOUT);
+    } else {
+      win->write(rc.x, rc.y, _text.c_str());
+    }
+  }
+  widget_text(const std::wstring &text, const std::string &name)
+      : tui::widget_base(name), _text(text), _hl(false) {}
+  void on_command(int cmd) {
+    if (cmd == '\t') {
+      _hl = !_hl;
+    }
+  }
+};
+class window_demo : public tui::window_form {
+public:
+  window_demo() : tui::window_form({0, 0, 40, 10}, "dmeo-window") {
+    auto text = new widget_text(L"文本组件测试", "text");
+    get_widgets().push_back(text);
+    set_active_widget(text);
+  }
+  void on_update() { tui::window_form::on_update(); }
+  void on_command(int cmd) {
+    tui::window_form::on_command(cmd);
+    update();
+  }
+};
+
+core::auto_release<tui::window_form> win = nullptr;
 application::application() : _is_running(false) {
   _tui = core::singleton<tui::system_tui>::get();
   _layout = core::singleton<tui::layout>::get();
+  _attribute = core::singleton<util::attribute>::get();
+  win = nullptr;
 }
 application::~application() {
   win = nullptr;
-  win2 = nullptr;
-  win3 = nullptr;
   clrtoeol();
   refresh();
   endwin();
@@ -62,10 +97,18 @@ void application::initialize(int argc, char *argv[]) {
   this->clear();
   this->set_cursor_style(CUR_INVISIBLE);
   refresh();
+
+  _attribute->initialize();
+  _attribute->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
+  _attribute->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK, WA_NORMAL);
+  _attribute->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
+
   _tui->initialize();
-  init_pair(1, COLOR_RED, 0);
-  init_pair(2, COLOR_WHITE, 0);
   _layout->initialize();
+  win = new window_demo;
+  win->set_border({true, true, true, true});
+  win->update();
+  win->active();
 }
 const std::vector<std::string> &application::argv() const { return _args; }
 void application::set_cursor_style(cursor_style style) { curs_set(style); }
@@ -74,26 +117,6 @@ void application::command(int ch) {
   switch (ch) {
   case 'q':
     exit();
-    break;
-  case 's': {
-    auto item = _layout->get_active_item();
-    item->split(item->get_name() + ".s");
-    break;
-  }
-  case 'v': {
-    auto item = _layout->get_active_item();
-    item->vsplit(item->get_name() + ".v");
-    break;
-  }
-  case 'd': {
-    _layout->remove(_layout->get_active_item());
-    break;
-  }
-  case '\t':
-    _tui->next_active();
-    break;
-  case KEY_BTAB:
-    _tui->last_active();
     break;
   case ERR:
     break;
