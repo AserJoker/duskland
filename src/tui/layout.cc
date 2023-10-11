@@ -22,13 +22,14 @@ core::auto_release<layout_item> layout::get_active_item() {
   return nullptr;
 }
 void layout::initialize(const core::auto_release<window> &root_window) {
-  root_window->set_rect({0, 0, getmaxx(stdscr), getmaxy(stdscr)});
+  root_window->set_rect(
+      {0, 0, (uint32_t)getmaxx(stdscr), (uint32_t)getmaxy(stdscr)});
   _root = new tui::layout_item(root_window->get_name(), root_window);
   _tui->set_active_window(root_window.get());
 }
 void layout::uninitialize() { _root = nullptr; }
 bool layout::relayout() {
-  _root->_rect = {0, 0, getmaxx(stdscr), getmaxy(stdscr)};
+  _root->_rect = {0, 0, (uint32_t)getmaxx(stdscr), (uint32_t)getmaxy(stdscr)};
   if (!_root->relayout()) {
     clear();
     mvprintw(0, 0, "window is too small");

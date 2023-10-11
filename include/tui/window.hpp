@@ -5,12 +5,12 @@
 #include "util/border.hpp"
 #include "util/rect.hpp"
 #include "util/size.hpp"
-#include "widget.hpp"
+#include "widget_base.hpp"
 #include <ncurses.h>
 #include <string>
 namespace duskland::tui {
 class system_tui;
-class window : public widget {
+class window : public widget_base {
 private:
   core::auto_release<system_tui> _tui;
   core::auto_release<util::attribute> _attribute;
@@ -33,7 +33,8 @@ protected:
   void draw_scroll();
 
 public:
-  void on_command(int cmd) override;
+  bool on_command(int cmd,
+                  const core::auto_release<widget_base> &emitter) override;
   void on_update() override;
   void on_active() override;
   void on_dective() override;

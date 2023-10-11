@@ -1,11 +1,36 @@
 ﻿#include "system/application.hpp"
+#include "tui/widget_text.hpp"
 #include "tui/window.hpp"
+#include "tui/window_form.hpp"
+#include "util/event.hpp"
 #include <fmt/format.h>
 #include <iostream>
 #include <ncurses.h>
 #include <stdexcept>
 using namespace duskland::system;
 using namespace duskland;
+class demo_window : public tui::window_form {
+public:
+  demo_window(const util::rect &rc, const std::string &name)
+      : tui::window_form(rc, name) {
+    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
+    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
+    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
+    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
+    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
+    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
+    get_form()->next_active();
+  }
+  bool on_command(int cmd,
+                  const core::auto_release<tui::widget_base> &emitter) {
+    if (cmd == EVENT_SELECT) {
+      auto text = (tui::widget_text *)emitter.get();
+      text->set_text(L"select text");
+      update();
+    }
+    return tui::window_form::on_command(cmd, emitter);
+  }
+};
 application::application() : _is_running(false) {
   _tui = core::singleton<tui::system_tui>::get();
   _layout = core::singleton<tui::layout>::get();
@@ -64,7 +89,7 @@ void application::initialize(int argc, char *argv[]) {
   _attribute->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
 
   _tui->initialize();
-  auto win = new tui::window({0, 0, 0, 0}, "root window");
+  auto win = new demo_window({0, 0, 0, 0}, "root window");
   _layout->initialize(win);
 }
 const std::vector<std::string> &application::argv() const { return _args; }

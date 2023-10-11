@@ -25,7 +25,7 @@ void layout_item::split(const core::auto_release<window> &win,
   if (new_width < 0) {
     new_width = _rect.width + new_width;
   }
-  _win->set_rect({_rect.x, _rect.y, new_width, _rect.height});
+  _win->set_rect({_rect.x, _rect.y, (uint32_t)new_width, _rect.height});
   _win->set_border({true, true, true, true});
   _first = new layout_item(_name, _win);
   win->set_rect({_rect.x + new_width - 1, _rect.y, _rect.width - new_width + 1,
@@ -61,7 +61,7 @@ void layout_item::vsplit(const core::auto_release<window> &win,
       selector = _parent->_second;
     }
   }
-  _win->set_rect({_rect.x, _rect.y, _rect.width, new_height});
+  _win->set_rect({_rect.x, _rect.y, _rect.width, (uint32_t)new_height});
   _first = new layout_item(_name, _win);
   win->set_rect({_rect.x, _rect.y + new_height - 1, _rect.width,
                  _rect.height - new_height + 1});

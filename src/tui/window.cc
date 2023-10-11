@@ -7,15 +7,17 @@ using namespace duskland::tui;
 using namespace duskland;
 window::window(const util::rect &rc, const std::string &name)
     : _border_style(BORDER_DEFAULT), _border({false, false, false, false}),
-      widget(name), _current_line(0), _current_column(0) {
+      widget_base(name), _current_line(0), _current_column(0) {
   _tui = core::singleton<system_tui>::get();
   _attribute = core::singleton<util::attribute>::get();
-  widget::get_rect() = rc;
+  auto &_rc = get_rect();
+  get_rect() = rc;
+  fix_rect();
   _win = newwin(rc.height, rc.width, rc.y, rc.x);
   box(_win, 0, 0);
   set_border({false, false, false, false});
   _tui->add_window(this);
-  _content_rect = {0, 0, rc.width, rc.height - 1};
+  _content_rect = {0, 0, _rc.width, _rc.height - 1};
 }
 window::~window() {
   set_border({false, false, false, false});
@@ -91,7 +93,7 @@ void window::update() {
 }
 
 void window::fix_rect() {
-  auto &_rect = widget::get_rect();
+  auto &_rect = get_rect();
   if (_rect.x < 0) {
     _rect.x = 0;
   }
@@ -104,11 +106,12 @@ void window::fix_rect() {
   if (_rect.height < 3) {
     _rect.height = 3;
   }
+  fix_content_rect();
 }
 
 void window::resize(int32_t dw, int32_t dh) {
   if (dw != 0 || dh != 0) {
-    auto &_rect = widget::get_rect();
+    auto &_rect = get_rect();
     if (_rect.x + _rect.width + dw <= getmaxx(stdscr)) {
       _rect.width += dw;
     }
@@ -121,7 +124,7 @@ void window::resize(int32_t dw, int32_t dh) {
 }
 void window::move(int32_t dx, int32_t dy) {
   if (dx != 0 || dy != 0) {
-    auto &_rect = widget::get_rect();
+    auto &_rect = get_rect();
     if (_rect.x + _rect.width + dx <= getmaxx(stdscr)) {
       _rect.x += dx;
     }
@@ -133,7 +136,7 @@ void window::move(int32_t dx, int32_t dy) {
   }
 }
 void window::set_rect(const util::rect &rc) {
-  auto &_rect = widget::get_rect();
+  auto &_rect = get_rect();
   if (rc.x == _rect.x && rc.y == _rect.y && rc.width == _rect.width &&
       rc.height == _rect.height) {
     return;
@@ -142,9 +145,12 @@ void window::set_rect(const util::rect &rc) {
   fix_rect();
   refresh();
 }
-void window::on_active() { widget::on_active(); }
-void window::on_dective() { widget::on_dective(); }
-void window::on_command(int cmd) {}
+void window::on_active() { widget_base::on_active(); }
+void window::on_dective() { widget_base::on_dective(); }
+bool window::on_command(int cmd,
+                        const core::auto_release<widget_base> &emitter) {
+  return widget_base::on_command(cmd, emitter);
+}
 void window::on_update() {}
 void window::active() { _tui->set_active_window(this); }
 void window::clear() {
@@ -215,8 +221,12 @@ void window::draw_scroll() {
 }
 
 void window::set_content_rect(const util::rect &content_rc) {
-  _content_rect = content_rc;
-  fix_content_rect();
+  if (_content_rect.x != content_rc.x || _content_rect.y != content_rc.y ||
+      _content_rect.width != content_rc.width ||
+      _content_rect.height != content_rc.height) {
+    _content_rect = content_rc;
+    fix_content_rect();
+  }
 }
 
 const util::rect &window::get_content_rect() const { return _content_rect; }
