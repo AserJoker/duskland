@@ -15,10 +15,8 @@ private:
   friend class layout;
 
 public:
-  void split(const std::string &name, const core::auto_release<window> &win,
-             const int32_t &size = 0);
-  void vsplit(const std::string &name, const core::auto_release<window> &win,
-              const int32_t &size = 0);
+  void split(const core::auto_release<window> &win, const int32_t &size = 0);
+  void vsplit(const core::auto_release<window> &win, const int32_t &size = 0);
   void set_name(const std::string &name);
   const std::string &get_name() const;
   core::auto_release<window> get_window();

@@ -21,11 +21,10 @@ core::auto_release<layout_item> layout::get_active_item() {
   }
   return nullptr;
 }
-void layout::initialize() {
-  auto win = new window({0, 0, getmaxx(stdscr), getmaxy(stdscr)}, "root");
-  _root = new tui::layout_item("root", win);
-  win->set_border({true, true, true, true});
-  _tui->set_active_window(win);
+void layout::initialize(const core::auto_release<window> &root_window) {
+  root_window->set_rect({0, 0, getmaxx(stdscr), getmaxy(stdscr)});
+  _root = new tui::layout_item(root_window->get_name(), root_window);
+  _tui->set_active_window(root_window.get());
 }
 void layout::uninitialize() { _root = nullptr; }
 bool layout::relayout() {

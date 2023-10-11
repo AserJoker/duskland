@@ -18,13 +18,19 @@ private:
   util::border_style _border_style;
   util::border _border;
   int _border_color;
+  util::rect _content_rect;
+  int32_t _current_line;
+  int32_t _current_column;
 
   void fix_rect();
 
   friend class system_tui;
 
+  void fix_content_rect();
+
 protected:
   void draw_border();
+  void draw_scroll();
 
 public:
   void on_command(int cmd) override;
@@ -43,10 +49,13 @@ public:
   void refresh();
   void active();
   void clear();
-  const util::rect get_client_rect() const;
+  void set_content_rect(const util::rect &content_rc);
+  const util::rect &get_content_rect() const;
+  void move_content(const int32_t &dx, const int32_t &dy);
   void write(const uint32_t &x, const uint32_t &y, const wchar_t &ch,
              const uint32_t &attr = 0);
   void write(const uint32_t &x, const uint32_t &y, const wchar_t *ch,
              const uint32_t &attr = 0);
+  void set_current_pos(const int32_t &line, const int32_t &column);
 };
 } // namespace duskland::tui

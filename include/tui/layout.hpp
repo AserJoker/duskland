@@ -13,7 +13,7 @@ private:
 public:
   layout();
   ~layout() override;
-  void initialize();
+  void initialize(const core::auto_release<window> &root_window);
   void uninitialize();
   core::auto_release<layout_item> get_active_item();
   bool relayout();

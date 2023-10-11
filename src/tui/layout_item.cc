@@ -12,8 +12,7 @@ layout_item::layout_item(const std::string &name,
 layout_item::~layout_item() {}
 core::auto_release<window> layout_item::get_window() { return _win; }
 const std::string &layout_item::get_name() const { return _name; }
-void layout_item::split(const std::string &name,
-                        const core::auto_release<window> &win,
+void layout_item::split(const core::auto_release<window> &win,
                         const int32_t &size) {
   if (_rect.width < 20) {
     return;
@@ -31,9 +30,8 @@ void layout_item::split(const std::string &name,
   _first = new layout_item(_name, _win);
   win->set_rect({_rect.x + new_width - 1, _rect.y, _rect.width - new_width + 1,
                  _rect.height});
-  win->set_name(name);
   win->set_border({true, true, true, true});
-  _second = new layout_item(name, win);
+  _second = new layout_item(win->get_name(), win);
 
   _win = nullptr;
   _name = "";
@@ -42,8 +40,7 @@ void layout_item::split(const std::string &name,
   win->update();
   win->active();
 }
-void layout_item::vsplit(const std::string &name,
-                         const core::auto_release<window> &win,
+void layout_item::vsplit(const core::auto_release<window> &win,
                          const int32_t &size) {
   if (_rect.height < 6) {
     return;
@@ -65,13 +62,10 @@ void layout_item::vsplit(const std::string &name,
     }
   }
   _win->set_rect({_rect.x, _rect.y, _rect.width, new_height});
-  _win->set_border({true, true, true, true});
   _first = new layout_item(_name, _win);
   win->set_rect({_rect.x, _rect.y + new_height - 1, _rect.width,
                  _rect.height - new_height + 1});
-  win->set_name(name);
-  win->set_border({true, true, true, true});
-  _second = new layout_item(name, win);
+  _second = new layout_item(win->get_name(), win);
 
   _win = nullptr;
   _name = "";
