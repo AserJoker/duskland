@@ -49,7 +49,7 @@ void widget_input::render(const core::auto_release<window> &win,
   for (auto i = _input.length(); i != _max_length; i++) {
     renderstr += L'_';
   }
-  win->write(pos.x, pos.y, renderstr.c_str(),
+  win->write(pos.x + 1, pos.y, renderstr.c_str(),
              is_active() ? _config->attr("tui.input.focus")
                          : _config->attr("tui.input.normal"));
   if (_mode) {
@@ -58,12 +58,13 @@ void widget_input::render(const core::auto_release<window> &win,
       offset += wcwidth(c);
     }
     if (_input.length() < _max_length) {
-      win->write(pos.x + offset, pos.y, L'_',
+      win->write(pos.x + 1 + offset, pos.y, L'_',
                  _config->attr("tui.input.cursor"));
     } else {
       auto chr = _input[_input.length() - 1];
       offset -= wcwidth(chr);
-      win->write(pos.x + offset, pos.y, chr, _config->attr("tui.input.cursor"));
+      win->write(pos.x + 1 + offset, pos.y, chr,
+                 _config->attr("tui.input.cursor"));
     }
   }
 }

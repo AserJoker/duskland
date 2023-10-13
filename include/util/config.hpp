@@ -3,8 +3,7 @@
 #include <map>
 #include <ncurses.h>
 #include <string>
-#define COLOR_PAIR_INDEX(fg, bg)                                               \
-  ((((uint16_t)fg) << 4) | (((uint16_t)bg) & 0xf))
+#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 
 namespace duskland::util {
 class config : public core::object {
@@ -22,6 +21,6 @@ public:
   const chtype &keymap(const std::string &name) const;
 
   void style(const std::string &name, const wchar_t &style);
-  const wchar_t& style(const std::string& name);
+  const wchar_t &style(const std::string &name);
 };
 } // namespace duskland::util

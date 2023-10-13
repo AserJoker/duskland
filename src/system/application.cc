@@ -23,8 +23,8 @@ private:
 public:
   demo_window(const util::rect &rc, const std::string &name)
       : tui::window_widget(rc, name) {
-    _message = new tui::widget_text("label", L"中文测试 ");
-    //_message->set_select_index(-1);
+    _message = new tui::widget_text("label", L"中文测试");
+    _message->set_select_index(-1);
     _input = new tui::widget_input("input", 13);
     auto line = new tui::widget_line("layout.line");
     line->add_widget(_message.get());
@@ -36,7 +36,6 @@ public:
   bool
   on_command(int cmd,
              const core::auto_release<tui::widget_base> &emitter) override {
-    mvprintw(10, 10, "keycode is %d", cmd);
     return tui::window_widget::on_command(cmd, emitter);
   }
 };
@@ -97,11 +96,14 @@ void application::initialize(int argc, char *argv[]) {
   refresh();
 
   _config->initialize();
+
   _config->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
-  _config->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK, WA_NORMAL);
-  _config->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK, WA_BOLD);
-  _config->attr("tui.input.normal", COLOR_WHITE, COLOR_BLACK, WA_NORMAL);
-  _config->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK, WA_BOLD);
+  _config->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK,
+                WA_NORMAL | WA_DIM);
+  _config->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK);
+  _config->attr("tui.input.normal", COLOR_WHITE, COLOR_BLACK,
+                WA_NORMAL | WA_DIM);
+  _config->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
   _config->attr("tui.input.cursor", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
 
   _config->keymap("key.next", '\t');
