@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include "widget_form.hpp"
+#include "widget.hpp"
 #include "window.hpp"
 namespace duskland::tui {
-class window_form : public window {
+class window_widget : public window {
 private:
-  core::auto_release<widget_form> _form;
+  core::auto_release<widget> _root;
 
 public:
-  window_form(const util::rect &rc, const std::string &name);
-  core::auto_release<widget_form> get_form();
+  window_widget(const util::rect &rc, const std::string &name);
+  core::auto_release<widget> &get_root();
   void on_update() override;
   void on_active() override;
   void on_dective() override;

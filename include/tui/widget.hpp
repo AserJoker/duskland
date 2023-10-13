@@ -4,6 +4,8 @@
 #include "window.hpp"
 namespace duskland::tui {
 class widget : public widget_base {
+protected:
+  core::auto_release<util::config> _config;
 
 public:
   widget(const std::string &name);

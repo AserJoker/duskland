@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include "core/object.hpp"
 #include "core/singleton.hpp"
+#include "system_input.hpp"
 #include "tui/layout.hpp"
 #include "tui/system_tui.hpp"
-#include "util/attriabute.hpp"
+#include "util/config.hpp"
 #include <string>
 #include <vector>
 namespace duskland::system {
@@ -16,7 +17,8 @@ private:
   std::vector<std::string> _args;
   core::auto_release<tui::system_tui> _tui;
   core::auto_release<tui::layout> _layout;
-  core::auto_release<util::attribute> _attribute;
+  core::auto_release<util::config> _config;
+  core::auto_release<system_input> _input;
 
 public:
   int run();

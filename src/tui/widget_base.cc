@@ -8,7 +8,8 @@ util::rect &widget_base::get_rect() { return _rect; }
 const std::string &widget_base::get_name() const { return _name; }
 void widget_base::set_name(const std::string &name) { _name = name; }
 bool widget_base::is_active() { return _is_active; }
-void widget_base::on_active() { _is_active = true; }
+void widget_base::on_active() {
+  _is_active = true; }
 void widget_base::on_dective() { _is_active = false; }
 void widget_base::on_update() {}
 bool widget_base::on_command(int ch,

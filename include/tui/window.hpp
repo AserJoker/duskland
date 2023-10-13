@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "core/auto_release.hpp"
 #include "core/object.hpp"
-#include "util/attriabute.hpp"
 #include "util/border.hpp"
+#include "util/config.hpp"
 #include "util/rect.hpp"
 #include "util/size.hpp"
 #include "widget_base.hpp"
@@ -12,10 +12,7 @@ namespace duskland::tui {
 class system_tui;
 class window : public widget_base {
 private:
-  core::auto_release<system_tui> _tui;
-  core::auto_release<util::attribute> _attribute;
   WINDOW *_win;
-  util::border_style _border_style;
   util::border _border;
   int _border_color;
   util::rect _content_rect;
@@ -29,6 +26,8 @@ private:
   void fix_content_rect();
 
 protected:
+  core::auto_release<system_tui> _tui;
+  core::auto_release<util::config> _config;
   void draw_border();
   void draw_scroll();
 
@@ -42,7 +41,6 @@ public:
   ~window() override;
   void update();
   void set_border(const util::border &border);
-  void set_border_style(const util::border_style &style);
   const util::border &get_border() const;
   void set_rect(const util::rect &rc);
   void resize(int32_t dw, int32_t dh);
@@ -57,6 +55,12 @@ public:
              const uint32_t &attr = 0);
   void write(const uint32_t &x, const uint32_t &y, const wchar_t *ch,
              const uint32_t &attr = 0);
+  void write(const uint32_t &x, const uint32_t &y, const char &ch,
+             const uint32_t &attr = 0);
+  void write(const uint32_t &x, const uint32_t &y, const char *ch,
+             const uint32_t &attr = 0);
   void set_current_pos(const int32_t &line, const int32_t &column);
+  void enable_input(const int32_t &x, const int32_t &y);
+  void disable_input();
 };
 } // namespace duskland::tui

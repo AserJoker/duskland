@@ -1,40 +1,50 @@
 ﻿#include "system/application.hpp"
+#include "tui/widget_col.hpp"
+#include "tui/widget_input.hpp"
+#include "tui/widget_line.hpp"
 #include "tui/widget_text.hpp"
 #include "tui/window.hpp"
-#include "tui/window_form.hpp"
+#include "tui/window_widget.hpp"
 #include "util/event.hpp"
+#include <codecvt>
 #include <fmt/format.h>
+#include <fmt/xchar.h>
 #include <iostream>
 #include <ncurses.h>
 #include <stdexcept>
 using namespace duskland::system;
 using namespace duskland;
-class demo_window : public tui::window_form {
+static int32_t fps = 0;
+class demo_window : public tui::window_widget {
+private:
+  core::auto_release<tui::widget_text> _message;
+  core::auto_release<tui::widget_input> _input;
+
 public:
   demo_window(const util::rect &rc, const std::string &name)
-      : tui::window_form(rc, name) {
-    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
-    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
-    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
-    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
-    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
-    get_form()->add_widget(new tui::widget_text("a", L"demo text"));
-    get_form()->next_active();
+      : tui::window_widget(rc, name) {
+    _message = new tui::widget_text("label", L"中文测试 ");
+    //_message->set_select_index(-1);
+    _input = new tui::widget_input("input", 13);
+    auto line = new tui::widget_line("layout.line");
+    line->add_widget(_message.get());
+    line->add_widget(_input.get());
+    line->add_widget(new tui::widget_text("tail", L"中文tail"));
+    get_root() = line;
+    line->next_active();
   }
-  bool on_command(int cmd,
-                  const core::auto_release<tui::widget_base> &emitter) {
-    if (cmd == EVENT_SELECT) {
-      auto text = (tui::widget_text *)emitter.get();
-      text->set_text(L"select text");
-      update();
-    }
-    return tui::window_form::on_command(cmd, emitter);
+  bool
+  on_command(int cmd,
+             const core::auto_release<tui::widget_base> &emitter) override {
+    mvprintw(10, 10, "keycode is %d", cmd);
+    return tui::window_widget::on_command(cmd, emitter);
   }
 };
 application::application() : _is_running(false) {
   _tui = core::singleton<tui::system_tui>::get();
   _layout = core::singleton<tui::layout>::get();
-  _attribute = core::singleton<util::attribute>::get();
+  _config = core::singleton<util::config>::get();
+  _input = core::singleton<system_input>::get();
 }
 application::~application() {
   clrtoeol();
@@ -57,7 +67,7 @@ int application::run() {
           _tui->refresh();
         }
       }
-      auto ch = getch();
+      auto ch = _input->read();
       this->command(ch);
     }
   } catch (std::exception &e) {
@@ -65,6 +75,7 @@ int application::run() {
   }
   _layout->uninitialize();
   _tui->uninitialize();
+  _input->uninitialize();
   return 0;
 }
 void application::exit() { _is_running = false; }
@@ -74,36 +85,57 @@ void application::initialize(int argc, char *argv[]) {
     _args.push_back(argv[index]);
   }
   initscr();
-  noecho();
-  raw();
-  halfdelay(1);
-  keypad(stdscr, TRUE);
   start_color();
+  noecho();
+  _input->initialize();
+  raw();
+  cbreak();
+  keypad(stdscr, TRUE);
+  set_escdelay(1);
   this->clear();
   this->set_cursor_style(CUR_INVISIBLE);
   refresh();
 
-  _attribute->initialize();
-  _attribute->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
-  _attribute->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK, WA_NORMAL);
-  _attribute->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
+  _config->initialize();
+  _config->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
+  _config->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK, WA_NORMAL);
+  _config->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK, WA_BOLD);
+  _config->attr("tui.input.normal", COLOR_WHITE, COLOR_BLACK, WA_NORMAL);
+  _config->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK, WA_BOLD);
+  _config->attr("tui.input.cursor", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
+
+  _config->keymap("key.next", '\t');
+  _config->keymap("key.last", KEY_BTAB);
+  _config->keymap("key.select", '\n');
+  _config->keymap("key.quit", 'q');
+  _config->style("style.border.ls", L'│');
+  _config->style("style.border.rs", L'│');
+  _config->style("style.border.ts", L'─');
+  _config->style("style.border.bs", L'─');
+  _config->style("style.border.tl", L'┌');
+  _config->style("style.border.tr", L'┐');
+  _config->style("style.border.bl", L'└');
+  _config->style("style.border.br", L'┘');
+  _config->style("style.border.tlr", L'┬');
+  _config->style("style.border.blr", L'┴');
+  _config->style("style.border.ltb", L'├');
+  _config->style("style.border.rtb", L'┤');
+  _config->style("style.border.lrtb", L'┼');
 
   _tui->initialize();
   auto win = new demo_window({0, 0, 0, 0}, "root window");
+  win->set_border({true, true, true, true});
   _layout->initialize(win);
 }
 const std::vector<std::string> &application::argv() const { return _args; }
 void application::set_cursor_style(cursor_style style) { curs_set(style); }
 void application::clear() { ::clear(); }
 void application::command(int ch) {
-  switch (ch) {
-  case 'q':
+  if (ch == ERR) {
+    return;
+  } else if (ch == _config->keymap("key.quit")) {
     exit();
-    break;
-  case ERR:
-    break;
-  default:
+  } else {
     _tui->run_command(ch);
-    break;
   }
 }
