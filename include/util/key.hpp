@@ -30,3 +30,29 @@
 #define VKEY_SHIFT_PAGE_UP 0xaf
 #define VKEY_SHIFT_PAGE_DOWN 0xb0
 #define VKEY_SHIFT_TAB 0xb3
+
+#define VKEY_CTRL_LEFT 0xb4
+#define VKEY_CTRL_UP 0xb5
+#define VKEY_CTRL_DOWN 0xb6
+#define VKEY_CTRL_RIGHT 0xb7
+#define VKEY_CTRL_F1 0xb8
+#define VKEY_CTRL_HOME 0xc4
+#define VKEY_CTRL_END 0xc5
+#define VKEY_CTRL_INSERT 0xc6
+#define VKEY_CTRL_DELETE 0xc7
+#define VKEY_CTRL_PAGE_UP 0xc8
+#define VKEY_CTRL_PAGE_DOWN 0xc9
+#define VKEY_CTRL_TAB 0xca
+
+#define VKEY_META_LEFT 0xcb
+#define VKEY_META_UP 0xcc
+#define VKEY_META_DOWN 0xcd
+#define VKEY_META_RIGHT 0xce
+#define VKEY_META_F1 0xcf
+#define VKEY_META_HOME 0xd8
+#define VKEY_META_END 0xd9
+#define VKEY_META_INSERT 0xda
+#define VKEY_META_DELETE 0xdb
+#define VKEY_META_PAGE_UP 0xde
+#define VKEY_META_PAGE_DOWN 0xdf
+#define VKEY_META_TAB 0xe0
