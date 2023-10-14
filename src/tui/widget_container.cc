@@ -59,7 +59,7 @@ void widget_container::remove_widget(const core::auto_release<widget> &widget) {
   rc.height = size.height;
 }
 bool widget_container::on_command(
-    int cmd, const core::auto_release<widget_base> &emitter) {
+    wint_t cmd, const core::auto_release<widget_base> &emitter) {
   if (_active_widget) {
     if (_active_widget->on_command(cmd, emitter)) {
       return true;

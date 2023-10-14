@@ -17,7 +17,7 @@ public:
   void set_active_widget(const core::auto_release<widget> &active);
   void add_widget(const core::auto_release<widget> &widget);
   void remove_widget(const core::auto_release<widget> &widget);
-  bool on_command(int cmd,
+  bool on_command(wint_t cmd,
                   const core::auto_release<widget_base> &emitter) override;
   virtual void on_active() override;
   virtual void on_dective() override;

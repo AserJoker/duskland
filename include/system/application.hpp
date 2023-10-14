@@ -29,6 +29,6 @@ public:
   const std::vector<std::string> &argv() const;
   void set_cursor_style(cursor_style style);
   void clear();
-  void command(int ch);
+  void command(wint_t cmd);
 };
 } // namespace duskland::system

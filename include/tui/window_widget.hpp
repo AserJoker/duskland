@@ -12,7 +12,7 @@ public:
   void on_update() override;
   void on_active() override;
   void on_dective() override;
-  bool on_command(int cmd,
+  bool on_command(wint_t cmd,
                   const core::auto_release<widget_base> &emitter) override;
 };
 }; // namespace duskland::tui

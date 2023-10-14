@@ -12,6 +12,7 @@
 #include <iostream>
 #include <ncurses.h>
 #include <stdexcept>
+#include <thread>
 using namespace duskland::system;
 using namespace duskland;
 static int32_t fps = 0;
@@ -20,12 +21,14 @@ private:
   core::auto_release<tui::widget_text> _message;
   core::auto_release<tui::widget_input> _input;
 
+  int32_t offset;
+  std::vector<wint_t> codes;
+
 public:
   demo_window(const util::rect &rc, const std::string &name)
-      : tui::window_widget(rc, name) {
+      : tui::window_widget(rc, name), offset(0) {
     _message = new tui::widget_text("label", L"中文测试");
-    _message->set_select_index(-1);
-    _input = new tui::widget_input("input", 13);
+    _input = new tui::widget_input("input", 12);
     auto line = new tui::widget_line("layout.line");
     line->add_widget(_message.get());
     line->add_widget(_input.get());
@@ -34,8 +37,17 @@ public:
     line->next_active();
   }
   bool
-  on_command(int cmd,
+  on_command(wint_t cmd,
              const core::auto_release<tui::widget_base> &emitter) override {
+    if (cmd == VKEY_BACKSPACE) {
+      codes.clear();
+    } else {
+      codes.push_back(cmd);
+    }
+    for (auto i = 0; i < codes.size(); i++) {
+      mvprintw(10 + i, 10, "0x%x", codes[i]);
+    }
+    update();
     return tui::window_widget::on_command(cmd, emitter);
   }
 };
@@ -87,14 +99,12 @@ void application::initialize(int argc, char *argv[]) {
   start_color();
   noecho();
   _input->initialize();
-  raw();
   cbreak();
   keypad(stdscr, TRUE);
   set_escdelay(1);
   this->clear();
   this->set_cursor_style(CUR_INVISIBLE);
   refresh();
-
   _config->initialize();
 
   _config->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
@@ -106,9 +116,9 @@ void application::initialize(int argc, char *argv[]) {
   _config->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
   _config->attr("tui.input.cursor", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
 
-  _config->keymap("key.next", '\t');
-  _config->keymap("key.last", KEY_BTAB);
-  _config->keymap("key.select", '\n');
+  _config->keymap("key.next", VKEY_TAB);
+  _config->keymap("key.last", KEY_STAB);
+  _config->keymap("key.select", VKEY_ENTER);
   _config->keymap("key.quit", 'q');
   _config->style("style.border.ls", L'│');
   _config->style("style.border.rs", L'│');
@@ -132,12 +142,12 @@ void application::initialize(int argc, char *argv[]) {
 const std::vector<std::string> &application::argv() const { return _args; }
 void application::set_cursor_style(cursor_style style) { curs_set(style); }
 void application::clear() { ::clear(); }
-void application::command(int ch) {
-  if (ch == ERR) {
+void application::command(wint_t cmd) {
+  if (cmd == ERR) {
     return;
-  } else if (ch == _config->keymap("key.quit")) {
+  } else if (cmd == _config->keymap("key.quit")) {
     exit();
   } else {
-    _tui->run_command(ch);
+    _tui->run_command(cmd);
   }
 }

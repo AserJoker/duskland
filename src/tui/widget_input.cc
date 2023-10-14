@@ -7,39 +7,12 @@ widget_input::widget_input(const std::string &name, const uint32_t &max_length)
   get_rect().height = 1;
 }
 const std::wstring &widget_input::get_input() const { return _input; }
-bool widget_input::on_command(int cmd,
+bool widget_input::on_command(wint_t cmd,
                               const core::auto_release<widget_base> &emitter) {
   auto win = (window *)emitter.get();
   auto &rc = get_rect();
-  if (_mode == 0 && cmd == '\n') {
-    _mode = 1;
-    win->update();
-    return true;
-  }
-  if (_mode == 1) {
-    if (cmd == '\n' || cmd == 0x1b) {
-      _mode = 0;
-      win->update();
-    } else if (cmd == KEY_BACKSPACE) {
-      if (_input.empty()) {
-        beep();
-      } else {
-        _input = _input.substr(0, _input.length() - 1);
-      }
-    } else if ((cmd >= 0x20 && cmd <= KEY_MIN) || cmd >= KEY_MAX) {
-      if (_input.length() == _max_length) {
-        beep();
-      } else {
-        _input += cmd;
-      }
-    }
-    auto offset = 0;
-    for (auto &c : _input) {
-      offset += wcwidth(c);
-    }
-    rc.width = offset + _max_length - _input.length() + 2;
-    win->update();
-    return true;
+  if (cmd == '\n') {
+    _mode = !_mode;
   }
   return widget::on_command(cmd, emitter);
 }

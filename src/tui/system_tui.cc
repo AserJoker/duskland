@@ -4,9 +4,9 @@ using namespace duskland::tui;
 using namespace duskland;
 void system_tui::initialize() {}
 void system_tui::uninitialize() { _windows.clear(); }
-void system_tui::run_command(int ch) {
+void system_tui::run_command(wint_t cmd) {
   if (_active_window) {
-    _active_window->on_command(ch, nullptr);
+    _active_window->on_command(cmd, nullptr);
   }
 }
 window *system_tui::get_active_window() { return _active_window; }

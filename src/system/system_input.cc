@@ -1,53 +1,90 @@
 ﻿#include "system/system_input.hpp"
 #include <ncurses.h>
+#define CTRL_MASK 1;
 using namespace duskland::system;
 using namespace duskland;
-void system_input::initialize() { nodelay(stdscr, TRUE); }
+void system_input::initialize() {
+  nodelay(stdscr, TRUE);
+  _key_binding[VKEY_ENTER] = {0xa};
+  _key_binding[VKEY_BACKSPACE] = {0x107};
+  _key_binding[VKEY_TAB] = {'\t'};
+  _key_binding[VKEY_ESCAPE] = {0x1b};
+  _key_binding[VKEY_UP] = {0x1b, 0x4f, 0x41};
+  _key_binding[VKEY_DOWN] = {0x1b, 0x4f, 0x42};
+  _key_binding[VKEY_RIGHT] = {0x1b, 0x4f, 0x43};
+  _key_binding[VKEY_LEFT] = {0x1b, 0x4f, 0x44};
+  _key_binding[VKEY_END] = {0x1b, 0x4f, 0x46};
+  _key_binding[VKEY_HOME] = {0x1b, 0x4f, 0x48};
+  _key_binding[VKEY_SHIFT_TAB] = {0x1b, 0x5b, 0x5a};
+  _key_binding[VKEY_F1] = {0x1b, 0x4f, 0x50};
+  _key_binding[VKEY_F1 + 1] = {0x1b, 0x4f, 0x50};
+  _key_binding[VKEY_F1 + 2] = {0x1b, 0x4f, 0x51};
+  _key_binding[VKEY_F1 + 3] = {0x1b, 0x4f, 0x52};
+  _key_binding[VKEY_F1 + 4] = {0x1b, 0x4f, 0x53};
+  _key_binding[VKEY_F1 + 5] = {0x1b, 0x4f, 0x54};
+  _key_binding[VKEY_F1 + 6] = {0x1b, 0x4f, 0x55};
+  _key_binding[VKEY_F1 + 7] = {0x1b, 0x4f, 0x56};
+  _key_binding[VKEY_F1 + 8] = {0x1b, 0x4f, 0x57};
+  _key_binding[VKEY_F1 + 9] = {0x1b, 0x4f, 0x58};
+  _key_binding[VKEY_F1 + 10] = {0x1b, 0x4f, 0x59};
+  _key_binding[VKEY_F1 + 11] = {0x1b, 0x4f, 0x5a};
+  _key_binding[VKEY_INSERT] = {0x1b, 0x5b, 0x32, 0x7e};
+  _key_binding[VKEY_DELETE] = {0x1b, 0x5b, 0x33, 0x7e};
+  _key_binding[VKEY_PAGE_UP] = {0x1b, 0x5b, 0x35, 0x7e};
+  _key_binding[VKEY_PAGE_DOWN] = {0x1b, 0x5b, 0x36, 0x7e};
+  _key_binding[VKEY_SHIFT_LEFT] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x44};
+  _key_binding[VKEY_SHIFT_RIGHT] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x43};
+  _key_binding[VKEY_SHIFT_DOWN] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x42};
+  _key_binding[VKEY_SHIFT_UP] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x41};
+  _key_binding[VKEY_SHIFT_HOME] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x48};
+  _key_binding[VKEY_SHIFT_END] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x46};
+  _key_binding[VKEY_SHIFT_DELETE] = {0x1b, 0x5b, 0x33, 0x3b, 0x32, 0x7e};
+
+  _key_binding[VKEY_SHIFT_PAGE_UP] = {0x1b, 0x5b, 0x35, 0x3b, 0x32, 0x7e};
+  _key_binding[VKEY_SHIFT_PAGE_DOWN] = {0x1b, 0x5b, 0x36, 0x3b, 0x32, 0x7e};
+
+  _key_binding[VKEY_SHIFT_F1] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x50};
+  _key_binding[VKEY_SHIFT_F1 + 1] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x51};
+  _key_binding[VKEY_SHIFT_F1 + 2] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x52};
+  _key_binding[VKEY_SHIFT_F1 + 3] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x53};
+  _key_binding[VKEY_SHIFT_F1 + 4] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x54};
+  _key_binding[VKEY_SHIFT_F1 + 5] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x55};
+  _key_binding[VKEY_SHIFT_F1 + 6] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x56};
+  _key_binding[VKEY_SHIFT_F1 + 7] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x57};
+  _key_binding[VKEY_SHIFT_F1 + 8] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x58};
+  _key_binding[VKEY_SHIFT_F1 + 9] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x59};
+  _key_binding[VKEY_SHIFT_F1 + 10] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x5a};
+  _key_binding[VKEY_SHIFT_F1 + 11] = {0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x5b};
+}
 void system_input::uninitialize() { nodelay(stdscr, FALSE); }
 wint_t system_input::read() {
-  wint_t ch;
-  if (wget_wch(stdscr, &ch) != ERR) {
-    return decode(ch);
-  }
-  return -1;
+  // std::vector<int> codes;
+  // for (;;) {
+  //   int ch = getch();
+  //   if (ch == ERR) {
+  //     break;
+  //   }
+  //   codes.push_back(ch);
+  // }
+  // if (!codes.empty()) {
+  //   return decode(codes);
+  // }
+  // return -1;
+  return getch();
 }
-wint_t system_input::decode(const wint_t &ch) {
-  wint_t controls[20] = {0};
-  wint_t *selector = &controls[0];
-  if (ch == 0x1b) {
-    wint_t control;
-    while (wget_wch(stdscr, &control) != ERR) {
-      *selector++ = control;
-    }
-    *selector = 0;
-    if (controls[0] == 0x4f) {
-      switch (controls[1]) {
-      case 0x41:
-        return KEY_UP;
-      case 0x42:
-        return KEY_DOWN;
-      case 0x43:
-        return KEY_RIGHT;
-      case 0x44:
-        return KEY_LEFT;
-      case 0x48:
-        return KEY_HOME;
-      case 0x46:
-        return KEY_END;
-      }
-    } else if (controls[0] == 0x5b) {
-      if (controls[1] == 0x32) {
-        if (controls[3] == 0x7e) {
-          return KEY_F0 + controls[2] - 0x28;
+wint_t system_input::decode(const std::vector<int> &codes) {
+  for (auto &[key, vcodes] : _key_binding) {
+    if (vcodes.size() == codes.size()) {
+      auto i = 0;
+      for (; i < vcodes.size(); i++) {
+        if (vcodes[i] != codes[i]) {
+          break;
         }
       }
-      if (controls[1] == 0x32 && controls[2] == 0x7e) {
-        return KEY_IL;
-      }
-      if (controls[1] == 0x33 && controls[2] == 0x7e) {
-        return KEY_DL;
+      if (i == vcodes.size()) {
+        return key;
       }
     }
   }
-  return ch;
+  return codes.size() == 1 ? codes[0] : -1;
 }

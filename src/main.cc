@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
   setlocale(LC_ALL, "");
   signal(SIGINT, SIG_IGN);
   signal(SIGQUIT, SIG_IGN);
+  signal(SIGTSTP, SIG_IGN);
   auto app = core::singleton<system::application>::get();
   app->initialize(argc, argv);
   return app->run();

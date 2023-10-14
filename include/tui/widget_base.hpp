@@ -15,7 +15,7 @@ private:
 public:
   virtual void on_active();
   virtual void on_dective();
-  virtual bool on_command(int cmd,
+  virtual bool on_command(wint_t cmd,
                           const core::auto_release<widget_base> &emitter);
   virtual void on_update();
   const util::rect &get_rect() const;

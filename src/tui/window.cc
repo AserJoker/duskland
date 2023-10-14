@@ -34,6 +34,7 @@ void window::refresh() {
   box(_win, 0, 0);
   set_border(border);
   fix_content_rect();
+  clear();
   update();
 }
 void window::set_border(const util::border &border) {
@@ -82,7 +83,6 @@ void window::draw_border() {
   wrefresh(_win);
 }
 void window::update() {
-  clear();
   draw_border();
   draw_scroll();
   on_update();
@@ -143,7 +143,7 @@ void window::set_rect(const util::rect &rc) {
 }
 void window::on_active() { widget_base::on_active(); }
 void window::on_dective() { widget_base::on_dective(); }
-bool window::on_command(int cmd,
+bool window::on_command(wint_t cmd,
                         const core::auto_release<widget_base> &emitter) {
   return widget_base::on_command(cmd, emitter);
 }

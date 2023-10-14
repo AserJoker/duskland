@@ -12,7 +12,7 @@ public:
   system_tui();
   void initialize();
   void uninitialize();
-  void run_command(int ch);
+  void run_command(wint_t cmd);
   window *get_active_window();
   void set_active_window(window *);
   void add_window(window *win);

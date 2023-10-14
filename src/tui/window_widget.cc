@@ -20,7 +20,7 @@ void window_widget::on_dective() {
     _root->on_dective();
   }
 }
-bool window_widget::on_command(int cmd,
+bool window_widget::on_command(wint_t cmd,
                                const core::auto_release<widget_base> &emitter) {
   if (_root != nullptr) {
     auto res = _root->on_command(cmd, this);

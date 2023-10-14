@@ -11,7 +11,7 @@ public:
   widget_input(const std::string &name, const uint32_t &max_length);
   void render(const core::auto_release<window> &win,
               const util::position &pos) override;
-  bool on_command(int cmd,
+  bool on_command(wint_t cmd,
                   const core::auto_release<widget_base> &emitter) override;
   const std::wstring &get_input() const;
 };
