@@ -6,6 +6,7 @@
 #include "tui/window.hpp"
 #include "tui/window_widget.hpp"
 #include "util/event.hpp"
+#include <chrono>
 #include <codecvt>
 #include <fmt/format.h>
 #include <fmt/xchar.h>
@@ -65,19 +66,7 @@ application::~application() {
 int application::run() {
   try {
     _is_running = true;
-    int x = getmaxx(stdscr);
-    int y = getmaxy(stdscr);
     while (_is_running) {
-      int cx = getmaxx(stdscr);
-      int cy = getmaxy(stdscr);
-      if (cx != x || cy != y) {
-        x = cx;
-        y = cy;
-        refresh();
-        if (_layout->relayout()) {
-          _tui->refresh();
-        }
-      }
       auto ch = _input->read();
       this->command(ch);
     }
@@ -147,6 +136,11 @@ void application::command(wint_t cmd) {
     return;
   } else if (cmd == _config->keymap("key.quit")) {
     exit();
+  } else if (cmd == KEY_RESIZE) {
+
+    if (_layout->relayout()) {
+      _tui->refresh();
+    }
   } else {
     _tui->run_command(cmd);
   }

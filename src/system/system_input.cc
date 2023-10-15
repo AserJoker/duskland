@@ -5,29 +5,29 @@ using namespace duskland::system;
 using namespace duskland;
 void system_input::initialize() {
   nodelay(stdscr, TRUE);
-  _key_binding[VKEY_ENTER] = {0xa};
+  _key_binding[VKEY_ENTER] = {0xa, 0x200};
   _key_binding[VKEY_BACKSPACE] = {0x107};
   _key_binding[VKEY_TAB] = {'\t'};
   _key_binding[VKEY_ESCAPE] = {0x1b};
-  _key_binding[VKEY_UP] = {0x1b, 0x4f, 0x41};
-  _key_binding[VKEY_DOWN] = {0x1b, 0x4f, 0x42};
-  _key_binding[VKEY_RIGHT] = {0x1b, 0x4f, 0x43};
-  _key_binding[VKEY_LEFT] = {0x1b, 0x4f, 0x44};
-  _key_binding[VKEY_END] = {0x1b, 0x4f, 0x46};
-  _key_binding[VKEY_HOME] = {0x1b, 0x4f, 0x48};
+  _key_binding[VKEY_UP] = {0x1b, 0x5b, 0x41};
+  _key_binding[VKEY_DOWN] = {0x1b, 0x5b, 0x42};
+  _key_binding[VKEY_RIGHT] = {0x1b, 0x5b, 0x43};
+  _key_binding[VKEY_LEFT] = {0x1b, 0x5b, 0x44};
+  _key_binding[VKEY_END] = {0x1b, 0x5b, 0x46};
+  _key_binding[VKEY_HOME] = {0x1b, 0x5b, 0x48};
   _key_binding[VKEY_SHIFT_TAB] = {0x1b, 0x5b, 0x5a};
   _key_binding[VKEY_F1] = {0x1b, 0x4f, 0x50};
-  _key_binding[VKEY_F1 + 1] = {0x1b, 0x4f, 0x50};
-  _key_binding[VKEY_F1 + 2] = {0x1b, 0x4f, 0x51};
-  _key_binding[VKEY_F1 + 3] = {0x1b, 0x4f, 0x52};
-  _key_binding[VKEY_F1 + 4] = {0x1b, 0x4f, 0x53};
-  _key_binding[VKEY_F1 + 5] = {0x1b, 0x4f, 0x54};
-  _key_binding[VKEY_F1 + 6] = {0x1b, 0x4f, 0x55};
-  _key_binding[VKEY_F1 + 7] = {0x1b, 0x4f, 0x56};
-  _key_binding[VKEY_F1 + 8] = {0x1b, 0x4f, 0x57};
-  _key_binding[VKEY_F1 + 9] = {0x1b, 0x4f, 0x58};
+  _key_binding[VKEY_F1 + 1] = {0x1b, 0x4f, 0x51};
+  _key_binding[VKEY_F1 + 2] = {0x1b, 0x4f, 0x52};
+  _key_binding[VKEY_F1 + 3] = {0x1b, 0x4f, 0x53};
+  _key_binding[VKEY_F1 + 4] = {0x1b, 0x4f, 0x31, 0x35, 0x7e};
+  _key_binding[VKEY_F1 + 5] = {0x1b, 0x4f, 0x31, 0x37, 0x7e};
+  _key_binding[VKEY_F1 + 6] = {0x1b, 0x4f, 0x31, 0x38, 0x7e};
+  _key_binding[VKEY_F1 + 7] = {0x1b, 0x4f, 0x31, 0x39, 0x7e};
+  _key_binding[VKEY_F1 + 8] = {0x1b, 0x5b, 0x32, 0x30, 0x7e};
+  _key_binding[VKEY_F1 + 9] = {0x1b, 0x5b, 0x32, 0x31, 0x7e};
   _key_binding[VKEY_F1 + 10] = {0x1b, 0x4f, 0x59};
-  _key_binding[VKEY_F1 + 11] = {0x1b, 0x4f, 0x5a};
+  _key_binding[VKEY_F1 + 9] = {0x1b, 0x5b, 0x32, 0x34, 0x7e};
   _key_binding[VKEY_INSERT] = {0x1b, 0x5b, 0x32, 0x7e};
   _key_binding[VKEY_DELETE] = {0x1b, 0x5b, 0x33, 0x7e};
   _key_binding[VKEY_PAGE_UP] = {0x1b, 0x5b, 0x35, 0x7e};
@@ -58,19 +58,19 @@ void system_input::initialize() {
 }
 void system_input::uninitialize() { nodelay(stdscr, FALSE); }
 wint_t system_input::read() {
-  // std::vector<int> codes;
-  // for (;;) {
-  //   int ch = getch();
-  //   if (ch == ERR) {
-  //     break;
-  //   }
-  //   codes.push_back(ch);
-  // }
-  // if (!codes.empty()) {
-  //   return decode(codes);
-  // }
-  // return -1;
-  return getch();
+  std::vector<int> codes;
+  for (;;) {
+    int ch = getch();
+    if (ch == ERR) {
+      break;
+    }
+    codes.push_back(ch);
+  }
+  if (!codes.empty()) {
+    return decode(codes);
+  }
+  return -1;
+  // return getch();
 }
 wint_t system_input::decode(const std::vector<int> &codes) {
   for (auto &[key, vcodes] : _key_binding) {

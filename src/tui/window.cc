@@ -2,6 +2,7 @@
 #include "core/singleton.hpp"
 #include "tui/system_tui.hpp"
 #include "util/config.hpp"
+#include <cwchar>
 #include <fmt/format.h>
 using namespace duskland::tui;
 using namespace duskland;
@@ -80,12 +81,12 @@ void window::draw_border() {
   wattron(_win, _config->attr("tui.border.normal"));
   wborder_set(_win, &ls, &rs, &ts, &bs, &tl, &tr, &bl, &br);
   wattroff(_win, _config->attr("tui.border.normal"));
-  wrefresh(_win);
 }
 void window::update() {
   draw_border();
   draw_scroll();
   on_update();
+  wrefresh(_win);
 }
 
 void window::fix_rect() {
@@ -195,7 +196,6 @@ void window::write(const uint32_t &x, const uint32_t &y, const wchar_t &ch,
   wattron(_win, attr);
   mvwadd_wch(_win, yy, xx, &cch);
   wattroff(_win, attr);
-  wrefresh(_win);
 }
 void window::write(const uint32_t &x, const uint32_t &y, const char &ch,
                    const uint32_t &attr) {
@@ -230,50 +230,14 @@ void window::write(const uint32_t &x, const uint32_t &y, const char &ch,
   wattron(_win, attr);
   mvwaddch(_win, yy, xx, ch);
   wattroff(_win, attr);
-  wrefresh(_win);
 }
 void window::write(const uint32_t &x, const uint32_t &y, const wchar_t *str,
                    const uint32_t &attr) {
-  auto &rc = get_rect();
-  uint32_t _x = x;
-  uint32_t _y = y;
-  if (_border.left) {
-    _x++;
+  auto offset = 0;
+  for (auto i = 0; i < str[i] != 0; i++) {
+    write(x + offset, y, str[i], attr);
+    offset += wcwidth(str[i]);
   }
-  if (_border.top) {
-    _y++;
-  }
-  if (_x >= _content_rect.width) {
-    _content_rect.width = _x + 1;
-    fix_content_rect();
-  }
-  auto xx = _x + _content_rect.x;
-  auto yy = _y + _content_rect.y;
-  if (_border.left && xx < 1) {
-    return;
-  } else if (_border.right && xx > rc.width - 2) {
-    return;
-  } else if (xx < 0 || xx > rc.width - 1) {
-    return;
-  }
-  if (_border.top && yy < 1) {
-    return;
-  }
-  if (yy < 0 || yy > rc.height - 2) {
-    return;
-  }
-  cchar_t *cc = new cchar_t[wcslen(str) + 1];
-  for (auto i = 0; i < wcslen(str); i++) {
-    cc[i].attr = 0;
-    cc[i].chars[0] = str[i];
-    cc[i].chars[1] = 0;
-  }
-  cc[wcslen(str)].chars[0] = 0;
-  wattron(_win, attr);
-  mvwadd_wchstr(_win, yy, xx, cc);
-  wattroff(_win, attr);
-  wrefresh(_win);
-  delete[] cc;
 }
 void window::write(const uint32_t &x, const uint32_t &y, const char *str,
                    const uint32_t &attr) {
@@ -309,7 +273,6 @@ void window::write(const uint32_t &x, const uint32_t &y, const char *str,
   wattron(_win, attr);
   mvwaddstr(_win, yy, xx, str);
   wattroff(_win, attr);
-  wrefresh(_win);
 }
 void window::draw_scroll() {
   auto &rc = get_rect();
