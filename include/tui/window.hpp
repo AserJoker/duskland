@@ -39,7 +39,7 @@ public:
   void on_dective() override;
   window(const util::rect &rc, const std::string &name = "");
   ~window() override;
-  void update();
+  void render();
   void set_border(const util::border &border);
   const util::border &get_border() const;
   void set_rect(const util::rect &rc);
@@ -62,5 +62,6 @@ public:
   void set_current_pos(const int32_t &line, const int32_t &column);
   void enable_input(const int32_t &x, const int32_t &y);
   void disable_input();
+  void update();
 };
 } // namespace duskland::tui

@@ -1,13 +1,8 @@
 ﻿#include "core/singleton.hpp"
 #include "system/application.hpp"
-#include <codecvt>
-#include <iostream>
-#include <locale>
-#include <ncurses.h>
 #include <signal.h>
 using namespace duskland;
-int main(int argc, char **argv) {
-  setlocale(LC_ALL, "");
+int main(int argc, char *argv[]) {
   signal(SIGINT, SIG_IGN);
   signal(SIGQUIT, SIG_IGN);
   signal(SIGTSTP, SIG_IGN);

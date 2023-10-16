@@ -6,6 +6,10 @@ private:
   uint32_t _max_length;
   std::wstring _input;
   int _mode;
+  int _cursor;
+  void on_input(const wchar_t &ch);
+  void on_backspace();
+  wint_t decode_input(const std::vector<wint_t> &codes);
 
 public:
   widget_input(const std::string &name, const uint32_t &max_length);

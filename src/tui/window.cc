@@ -35,8 +35,7 @@ void window::refresh() {
   box(_win, 0, 0);
   set_border(border);
   fix_content_rect();
-  clear();
-  update();
+  render();
 }
 void window::set_border(const util::border &border) {
   if (!_win) {
@@ -82,11 +81,12 @@ void window::draw_border() {
   wborder_set(_win, &ls, &rs, &ts, &bs, &tl, &tr, &bl, &br);
   wattroff(_win, _config->attr("tui.border.normal"));
 }
-void window::update() {
+void window::render() {
+  clear();
   draw_border();
   draw_scroll();
   on_update();
-  wrefresh(_win);
+  update();
 }
 
 void window::fix_rect() {
@@ -142,8 +142,14 @@ void window::set_rect(const util::rect &rc) {
   fix_rect();
   refresh();
 }
-void window::on_active() { widget_base::on_active(); }
-void window::on_dective() { widget_base::on_dective(); }
+void window::on_active() {
+  widget_base::on_active();
+  render();
+}
+void window::on_dective() {
+  widget_base::on_dective();
+  render();
+}
 bool window::on_command(wint_t cmd,
                         const core::auto_release<widget_base> &emitter) {
   return widget_base::on_command(cmd, emitter);
@@ -159,7 +165,7 @@ void window::clear() {
     }
   }
   wattroff(_win, COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
-  wrefresh(_win);
+  update();
 }
 
 void window::write(const uint32_t &x, const uint32_t &y, const wchar_t &ch,
@@ -175,6 +181,10 @@ void window::write(const uint32_t &x, const uint32_t &y, const wchar_t &ch,
   }
   if (_x >= _content_rect.width) {
     _content_rect.width = _x + 1;
+    fix_content_rect();
+  }
+  if (_y >= _content_rect.height) {
+    _content_rect.height = _y + 1;
     fix_content_rect();
   }
   auto xx = _x + _content_rect.x;
@@ -276,17 +286,13 @@ void window::write(const uint32_t &x, const uint32_t &y, const char *str,
 }
 void window::draw_scroll() {
   auto &rc = get_rect();
-  if (_content_rect.width == rc.width &&
-      _content_rect.height == rc.height - 1) {
-    return;
-  }
+
   wattron(_win, _config->attr("tui.border.normal"));
 
   mvwprintw(_win, rc.height - 1, 1, "line: %d/%d column: %d/%d",
             -_content_rect.x + rc.width, _content_rect.width,
             -_content_rect.y + (rc.height - 1), _content_rect.height);
   wattroff(_win, _config->attr("tui.border.normal"));
-  wrefresh(_win);
 }
 
 void window::set_content_rect(const util::rect &content_rc) {
@@ -333,14 +339,8 @@ void window::fix_content_rect() {
   if (_content_rect.width < rc.width) {
     _content_rect.width = rc.width;
   }
-  if (!_border.bottom) {
-    if (_content_rect.y + _content_rect.height < rc.height - 1) {
-      _content_rect.y = (rc.height - 1) - (_content_rect.height);
-    }
-  } else {
-    if (_content_rect.y + _content_rect.height < rc.height - 2) {
-      _content_rect.y = (rc.height - 2) - (_content_rect.height);
-    }
+  if (-_content_rect.y + (rc.height - 1) > _content_rect.height) {
+    _content_rect.y = (rc.height - 1) - _content_rect.height;
   }
   if (_content_rect.x + _content_rect.width < rc.width) {
     _content_rect.x = (rc.width) - (_content_rect.width);
@@ -371,4 +371,8 @@ void window::enable_input(const int32_t &x, const int32_t &y) {
 void window::disable_input() {
   curs_set(0);
   noecho();
+}
+void window::update() {
+  draw_scroll();
+  wrefresh(_win);
 }

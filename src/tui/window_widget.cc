@@ -31,7 +31,7 @@ bool window_widget::on_command(wint_t cmd,
         }
       }
     }
-    update();
+    render();
   }
   return window::on_command(cmd, emitter);
 }

@@ -1,8 +1,10 @@
 ﻿#include "tui/widget_base.hpp"
+#include "core/auto_release.hpp"
 using namespace duskland::tui;
 using namespace duskland;
 widget_base::widget_base(const std::string &name)
-    : _is_active(false), _name(name), _rect({0, 0, 0, 0}), _select_index(0) {}
+    : _is_active(false), _name(name), _rect({0, 0, 0, 0}), _select_index(0) {
+}
 const util::rect &widget_base::get_rect() const { return _rect; }
 util::rect &widget_base::get_rect() { return _rect; }
 const std::string &widget_base::get_name() const { return _name; }

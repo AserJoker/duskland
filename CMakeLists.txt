@@ -7,6 +7,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 find_package(fmt REQUIRED)
 set(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
+
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/core MODULE_CORE)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/system MODULE_SYSTEM)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/tui MODULE_TUI)

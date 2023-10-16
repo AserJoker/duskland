@@ -12,6 +12,7 @@ private:
   util::rect _rect;
   int _select_index;
 
+
 public:
   virtual void on_active();
   virtual void on_dective();

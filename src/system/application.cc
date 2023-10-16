@@ -19,8 +19,7 @@ using namespace duskland;
 static int32_t fps = 0;
 class demo_window : public tui::window_widget {
 private:
-  core::auto_release<tui::widget_text> _message;
-  core::auto_release<tui::widget_input> _input;
+  core::auto_release<tui::widget_col> _col;
 
   int32_t offset;
   std::vector<wint_t> codes;
@@ -28,35 +27,38 @@ private:
 public:
   demo_window(const util::rect &rc, const std::string &name)
       : tui::window_widget(rc, name), offset(0) {
-    _message = new tui::widget_text("label", L"中文测试");
-    _input = new tui::widget_input("input", 12);
-    auto line = new tui::widget_line("layout.line");
-    line->add_widget(_message.get());
-    line->add_widget(_input.get());
-    line->add_widget(new tui::widget_text("tail", L"中文tail"));
-    get_root() = line;
-    line->next_active();
-  }
-  bool
-  on_command(wint_t cmd,
-             const core::auto_release<tui::widget_base> &emitter) override {
-    if (cmd == VKEY_BACKSPACE) {
-      codes.clear();
-    } else {
-      codes.push_back(cmd);
-    }
-    for (auto i = 0; i < codes.size(); i++) {
-      mvprintw(10 + i, 10, "0x%x", codes[i]);
-    }
-    update();
-    return tui::window_widget::on_command(cmd, emitter);
+    // _message = new tui::widget_text("label", L"中文测试");
+    // _input = new tui::widget_input("input", 12);
+    // auto line = new tui::widget_line("layout.line");
+    // line->add_widget(_message.get());
+    // line->add_widget(_input.get());
+    // line->add_widget(new tui::widget_text("tail", L"中文tail"));
+    // get_root() = line;
+    // line->next_active();
+    auto col = new tui::widget_col("col");
+    col->add_widget(new tui::widget_text("t1", L"item1"));
+    col->add_widget(new tui::widget_text("t1", L"item2"));
+    col->add_widget(new tui::widget_text("t1", L"item3"));
+    col->add_widget(new tui::widget_text("t1", L"item4"));
+    col->add_widget(new tui::widget_text("t1", L"item5"));
+    col->add_widget(new tui::widget_text("t1", L"item6"));
+    col->add_widget(new tui::widget_text("t1", L"item7"));
+    col->add_widget(new tui::widget_text("t1", L"item8"));
+    col->add_widget(new tui::widget_text("t1", L"item9"));
+    col->add_widget(new tui::widget_text("t1", L"item10"));
+    col->add_widget(new tui::widget_text("t1", L"item11"));
+    col->add_widget(new tui::widget_text("t1", L"item12"));
+    col->add_widget(new tui::widget_text("t1", L"item13"));
+    col->add_widget(new tui::widget_text("t1", L"item14"));
+    get_root() = col;
+    col->next_active();
+    _col = col;
   }
 };
 application::application() : _is_running(false) {
   _tui = core::singleton<tui::system_tui>::get();
   _layout = core::singleton<tui::layout>::get();
   _config = core::singleton<util::config>::get();
-  _input = core::singleton<system_input>::get();
 }
 application::~application() {
   clrtoeol();
@@ -67,7 +69,7 @@ int application::run() {
   try {
     _is_running = true;
     while (_is_running) {
-      auto ch = _input->read();
+      auto ch = getch();
       this->command(ch);
     }
   } catch (std::exception &e) {
@@ -75,7 +77,6 @@ int application::run() {
   }
   _layout->uninitialize();
   _tui->uninitialize();
-  _input->uninitialize();
   return 0;
 }
 void application::exit() { _is_running = false; }
@@ -84,12 +85,14 @@ void application::initialize(int argc, char *argv[]) {
   for (auto index = 0; index < argc; index++) {
     _args.push_back(argv[index]);
   }
+  setlocale(LC_ALL, "");
   initscr();
   start_color();
-  noecho();
-  _input->initialize();
+  raw();
   cbreak();
+  noecho();
   keypad(stdscr, TRUE);
+  nodelay(stdscr, TRUE);
   set_escdelay(1);
   this->clear();
   this->set_cursor_style(CUR_INVISIBLE);
@@ -105,9 +108,9 @@ void application::initialize(int argc, char *argv[]) {
   _config->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
   _config->attr("tui.input.cursor", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
 
-  _config->keymap("key.next", VKEY_TAB);
-  _config->keymap("key.last", KEY_STAB);
-  _config->keymap("key.select", VKEY_ENTER);
+  _config->keymap("key.next", '\t');
+  _config->keymap("key.last", KEY_BTAB);
+  _config->keymap("key.select", '\n');
   _config->keymap("key.quit", 'q');
   _config->style("style.border.ls", L'│');
   _config->style("style.border.rs", L'│');
@@ -125,7 +128,7 @@ void application::initialize(int argc, char *argv[]) {
 
   _tui->initialize();
   auto win = new demo_window({0, 0, 0, 0}, "root window");
-  win->set_border({true, true, true, true});
+  // win->set_border({false, false, false, false});
   _layout->initialize(win);
 }
 const std::vector<std::string> &application::argv() const { return _args; }
@@ -137,7 +140,8 @@ void application::command(wint_t cmd) {
   } else if (cmd == _config->keymap("key.quit")) {
     exit();
   } else if (cmd == KEY_RESIZE) {
-
+    this->set_cursor_style(CUR_INVISIBLE);
+    refresh();
     if (_layout->relayout()) {
       _tui->refresh();
     }
