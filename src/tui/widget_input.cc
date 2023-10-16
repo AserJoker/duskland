@@ -120,15 +120,15 @@ void widget_input::render(const core::auto_release<window> &win,
     renderstr += L'_';
   }
   win->write(pos.x + 1, pos.y, renderstr.c_str(),
-             is_active() ? _config->attr("tui.input.focus")
-                         : _config->attr("tui.input.normal"));
+             is_active() ? _injector->attr("tui.input.focus")
+                         : _injector->attr("tui.input.normal"));
   if (_mode) {
     auto offset = 0;
     for (auto i = 0; i < _cursor; i++) {
       offset += wcwidth(renderstr[i]);
     }
     win->write(pos.x + 1 + offset, pos.y, renderstr[_cursor],
-               _config->attr("tui.input.cursor"));
+               _injector->attr("tui.input.cursor"));
   }
 }
 wint_t widget_input::decode_input(const std::vector<wint_t> &codes) {

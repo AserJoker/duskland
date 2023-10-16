@@ -1,7 +1,7 @@
 ﻿#include "tui/window.hpp"
 #include "core/singleton.hpp"
 #include "tui/system_tui.hpp"
-#include "util/config.hpp"
+#include "util/injector.hpp"
 #include <cwchar>
 #include <fmt/format.h>
 using namespace duskland::tui;
@@ -10,7 +10,7 @@ window::window(const util::rect &rc, const std::string &name)
     : _border({false, false, false, false}), widget_base(name),
       _current_line(0), _current_column(0) {
   _tui = core::singleton<system_tui>::get();
-  _config = core::singleton<util::config>::get();
+  _injector = core::singleton<util::injector>::get();
   auto &_rc = get_rect();
   get_rect() = rc;
   fix_rect();
@@ -54,32 +54,32 @@ void window::draw_border() {
   cchar_t bl = {0, {L' ', 0}};
   cchar_t br = {0, {L' ', 0}};
   if (_border.left) {
-    ls.chars[0] = _config->style("style.border.ls");
+    ls.chars[0] = _injector->style("style.border.ls");
   }
   if (_border.right) {
-    rs.chars[0] = _config->style("style.border.rs");
+    rs.chars[0] = _injector->style("style.border.rs");
   }
   if (_border.top) {
-    ts.chars[0] = _config->style("style.border.ts");
+    ts.chars[0] = _injector->style("style.border.ts");
   }
   if (_border.bottom) {
-    bs.chars[0] = _config->style("style.border.bs");
+    bs.chars[0] = _injector->style("style.border.bs");
   }
   if (_border.left && _border.top) {
-    tl.chars[0] = _config->style("style.border.tl");
+    tl.chars[0] = _injector->style("style.border.tl");
   }
   if (_border.top && _border.right) {
-    tr.chars[0] = _config->style("style.border.tr");
+    tr.chars[0] = _injector->style("style.border.tr");
   }
   if (_border.bottom && _border.left) {
-    bl.chars[0] = _config->style("style.border.bl");
+    bl.chars[0] = _injector->style("style.border.bl");
   }
   if (_border.bottom && _border.right) {
-    br.chars[0] = _config->style("style.border.br");
+    br.chars[0] = _injector->style("style.border.br");
   }
-  wattron(_win, _config->attr("tui.border.normal"));
+  wattron(_win, _injector->attr("tui.border.normal"));
   wborder_set(_win, &ls, &rs, &ts, &bs, &tl, &tr, &bl, &br);
-  wattroff(_win, _config->attr("tui.border.normal"));
+  wattroff(_win, _injector->attr("tui.border.normal"));
 }
 void window::render() {
   clear();
@@ -287,12 +287,12 @@ void window::write(const uint32_t &x, const uint32_t &y, const char *str,
 void window::draw_scroll() {
   auto &rc = get_rect();
 
-  wattron(_win, _config->attr("tui.border.normal"));
+  wattron(_win, _injector->attr("tui.border.normal"));
 
   mvwprintw(_win, rc.height - 1, 1, "line: %d/%d column: %d/%d",
             -_content_rect.x + rc.width, _content_rect.width,
             -_content_rect.y + (rc.height - 1), _content_rect.height);
-  wattroff(_win, _config->attr("tui.border.normal"));
+  wattroff(_win, _injector->attr("tui.border.normal"));
 }
 
 void window::set_content_rect(const util::rect &content_rc) {

@@ -65,14 +65,14 @@ bool widget_container::on_command(
       return true;
     }
   }
-  if (cmd == _config->keymap("key.next")) {
+  if (cmd == _injector->keymap("key.next")) {
     next_active();
     if (!_active_widget) {
       return false;
     }
     return true;
   }
-  if (cmd == _config->keymap("key.select")) {
+  if (cmd == _injector->keymap("key.select")) {
     return false;
   }
   return widget::on_command(cmd, emitter);

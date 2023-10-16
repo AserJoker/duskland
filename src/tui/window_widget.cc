@@ -25,7 +25,7 @@ bool window_widget::on_command(wint_t cmd,
   if (_root != nullptr) {
     auto res = _root->on_command(cmd, this);
     if (!res) {
-      if (cmd == _config->keymap("key.next")) {
+      if (cmd == _injector->keymap("key.next")) {
         if (_root->get_select_index() != -1) {
           _root->on_active();
         }

@@ -1,5 +1,5 @@
 ﻿#include "tui/system_tui.hpp"
-#include "util/config.hpp"
+#include "util/injector.hpp"
 using namespace duskland::tui;
 using namespace duskland;
 void system_tui::initialize() {}

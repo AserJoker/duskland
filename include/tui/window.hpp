@@ -2,7 +2,7 @@
 #include "core/auto_release.hpp"
 #include "core/object.hpp"
 #include "util/border.hpp"
-#include "util/config.hpp"
+#include "util/injector.hpp"
 #include "util/rect.hpp"
 #include "util/size.hpp"
 #include "widget_base.hpp"
@@ -27,7 +27,7 @@ private:
 
 protected:
   core::auto_release<system_tui> _tui;
-  core::auto_release<util::config> _config;
+  core::auto_release<util::injector> _injector;
   void draw_border();
   void draw_scroll();
 

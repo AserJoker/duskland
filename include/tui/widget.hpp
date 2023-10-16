@@ -6,7 +6,7 @@
 namespace duskland::tui {
 class widget : public widget_base {
 protected:
-  core::auto_release<util::config> _config;
+  core::auto_release<util::injector> _injector;
   core::auto_release<system_tui> _tui;
 
 public:

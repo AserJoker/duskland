@@ -4,7 +4,7 @@
 using namespace duskland::tui;
 using namespace duskland;
 widget::widget(const std::string &name) : widget_base(name) {
-  _config = core::singleton<util::config>::get();
+  _injector = core::singleton<util::injector>::get();
   _tui = core::singleton<system_tui>::get();
 }
 void widget::render(const core::auto_release<window> &win,
@@ -12,7 +12,7 @@ void widget::render(const core::auto_release<window> &win,
 
 bool widget::on_command(wint_t cmd,
                         const core::auto_release<widget_base> &emitter) {
-  if (cmd == _config->keymap("key.select")) {
+  if (cmd == _injector->keymap("key.select")) {
     if (emitter != nullptr) {
       emitter->on_command(EVENT_SELECT, this);
       return true;

@@ -43,8 +43,8 @@ void widget_text::render(const core::auto_release<window> &win,
   auto y = 0;
   for (auto &str : _text) {
     win->write(pos.x, pos.y + y, str.c_str(),
-               is_active() ? _config->attr("tui.text.focus")
-                           : _config->attr("tui.text.normal"));
+               is_active() ? _injector->attr("tui.text.focus")
+                           : _injector->attr("tui.text.normal"));
     y++;
   }
 }
