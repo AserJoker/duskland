@@ -45,22 +45,22 @@ public:
   void set_border_info(const util::border_info &info);
 
   void draw(const int32_t &x, const int32_t &y, const wchar_t &ch,
-            const int16_t &attr);
+            const chtype &attr);
   void draw(const int32_t &x, const int32_t &y, const char &ch,
-            const int16_t &attr);
+            const chtype &attr);
   void draw(const int32_t &x, const int32_t &y, const std::wstring &str,
-            const int16_t &attr);
+            const chtype &attr);
   void draw(const int32_t &x, const int32_t &y, const std::string &str,
-            const int16_t &attr);
+            const chtype &attr);
 
   void draw_absolute(const int32_t &x, const int32_t &y, const wchar_t &ch,
-                     const int16_t &attr);
+                     const chtype &attr);
   void draw_absolute(const int32_t &x, const int32_t &y, const char &ch,
-                     const int16_t &attr);
+                     const chtype &attr);
   void draw_absolute(const int32_t &x, const int32_t &y,
-                     const std::wstring &str, const int16_t &attr);
+                     const std::wstring &str, const chtype &attr);
   void draw_absolute(const int32_t &x, const int32_t &y, const std::string &str,
-                     const int16_t &attr);
+                     const chtype &attr);
   const std::string &get_name() const;
   const util::rect &get_rect() const;
   const util::rect &get_content_rect() const;

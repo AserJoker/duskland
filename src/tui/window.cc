@@ -27,6 +27,7 @@ void window::set_content_rect(const util::rect &content_rect) {
 
 void window::initialize(const util::rect &rect) {
   _rect = rect;
+  set_border_info({true, true, true, true});
   set_content_rect(get_bound_rect());
   _win = newwin(rect.height, rect.width, rect.y, rect.x);
   on_initialize();
@@ -102,7 +103,7 @@ void window::resize(const int32_t &dw, const int32_t &dh) {
   resize_to(_rect.width + dw, _rect.height + dh);
 }
 void window::draw(const int32_t &x, const int32_t &y, const wchar_t &ch,
-                  const int16_t &attr) {
+                  const chtype &attr) {
   auto xx = x + _content_rect.x;
   auto yy = y + _content_rect.y;
   auto rc = get_bound_rect();
@@ -117,7 +118,7 @@ void window::draw(const int32_t &x, const int32_t &y, const wchar_t &ch,
   wattroff(_win, attr);
 }
 void window::draw(const int32_t &x, const int32_t &y, const char &ch,
-                  const int16_t &attr) {
+                  const chtype &attr) {
   auto xx = x + _content_rect.x;
   auto yy = y + _content_rect.y;
   auto rc = get_bound_rect();
@@ -131,7 +132,7 @@ void window::draw(const int32_t &x, const int32_t &y, const char &ch,
   wattroff(_win, attr);
 }
 void window::draw(const int32_t &x, const int32_t &y, const std::wstring &str,
-                  const int16_t &attr) {
+                  const chtype &attr) {
   auto offset = 0;
   for (auto c : str) {
     draw(x + offset, y, c, attr);
@@ -139,7 +140,7 @@ void window::draw(const int32_t &x, const int32_t &y, const std::wstring &str,
   }
 }
 void window::draw(const int32_t &x, const int32_t &y, const std::string &str,
-                  const int16_t &attr) {
+                  const chtype &attr) {
   auto offset = 0;
   for (auto c : str) {
     draw(x + offset, y, c, attr);
@@ -148,20 +149,20 @@ void window::draw(const int32_t &x, const int32_t &y, const std::string &str,
 }
 
 void window::draw_absolute(const int32_t &x, const int32_t &y,
-                           const wchar_t &ch, const int16_t &attr) {
+                           const wchar_t &ch, const chtype &attr) {
   cchar_t cc = {0, {ch, 0}};
   wattron(_win, attr);
   mvwadd_wch(_win, y, x, &cc);
   wattroff(_win, attr);
 }
 void window::draw_absolute(const int32_t &x, const int32_t &y, const char &ch,
-                           const int16_t &attr) {
+                           const chtype &attr) {
   wattron(_win, attr);
   mvwaddch(_win, y, x, ch);
   wattroff(_win, attr);
 }
 void window::draw_absolute(const int32_t &x, const int32_t &y,
-                           const std::wstring &str, const int16_t &attr) {
+                           const std::wstring &str, const chtype &attr) {
   auto offset = 0;
   for (auto c : str) {
     draw_absolute(x + offset, y, c, attr);
@@ -169,7 +170,7 @@ void window::draw_absolute(const int32_t &x, const int32_t &y,
   }
 }
 void window::draw_absolute(const int32_t &x, const int32_t &y,
-                           const std::string &str, const int16_t &attr) {
+                           const std::string &str, const chtype &attr) {
   auto offset = 0;
   for (auto c : str) {
     draw_absolute(x + offset, y, c, attr);
@@ -213,7 +214,7 @@ void window::draw_scroll() {
                             -_content_rect.y + rc.height, _content_rect.height,
                             -_content_rect.x + rc.width, _content_rect.width);
   draw_absolute(1, _rect.height - 1, scroll,
-                COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
+                _injector->attr("tui.scroll.normal"));
 }
 void window::on_render() {}
 util::rect window::get_bound_rect() {
@@ -363,6 +364,7 @@ void window::set_border_info(const util::border_info &info) {
   br.top = info.right;
   tui->set_access_node(_rect.x + _rect.width - 1, _rect.y + _rect.height - 1,
                        br);
+  fix_content_rect();
 }
 void window::set_current_pos(const int32_t &x, const int32_t &y) {
   auto &crt = get_content_rect();

@@ -1,4 +1,7 @@
 ﻿#include "system/application.hpp"
+#include "tui/widget_col.hpp"
+#include "tui/widget_text.hpp"
+#include "tui/window_widget.hpp"
 #include "util/event.hpp"
 #include <chrono>
 #include <codecvt>
@@ -10,10 +13,35 @@
 #include <thread>
 using namespace duskland::system;
 using namespace duskland;
+class window_demo : public tui::window_widget {
+public:
+  void on_initialize() override {
+    tui::window_widget::on_initialize();
+    auto col1 = new tui::widget_col(get_name() + ".col");
+    for (int i = 0; i < 5; i++) {
+      auto text = new tui::widget_text(fmt::format("text.{}", i),
+                                       fmt::format(L"item{}", i));
+      col1->add_widget(text);
+    }
+    auto col2 = new tui::widget_col(get_name() + ".col2");
+    for (int i = 0; i < 5; i++) {
+      auto text = new tui::widget_text(fmt::format("text.{}", i),
+                                       fmt::format(L"item{}", i));
+      col2->add_widget(text);
+    }
+    auto col = new tui::widget_col(get_name() + ".col3");
+    col->add_widget(col1);
+    col->add_widget(col2);
+    get_root() = col;
+    col->next_active();
+    render();
+  }
+  window_demo() : tui::window_widget("demo window") {}
+};
 application::application() : _is_running(false) {
   _injector = core::singleton<util::injector>::get();
   _wm = core::singleton<tui::system_wm>::get();
-  _win = new tui::window("demo window");
+  _win = new window_demo();
 }
 application::~application() {
   clrtoeol();
@@ -54,9 +82,9 @@ void application::initialize(int argc, char *argv[]) {
     _injector->args().push_back(argv[index]);
   }
   _injector->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
-  _injector->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK,
-                  WA_NORMAL | WA_DIM);
-  _injector->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK);
+  _injector->attr("tui.scroll.normal", COLOR_BLUE, COLOR_BLACK);
+  _injector->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK, WA_DIM);
+  _injector->attr("tui.text.focus", COLOR_RED, COLOR_BLACK);
   _injector->attr("tui.input.normal", COLOR_WHITE, COLOR_BLACK,
                   WA_NORMAL | WA_DIM);
   _injector->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
