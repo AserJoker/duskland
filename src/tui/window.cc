@@ -1,378 +1,376 @@
 ﻿#include "tui/window.hpp"
 #include "core/singleton.hpp"
-#include "tui/system_tui.hpp"
-#include "util/injector.hpp"
-#include <cwchar>
+#include "tui/system_wm.hpp"
 #include <fmt/format.h>
+#include <fmt/xchar.h>
+#include <ncurses.h>
 using namespace duskland::tui;
 using namespace duskland;
-window::window(const util::rect &rc, const std::string &name)
-    : _border({false, false, false, false}), widget_base(name),
-      _current_line(0), _current_column(0) {
-  _tui = core::singleton<system_tui>::get();
+window::window(const std::string &name)
+    : _win(nullptr), _rect({0, 0, 0, 0}), _content_rect({0, 0, 0, 0}),
+      _is_active(false), _name(name), _border({false, false, false, false}) {
+  auto tui = core::singleton<tui::system_wm>::get();
+  auto &windows = tui->get_windows();
+  windows.push_back(this);
   _injector = core::singleton<util::injector>::get();
-  auto &_rc = get_rect();
-  get_rect() = rc;
-  fix_rect();
-  _win = newwin(rc.height, rc.width, rc.y, rc.x);
-  box(_win, 0, 0);
-  set_border({true, true, true, true});
-  _tui->add_window(this);
-  _content_rect = {0, 0, _rc.width, _rc.height - 1};
 }
-window::~window() {
-  set_border({false, false, false, false});
-  _tui->remove_window(this);
-  delwin(_win);
-  _win = nullptr;
-}
-void window::refresh() {
-  util::border border = _border;
-  auto rc = get_rect();
-  set_border({false, false, false, false});
-  delwin(_win);
-  _win = newwin(rc.height, rc.width, rc.y, rc.x);
-  box(_win, 0, 0);
-  set_border(border);
+window::~window() {}
+
+util::rect &window::get_rect() { return _rect; }
+const util::rect &window::get_rect() const { return _rect; }
+const std::string &window::get_name() const { return _name; }
+const util::rect &window::get_content_rect() const { return _content_rect; }
+void window::set_content_rect(const util::rect &content_rect) {
+  _content_rect = content_rect;
   fix_content_rect();
-  render();
-}
-void window::set_border(const util::border &border) {
-  if (!_win) {
-    return;
-  }
-  _border = border;
-}
-const util::border &window::get_border() const { return _border; }
-void window::draw_border() {
-  cchar_t ls = {0, {L' ', 0}};
-  cchar_t rs = {0, {L' ', 0}};
-  cchar_t ts = {0, {L' ', 0}};
-  cchar_t bs = {0, {L' ', 0}};
-  cchar_t tl = {0, {L' ', 0}};
-  cchar_t tr = {0, {L' ', 0}};
-  cchar_t bl = {0, {L' ', 0}};
-  cchar_t br = {0, {L' ', 0}};
-  if (_border.left) {
-    ls.chars[0] = _injector->style("style.border.ls");
-  }
-  if (_border.right) {
-    rs.chars[0] = _injector->style("style.border.rs");
-  }
-  if (_border.top) {
-    ts.chars[0] = _injector->style("style.border.ts");
-  }
-  if (_border.bottom) {
-    bs.chars[0] = _injector->style("style.border.bs");
-  }
-  if (_border.left && _border.top) {
-    tl.chars[0] = _injector->style("style.border.tl");
-  }
-  if (_border.top && _border.right) {
-    tr.chars[0] = _injector->style("style.border.tr");
-  }
-  if (_border.bottom && _border.left) {
-    bl.chars[0] = _injector->style("style.border.bl");
-  }
-  if (_border.bottom && _border.right) {
-    br.chars[0] = _injector->style("style.border.br");
-  }
-  wattron(_win, _injector->attr("tui.border.normal"));
-  wborder_set(_win, &ls, &rs, &ts, &bs, &tl, &tr, &bl, &br);
-  wattroff(_win, _injector->attr("tui.border.normal"));
-}
-void window::render() {
-  clear();
-  draw_border();
-  draw_scroll();
-  on_update();
-  update();
 }
 
-void window::fix_rect() {
-  auto &_rect = get_rect();
-  if (_rect.x < 0) {
-    _rect.x = 0;
+void window::initialize(const util::rect &rect) {
+  _rect = rect;
+  set_content_rect(get_bound_rect());
+  _win = newwin(rect.height, rect.width, rect.y, rect.x);
+  on_initialize();
+}
+void window::dispose() {
+  on_dispose();
+  auto tui = core::singleton<tui::system_wm>::get();
+  if (tui->get_active_window() == this) {
+    tui->set_active_window(nullptr);
   }
-  if (_rect.y < 0) {
-    _rect.y = 0;
+  auto &windows = tui->get_windows();
+  std::erase(windows, this);
+  if (!windows.empty()) {
+    tui->set_active_window(*windows.begin());
   }
+  delwin(_win);
+  _win = nullptr;
+  tui->refresh();
+}
+void window::render() {
+  if (_win) {
+    clear();
+    refresh();
+    draw_border();
+    refresh();
+    on_render();
+  }
+}
+void window::clear() {
+  for (auto y = 0; y < _rect.height; y++) {
+    for (auto x = 0; x < _rect.width; x++) {
+      mvwaddch(_win, y, x, ' ');
+    }
+  }
+  refresh();
+}
+void window::refresh() { wrefresh(_win); }
+void window::active() {
+  auto tui = core::singleton<tui::system_wm>::get();
+  tui->set_active_window(this);
+}
+
+bool window::is_active() { return _is_active; }
+
+void window::move_to(const int32_t &x, const int32_t &y) {
+  _rect.x = x;
+  _rect.y = y;
+  delwin(_win);
+  _win = newwin(_rect.height, _rect.width, _rect.y, _rect.x);
+  auto tui = core::singleton<tui::system_wm>::get();
+  tui->refresh();
+}
+void window::resize_to(const uint32_t &width, const uint32_t &height) {
+  _rect.width = width;
+  _rect.height = height;
   if (_rect.width < 10) {
-    _rect.width = 10;
+    _rect.width = 15;
   }
   if (_rect.height < 3) {
     _rect.height = 3;
   }
   fix_content_rect();
+  delwin(_win);
+  _win = newwin(_rect.height, _rect.width, _rect.y, _rect.x);
+  auto tui = core::singleton<tui::system_wm>::get();
+  tui->refresh();
+  on_resize();
 }
-
-void window::resize(int32_t dw, int32_t dh) {
-  if (dw != 0 || dh != 0) {
-    auto &_rect = get_rect();
-    if (_rect.x + _rect.width + dw <= getmaxx(stdscr)) {
-      _rect.width += dw;
-    }
-    if (_rect.y + _rect.height + dh <= getmaxy(stdscr)) {
-      _rect.height += dh;
-    }
-    fix_rect();
-    refresh();
-  }
+void window::move(const int32_t &dx, const int32_t &dy) {
+  move_to(_rect.x + dx, _rect.y + dy);
 }
-void window::move(int32_t dx, int32_t dy) {
-  if (dx != 0 || dy != 0) {
-    auto &_rect = get_rect();
-    if (_rect.x + _rect.width + dx <= getmaxx(stdscr)) {
-      _rect.x += dx;
-    }
-    if (_rect.y + _rect.height + dy <= getmaxy(stdscr)) {
-      _rect.y += dy;
-    }
-    fix_rect();
-    refresh();
-  }
+void window::resize(const int32_t &dw, const int32_t &dh) {
+  resize_to(_rect.width + dw, _rect.height + dh);
 }
-void window::set_rect(const util::rect &rc) {
-  auto &_rect = get_rect();
-  if (rc.x == _rect.x && rc.y == _rect.y && rc.width == _rect.width &&
-      rc.height == _rect.height) {
+void window::draw(const int32_t &x, const int32_t &y, const wchar_t &ch,
+                  const int16_t &attr) {
+  auto xx = x + _content_rect.x;
+  auto yy = y + _content_rect.y;
+  auto rc = get_bound_rect();
+  if (yy < 0 || xx < 0 || xx >= rc.width || yy >= rc.height) {
     return;
   }
-  _rect = rc;
-  fix_rect();
-  refresh();
-}
-void window::on_active() {
-  widget_base::on_active();
-  render();
-}
-void window::on_dective() {
-  widget_base::on_dective();
-  render();
-}
-bool window::on_command(wint_t cmd,
-                        const core::auto_release<widget_base> &emitter) {
-  return widget_base::on_command(cmd, emitter);
-}
-void window::on_update() {}
-void window::active() { _tui->set_active_window(this); }
-void window::clear() {
-  wattron(_win, COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
-  auto &_rect = get_rect();
-  for (int x = 0; x < _rect.width; x++) {
-    for (int y = 0; y < _rect.height; y++) {
-      mvwaddch(_win, y, x, ' ');
-    }
-  }
-  wattroff(_win, COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
-  update();
-}
-
-void window::write(const uint32_t &x, const uint32_t &y, const wchar_t &ch,
-                   const uint32_t &attr) {
-  auto &rc = get_rect();
-  uint32_t _x = x;
-  uint32_t _y = y;
-  if (_border.left) {
-    _x++;
-  }
-  if (_border.top) {
-    _y++;
-  }
-  if (_x >= _content_rect.width) {
-    _content_rect.width = _x + 1;
-    fix_content_rect();
-  }
-  if (_y >= _content_rect.height) {
-    _content_rect.height = _y + 1;
-    fix_content_rect();
-  }
-  auto xx = _x + _content_rect.x;
-  auto yy = _y + _content_rect.y;
-  if (_border.left && xx < 1) {
-    return;
-  } else if (_border.right && xx > rc.width - 2) {
-    return;
-  } else if (xx < 0 || xx > rc.width - 1) {
-    return;
-  }
-  if (_border.top && yy < 1) {
-    return;
-  }
-  if (yy < 0 || yy > rc.height - 2) {
-    return;
-  }
-  cchar_t cch = {0, {ch, 0}};
+  xx += rc.x;
+  yy += rc.y;
+  cchar_t cc = {0, {ch, 0}};
   wattron(_win, attr);
-  mvwadd_wch(_win, yy, xx, &cch);
+  mvwadd_wch(_win, yy, xx, &cc);
   wattroff(_win, attr);
 }
-void window::write(const uint32_t &x, const uint32_t &y, const char &ch,
-                   const uint32_t &attr) {
-  auto &rc = get_rect();
-  uint32_t _x = x;
-  uint32_t _y = y;
-  if (_border.left) {
-    _x++;
-  }
-  if (_border.top) {
-    _y++;
-  }
-  if (_x >= _content_rect.width) {
-    _content_rect.width = _x + 1;
-    fix_content_rect();
-  }
-  auto xx = _x + _content_rect.x;
-  auto yy = _y + _content_rect.y;
-  if (_border.left && xx < 1) {
-    return;
-  } else if (_border.right && xx > rc.width - 2) {
-    return;
-  } else if (xx < 0 || xx > rc.width - 1) {
+void window::draw(const int32_t &x, const int32_t &y, const char &ch,
+                  const int16_t &attr) {
+  auto xx = x + _content_rect.x;
+  auto yy = y + _content_rect.y;
+  auto rc = get_bound_rect();
+  if (yy < 0 || xx < 0 || xx >= rc.width || yy >= rc.height) {
     return;
   }
-  if (_border.top && yy < 1) {
-    return;
-  }
-  if (yy < 0 || yy > rc.height - 2) {
-    return;
-  }
+  xx += rc.x;
+  yy += rc.y;
   wattron(_win, attr);
   mvwaddch(_win, yy, xx, ch);
   wattroff(_win, attr);
 }
-void window::write(const uint32_t &x, const uint32_t &y, const wchar_t *str,
-                   const uint32_t &attr) {
+void window::draw(const int32_t &x, const int32_t &y, const std::wstring &str,
+                  const int16_t &attr) {
   auto offset = 0;
-  for (auto i = 0; i < str[i] != 0; i++) {
-    write(x + offset, y, str[i], attr);
-    offset += wcwidth(str[i]);
+  for (auto c : str) {
+    draw(x + offset, y, c, attr);
+    offset += wcwidth(c);
   }
 }
-void window::write(const uint32_t &x, const uint32_t &y, const char *str,
-                   const uint32_t &attr) {
-  auto &rc = get_rect();
-  uint32_t _x = x;
-  uint32_t _y = y;
-  if (_border.left) {
-    _x++;
+void window::draw(const int32_t &x, const int32_t &y, const std::string &str,
+                  const int16_t &attr) {
+  auto offset = 0;
+  for (auto c : str) {
+    draw(x + offset, y, c, attr);
+    offset++;
   }
-  if (_border.top) {
-    _y++;
-  }
-  if (_x >= _content_rect.width) {
-    _content_rect.width = _x + 1;
-    fix_content_rect();
-  }
-  auto xx = _x + _content_rect.x;
-  auto yy = _y + _content_rect.y;
-  if (_border.left && xx < 1) {
-    return;
-  } else if (_border.right && xx > rc.width - 2) {
-    return;
-  } else if (xx < 0 || xx > rc.width - 1) {
-    return;
-  }
-  if (_border.top && yy < 1) {
-    return;
-  }
-  if (yy < 0 || yy > rc.height - 2) {
-    return;
-  }
+}
 
+void window::draw_absolute(const int32_t &x, const int32_t &y,
+                           const wchar_t &ch, const int16_t &attr) {
+  cchar_t cc = {0, {ch, 0}};
   wattron(_win, attr);
-  mvwaddstr(_win, yy, xx, str);
+  mvwadd_wch(_win, y, x, &cc);
   wattroff(_win, attr);
 }
-void window::draw_scroll() {
-  auto &rc = get_rect();
-
-  wattron(_win, _injector->attr("tui.border.normal"));
-
-  mvwprintw(_win, rc.height - 1, 1, "line: %d/%d column: %d/%d",
-            -_content_rect.x + rc.width, _content_rect.width,
-            -_content_rect.y + (rc.height - 1), _content_rect.height);
-  wattroff(_win, _injector->attr("tui.border.normal"));
+void window::draw_absolute(const int32_t &x, const int32_t &y, const char &ch,
+                           const int16_t &attr) {
+  wattron(_win, attr);
+  mvwaddch(_win, y, x, ch);
+  wattroff(_win, attr);
 }
-
-void window::set_content_rect(const util::rect &content_rc) {
-  if (_content_rect.x != content_rc.x || _content_rect.y != content_rc.y ||
-      _content_rect.width != content_rc.width ||
-      _content_rect.height != content_rc.height) {
-    _content_rect = content_rc;
-    fix_content_rect();
+void window::draw_absolute(const int32_t &x, const int32_t &y,
+                           const std::wstring &str, const int16_t &attr) {
+  auto offset = 0;
+  for (auto c : str) {
+    draw_absolute(x + offset, y, c, attr);
+    offset += wcwidth(c);
   }
 }
-
-const util::rect &window::get_content_rect() const { return _content_rect; }
-void window::move_content(const int32_t &dx, const int32_t &dy) {
-  auto &rc = get_rect();
-  _content_rect.x += dx;
-  _content_rect.y += dy;
-  fix_content_rect();
-}
-void window::set_current_pos(const int32_t &line, const int32_t &column) {
-  auto &rc = get_rect();
-  _current_line = line;
-  _current_column = column;
-  if (_current_column < 0) {
-    _current_column = 0;
+void window::draw_absolute(const int32_t &x, const int32_t &y,
+                           const std::string &str, const int16_t &attr) {
+  auto offset = 0;
+  for (auto c : str) {
+    draw_absolute(x + offset, y, c, attr);
+    offset++;
   }
-  if (_current_column >= _content_rect.width) {
-    _current_column = _content_rect.width - 1;
-  }
-  if (_current_line < 0) {
-    _current_line = 0;
-  }
-  if (_current_line >= _content_rect.height) {
-    _current_line = _content_rect.height - 1;
-  }
-  _content_rect.y = (rc.height - 1) / 2 - _current_line;
-  _content_rect.x = (rc.width) / 2 - _current_column;
-  fix_content_rect();
 }
 void window::fix_content_rect() {
-  auto &rc = get_rect();
-  if (_content_rect.height < rc.height - 1) {
-    _content_rect.height = rc.height - 1;
-  }
-  if (_content_rect.width < rc.width) {
-    _content_rect.width = rc.width;
-  }
-  if (-_content_rect.y + (rc.height - 1) > _content_rect.height) {
-    _content_rect.y = (rc.height - 1) - _content_rect.height;
-  }
-  if (_content_rect.x + _content_rect.width < rc.width) {
-    _content_rect.x = (rc.width) - (_content_rect.width);
-  }
+  auto rc = get_bound_rect();
   if (_content_rect.x > 0) {
     _content_rect.x = 0;
   }
   if (_content_rect.y > 0) {
     _content_rect.y = 0;
   }
+  if (_content_rect.height < rc.height) {
+    _content_rect.height = rc.height;
+  }
+  if (_content_rect.width < rc.width) {
+    _content_rect.width = rc.width;
+  }
+  if (rc.height - _content_rect.y > _content_rect.height) {
+    _content_rect.y = rc.height - _content_rect.height;
+  }
+  if (rc.width - _content_rect.x > _content_rect.width) {
+    _content_rect.x = rc.width - _content_rect.width;
+  }
 }
 
-void window::enable_input(const int32_t &x, const int32_t &y) {
-  uint32_t _x = x;
-  uint32_t _y = y;
+void window::on_dective() { _is_active = false; }
+void window::on_active() { _is_active = true; }
+bool window::on_command(const wint_t &cmd) {
+  if (cmd == KEY_RESIZE) {
+    on_resize();
+    return true;
+  }
+  return false;
+}
+void window::draw_scroll() {
+  auto rc = get_bound_rect();
+  auto scroll = fmt::format(L"line: {}/{} columns: {}/{}",
+                            -_content_rect.y + rc.height, _content_rect.height,
+                            -_content_rect.x + rc.width, _content_rect.width);
+  draw_absolute(1, _rect.height - 1, scroll,
+                COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
+}
+void window::on_render() {}
+util::rect window::get_bound_rect() {
+  auto rc = get_rect();
+  rc.height--;
   if (_border.left) {
-    _x++;
+    rc.x++;
+    rc.width--;
+  }
+  if (_border.right) {
+    rc.width--;
   }
   if (_border.top) {
-    _y++;
+    rc.y++;
+    rc.height--;
   }
-  auto xx = _x + _content_rect.x;
-  auto yy = _y + _content_rect.y;
-  wmove(stdscr, yy, xx);
-  curs_set(1);
-  echo();
+  return rc;
 }
-void window::disable_input() {
-  curs_set(0);
-  noecho();
+void window::draw_border_node(const int32_t &x, const int32_t &y) {
+  if (x == 0 && y == 0) {
+    if (_border.top && _border.left) {
+      draw_absolute(x, y, _injector->style("style.border.rb"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (_border.top && !_border.left) {
+      draw_absolute(x, y, _injector->style("style.border.ts"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (!_border.top && _border.left) {
+      draw_absolute(x, y, _injector->style("style.border.ls"),
+                    _injector->attr("tui.border.normal"));
+    }
+    return;
+  }
+  if (x == 0 && y == _rect.height - 1) {
+    if (_border.bottom && _border.left) {
+      draw_absolute(x, y, _injector->style("style.border.tr"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (_border.bottom && !_border.left) {
+      draw_absolute(x, y, _injector->style("style.border.bs"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (!_border.bottom && _border.left) {
+      draw_absolute(x, y, _injector->style("style.border.ls"),
+                    _injector->attr("tui.border.normal"));
+    }
+    return;
+  }
+  if (x == _rect.width - 1 && y == 0) {
+    if (_border.top && _border.right) {
+      draw_absolute(x, y, _injector->style("style.border.lb"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (_border.top && !_border.right) {
+      draw_absolute(x, y, _injector->style("style.border.ts"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (!_border.top && _border.right) {
+      draw_absolute(x, y, _injector->style("style.border.rs"),
+                    _injector->attr("tui.border.normal"));
+    }
+    return;
+  }
+  if (x == _rect.width - 1 && y == _rect.height - 1) {
+    if (_border.bottom && _border.right) {
+      draw_absolute(x, y, _injector->style("style.border.tl"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (_border.bottom && !_border.right) {
+      draw_absolute(x, y, _injector->style("style.border.bs"),
+                    _injector->attr("tui.border.normal"));
+    }
+    if (!_border.bottom && _border.right) {
+      draw_absolute(x, y, _injector->style("style.border.rs"),
+                    _injector->attr("tui.border.normal"));
+    }
+    return;
+  }
+  if (y == 0) {
+    draw_absolute(x, y, _injector->style("style.border.ts"),
+                  _injector->attr("tui.border.normal"));
+    return;
+  }
+  if (y == _rect.height - 1) {
+    draw_absolute(x, y, _injector->style("style.border.bs"),
+                  _injector->attr("tui.border.normal"));
+    return;
+  }
+  if (x == 0) {
+    draw_absolute(x, y, _injector->style("style.border.ls"),
+                  _injector->attr("tui.border.normal"));
+    return;
+  }
+  if (x == _rect.width - 1) {
+    draw_absolute(x, y, _injector->style("style.border.rs"),
+                  _injector->attr("tui.border.normal"));
+    return;
+  }
 }
-void window::update() {
-  draw_scroll();
-  wrefresh(_win);
+void window::draw_border() {
+  auto tui = core::singleton<tui::system_wm>::get();
+  if (_border.top) {
+    for (auto x = 1; x < _rect.width - 1; x++) {
+      draw_border_node(x, 0);
+    }
+  }
+  if (_border.bottom) {
+    for (auto x = 1; x < _rect.width - 1; x++) {
+      draw_border_node(x, _rect.height - 1);
+    }
+  }
+  if (_border.left) {
+    for (auto y = 1; y < _rect.height - 1; y++) {
+      draw_border_node(0, y);
+    }
+  }
+  if (_border.right) {
+    for (auto y = 1; y < _rect.height - 1; y++) {
+      draw_border_node(_rect.width - 1, y);
+    }
+  }
+  draw_border_node(0, 0);
+  draw_border_node(0, _rect.height - 1);
+  draw_border_node(_rect.width - 1, 0);
+  draw_border_node(_rect.width - 1, _rect.height - 1);
 }
+const util::border_info &window::get_border_info() const { return _border; };
+
+void window::set_border_info(const util::border_info &info) {
+  _border = info;
+  auto tui = core::singleton<tui::system_wm>::get();
+  util::border_info tl = {false, false, false, false};
+  tl.right = info.top;
+  tl.bottom = info.left;
+  tui->set_access_node(_rect.x, _rect.y, tl);
+  util::border_info tr = {false, false, false, false};
+  tr.left = info.top;
+  tr.bottom = info.right;
+  tui->set_access_node(_rect.x + _rect.width - 1, _rect.y, tr);
+  util::border_info bl = {false, false, false, false};
+  bl.right = info.bottom;
+  bl.top = info.right;
+  tui->set_access_node(_rect.x, _rect.y + _rect.height - 1, bl);
+  util::border_info br = {false, false, false, false};
+  br.left = info.bottom;
+  br.top = info.right;
+  tui->set_access_node(_rect.x + _rect.width - 1, _rect.y + _rect.height - 1,
+                       br);
+}
+void window::set_current_pos(const int32_t &x, const int32_t &y) {
+  auto &crt = get_content_rect();
+  auto rc = get_bound_rect();
+  set_content_rect({crt.x - (x - (int32_t)rc.width / 2),
+                    crt.y - (y - (int32_t)rc.height / 2), crt.width,
+                    crt.height});
+}
+void window::on_dispose() {}
+void window::on_initialize() {}
+void window::on_resize() {}

@@ -1,10 +1,4 @@
 ﻿#include "system/application.hpp"
-#include "tui/widget_col.hpp"
-#include "tui/widget_input.hpp"
-#include "tui/widget_line.hpp"
-#include "tui/widget_text.hpp"
-#include "tui/window.hpp"
-#include "tui/window_widget.hpp"
 #include "util/event.hpp"
 #include <chrono>
 #include <codecvt>
@@ -16,29 +10,10 @@
 #include <thread>
 using namespace duskland::system;
 using namespace duskland;
-static int32_t fps = 0;
-class demo_window : public tui::window_widget {
-private:
-  core::auto_release<tui::widget_text> _message;
-  core::auto_release<tui::widget_input> _input;
-
-public:
-  demo_window(const util::rect &rc, const std::string &name)
-      : tui::window_widget(rc, name) {
-    _message = new tui::widget_text("label", L"中文测试");
-    _input = new tui::widget_input("input", 12);
-    auto line = new tui::widget_line("layout.line");
-    line->add_widget(_message.get());
-    line->add_widget(_input.get());
-    line->add_widget(new tui::widget_text("tail", L"中文tail"));
-    get_root() = line;
-    line->next_active();
-  }
-};
 application::application() : _is_running(false) {
-  _tui = core::singleton<tui::system_tui>::get();
-  _layout = core::singleton<tui::layout>::get();
   _injector = core::singleton<util::injector>::get();
+  _wm = core::singleton<tui::system_wm>::get();
+  _win = new tui::window("demo window");
 }
 application::~application() {
   clrtoeol();
@@ -55,8 +30,7 @@ int application::run() {
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }
-  _layout->uninitialize();
-  _tui->uninitialize();
+  _wm->uninitialize();
   return 0;
 }
 void application::exit() { _is_running = false; }
@@ -96,18 +70,21 @@ void application::initialize(int argc, char *argv[]) {
   _injector->style("style.border.rs", L'│');
   _injector->style("style.border.ts", L'─');
   _injector->style("style.border.bs", L'─');
-  _injector->style("style.border.tl", L'┌');
-  _injector->style("style.border.tr", L'┐');
-  _injector->style("style.border.bl", L'└');
-  _injector->style("style.border.br", L'┘');
+  _injector->style("style.border.rb", L'┌');
+  _injector->style("style.border.lb", L'┐');
+  _injector->style("style.border.tr", L'└');
+  _injector->style("style.border.tl", L'┘');
   _injector->style("style.border.tlr", L'┬');
   _injector->style("style.border.blr", L'┴');
   _injector->style("style.border.ltb", L'├');
   _injector->style("style.border.rtb", L'┤');
   _injector->style("style.border.lrtb", L'┼');
 
-  _tui->initialize();
-  _layout->initialize(new demo_window({0, 0, 0, 0}, "root window"));
+  _wm->initialize();
+  _win->initialize(
+      {0, 0, (uint32_t)getmaxx(stdscr), (uint32_t)getmaxy(stdscr)});
+  _win->active();
+  _win->render();
 }
 void application::set_cursor_style(cursor_style style) { curs_set(style); }
 void application::clear() { ::clear(); }
@@ -116,13 +93,7 @@ void application::command(wint_t cmd) {
     return;
   } else if (cmd == _injector->keymap("key.quit")) {
     exit();
-  } else if (cmd == KEY_RESIZE) {
-    this->set_cursor_style(CUR_INVISIBLE);
-    refresh();
-    if (_layout->relayout()) {
-      _tui->refresh();
-    }
   } else {
-    _tui->run_command(cmd);
+    _wm->on_command(cmd);
   }
 }

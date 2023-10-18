@@ -4,64 +4,75 @@
 #include "util/border.hpp"
 #include "util/injector.hpp"
 #include "util/rect.hpp"
-#include "util/size.hpp"
-#include "widget_base.hpp"
 #include <ncurses.h>
-#include <string>
 namespace duskland::tui {
-class system_tui;
-class window : public widget_base {
+class window : public core::object {
 private:
+  util::rect _rect;
+  core::auto_release<util::injector> _injector;
+  bool _is_active;
   WINDOW *_win;
-  util::border _border;
-  int _border_color;
+  std::string _name;
+  util::border_info _border;
+
   util::rect _content_rect;
-  int32_t _current_line;
-  int32_t _current_column;
 
-  void fix_rect();
-
-  friend class system_tui;
-
+  util::rect &get_rect();
   void fix_content_rect();
+  util::rect get_bound_rect();
+  void draw_border_node(const int32_t &x, const int32_t &y);
 
 protected:
-  core::auto_release<system_tui> _tui;
-  core::auto_release<util::injector> _injector;
-  void draw_border();
   void draw_scroll();
+  void draw_border();
 
 public:
-  bool on_command(wint_t cmd,
-                  const core::auto_release<widget_base> &emitter) override;
-  void on_update() override;
-  void on_active() override;
-  void on_dective() override;
-  window(const util::rect &rc, const std::string &name = "");
-  ~window() override;
+  window(const std::string &name);
+  ~window();
+  void initialize(const util::rect &rect);
   void render();
-  void set_border(const util::border &border);
-  const util::border &get_border() const;
-  void set_rect(const util::rect &rc);
-  void resize(int32_t dw, int32_t dh);
-  void move(int32_t x, int32_t y);
   void refresh();
+  void dispose();
   void active();
   void clear();
-  void set_content_rect(const util::rect &content_rc);
+  bool is_active();
+  void move_to(const int32_t &x, const int32_t &y);
+  void resize_to(const uint32_t &width, const uint32_t &height);
+  void move(const int32_t &dx, const int32_t &dy);
+  void resize(const int32_t &dw, const int32_t &dh);
+
+  const util::border_info &get_border_info() const;
+  void set_border_info(const util::border_info &info);
+
+  void draw(const int32_t &x, const int32_t &y, const wchar_t &ch,
+            const int16_t &attr);
+  void draw(const int32_t &x, const int32_t &y, const char &ch,
+            const int16_t &attr);
+  void draw(const int32_t &x, const int32_t &y, const std::wstring &str,
+            const int16_t &attr);
+  void draw(const int32_t &x, const int32_t &y, const std::string &str,
+            const int16_t &attr);
+
+  void draw_absolute(const int32_t &x, const int32_t &y, const wchar_t &ch,
+                     const int16_t &attr);
+  void draw_absolute(const int32_t &x, const int32_t &y, const char &ch,
+                     const int16_t &attr);
+  void draw_absolute(const int32_t &x, const int32_t &y,
+                     const std::wstring &str, const int16_t &attr);
+  void draw_absolute(const int32_t &x, const int32_t &y, const std::string &str,
+                     const int16_t &attr);
+  const std::string &get_name() const;
+  const util::rect &get_rect() const;
   const util::rect &get_content_rect() const;
-  void move_content(const int32_t &dx, const int32_t &dy);
-  void write(const uint32_t &x, const uint32_t &y, const wchar_t &ch,
-             const uint32_t &attr = 0);
-  void write(const uint32_t &x, const uint32_t &y, const wchar_t *ch,
-             const uint32_t &attr = 0);
-  void write(const uint32_t &x, const uint32_t &y, const char &ch,
-             const uint32_t &attr = 0);
-  void write(const uint32_t &x, const uint32_t &y, const char *ch,
-             const uint32_t &attr = 0);
-  void set_current_pos(const int32_t &line, const int32_t &column);
-  void enable_input(const int32_t &x, const int32_t &y);
-  void disable_input();
-  void update();
+  void set_content_rect(const util::rect &rc);
+  void set_current_pos(const int32_t &x, const int32_t &y);
+
+  virtual void on_initialize();
+  virtual void on_active();
+  virtual void on_dective();
+  virtual bool on_command(const wint_t &cmd);
+  virtual void on_render();
+  virtual void on_dispose();
+  virtual void on_resize();
 };
-} // namespace duskland::tui
+}; // namespace duskland::tui
