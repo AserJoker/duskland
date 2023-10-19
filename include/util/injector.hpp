@@ -12,6 +12,7 @@ private:
   std::map<std::string, uint32_t> _attributes;
   std::map<std::string, chtype> _keymaps;
   std::map<std::string, wchar_t> _styles;
+  std::map<std::string, bool> _features;
   std::vector<std::string> _args;
 
 public:
@@ -27,6 +28,9 @@ public:
   bool style_exist(const std::string &name) const;
   void style(const std::string &name, const wchar_t &style);
   const wchar_t &style(const std::string &name);
+
+  const bool &feature(const std::string &name) const;
+  void feature(const std::string &name, const bool &value);
 
   const std::vector<std::string> &args() const;
   std::vector<std::string> &args();

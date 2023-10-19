@@ -10,11 +10,11 @@ protected:
   core::auto_release<widget> &get_root();
 
 public:
-  window_widget(const std::string& name);
+  window_widget(const std::string &name);
   void on_initialize() override;
   void on_active() override;
   void on_dective() override;
-  bool on_command(const wint_t &cmd) override;
+  bool on_command(const util::command &cmd) override;
   void on_render() override;
   void on_dispose() override;
 };

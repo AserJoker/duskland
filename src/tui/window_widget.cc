@@ -15,7 +15,7 @@ void window_widget::on_dective() {
     _root->on_dective();
   }
 };
-bool window_widget::on_command(const wint_t &cmd) {
+bool window_widget::on_command(const util::command &cmd) {
   if (_root != nullptr) {
     if (_root->on_command(this, cmd)) {
       return true;

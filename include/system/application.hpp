@@ -16,6 +16,10 @@ private:
   core::auto_release<tui::system_wm> _wm;
   core::auto_release<tui::window> _win;
 
+private:
+  void read_command();
+  void decode_command(const std::vector<wint_t> &codes);
+
 public:
   int run();
   application();
@@ -24,6 +28,6 @@ public:
   void exit();
   void set_cursor_style(cursor_style style);
   void clear();
-  void command(wint_t cmd);
+  void command(const util::command& cmd);
 };
 } // namespace duskland::system

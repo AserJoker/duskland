@@ -3,6 +3,7 @@
 #include "core/object.hpp"
 #include "util/border.hpp"
 #include "util/injector.hpp"
+#include "util/key.hpp"
 #include "util/rect.hpp"
 #include <ncurses.h>
 namespace duskland::tui {
@@ -70,7 +71,7 @@ public:
   virtual void on_initialize();
   virtual void on_active();
   virtual void on_dective();
-  virtual bool on_command(const wint_t &cmd);
+  virtual bool on_command(const util::command &cmd);
   virtual void on_render();
   virtual void on_dispose();
   virtual void on_resize();

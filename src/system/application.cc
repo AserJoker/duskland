@@ -1,5 +1,7 @@
 ﻿#include "system/application.hpp"
 #include "tui/widget_col.hpp"
+#include "tui/widget_input.hpp"
+#include "tui/widget_line.hpp"
 #include "tui/widget_text.hpp"
 #include "tui/window_widget.hpp"
 #include "util/event.hpp"
@@ -17,23 +19,15 @@ class window_demo : public tui::window_widget {
 public:
   void on_initialize() override {
     tui::window_widget::on_initialize();
-    auto col1 = new tui::widget_col(get_name() + ".col");
-    for (int i = 0; i < 5; i++) {
-      auto text = new tui::widget_text(fmt::format("text.{}", i),
-                                       fmt::format(L"item{}", i));
-      col1->add_widget(text);
-    }
-    auto col2 = new tui::widget_col(get_name() + ".col2");
-    for (int i = 0; i < 5; i++) {
-      auto text = new tui::widget_text(fmt::format("text.{}", i),
-                                       fmt::format(L"item{}", i));
-      col2->add_widget(text);
-    }
-    auto col = new tui::widget_col(get_name() + ".col3");
-    col->add_widget(col1);
-    col->add_widget(col2);
-    get_root() = col;
-    col->next_active();
+    auto line = new tui::widget_line("line");
+    auto text1 = new tui::widget_text("label", L"输入测试:");
+    auto input = new tui::widget_input("input", 12);
+    auto text2 = new tui::widget_text("tail", L"中文Tail");
+    line->add_widget(text1);
+    line->add_widget(input);
+    line->add_widget(text2);
+    line->next_active();
+    get_root() = line;
     render();
   }
   window_demo() : tui::window_widget("demo window") {}
@@ -52,8 +46,7 @@ int application::run() {
   try {
     _is_running = true;
     while (_is_running) {
-      auto ch = getch();
-      this->command(ch);
+      read_command();
     }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
@@ -84,7 +77,7 @@ void application::initialize(int argc, char *argv[]) {
   _injector->attr("tui.border.normal", COLOR_WHITE, COLOR_BLACK);
   _injector->attr("tui.scroll.normal", COLOR_BLUE, COLOR_BLACK);
   _injector->attr("tui.text.normal", COLOR_WHITE, COLOR_BLACK, WA_DIM);
-  _injector->attr("tui.text.focus", COLOR_RED, COLOR_BLACK);
+  _injector->attr("tui.text.focus", COLOR_WHITE, COLOR_BLACK);
   _injector->attr("tui.input.normal", COLOR_WHITE, COLOR_BLACK,
                   WA_NORMAL | WA_DIM);
   _injector->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
@@ -116,12 +109,51 @@ void application::initialize(int argc, char *argv[]) {
 }
 void application::set_cursor_style(cursor_style style) { curs_set(style); }
 void application::clear() { ::clear(); }
-void application::command(wint_t cmd) {
-  if (cmd == ERR) {
+void application::command(const util::command &cmd) {
+  if (cmd.raw.empty()) {
     return;
-  } else if (cmd == _injector->keymap("key.quit")) {
+  } else if (cmd.raw[0] == _injector->keymap("key.quit")) {
     exit();
   } else {
     _wm->on_command(cmd);
+  }
+}
+void application::read_command() {
+  std::vector<wint_t> codes;
+  for (;;) {
+    wint_t c;
+    if (_injector->feature("feature.text_input")) {
+      if (get_wch(&c) == ERR) {
+        c = ERR;
+      }
+    } else {
+      c = getch();
+    }
+    if (c == ERR) {
+      break;
+    }
+    codes.push_back(c);
+  }
+  decode_command(codes);
+}
+void application::decode_command(const std::vector<wint_t> &codes) {
+  util::command cmd = {codes, 0};
+  if (!codes.empty()) {
+    for (auto &[decode, raw] : util::key_code_mapping) {
+      if (raw.size() == codes.size() &&
+          std::equal(raw.begin(), raw.end(), codes.begin(), codes.end())) {
+        cmd.decode = decode;
+        return command(cmd);
+      }
+    }
+    auto offset = 0;
+    for (auto &code : codes) {
+      command({{code}, code});
+      char str[1024];
+      sprintf(str, "0x%x", code);
+      mvprintw(10 + offset, 10, str);
+      offset++;
+    }
+    refresh();
   }
 }

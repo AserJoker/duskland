@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "core/object.hpp"
+#include "util/key.hpp"
 #include "util/size.hpp"
 #include "window.hpp"
 namespace duskland::tui {
@@ -25,6 +26,6 @@ public:
   virtual void on_active();
   virtual void on_dective();
   virtual bool on_command(const core::auto_release<window> &emitter,
-                          const wint_t &cmd);
+                          const util::command &cmd);
 };
 } // namespace duskland::tui

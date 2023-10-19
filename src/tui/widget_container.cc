@@ -6,10 +6,7 @@ widget_container::widget_container(const std::string &name)
     : widget(name), _active_widget(nullptr) {}
 void widget_container::add_widget(const core::auto_release<widget> &widget) {
   _children.push_back(widget);
-  auto &crc = get_rect();
-  auto &rc = widget->get_rect();
-  set_rect({0, 0, crc.width < rc.width ? rc.width : crc.width,
-            crc.height + rc.height});
+  on_children_change();
 }
 void widget_container::remove_widget(const core::auto_release<widget> &widget) {
   for (auto it = _children.begin(); it != _children.end(); it++) {
@@ -21,24 +18,27 @@ void widget_container::remove_widget(const core::auto_release<widget> &widget) {
         _active_widget = nullptr;
       }
       _children.erase(it);
+      on_children_change();
       break;
     }
   }
 }
 bool widget_container::on_command(const core::auto_release<window> &win,
-                                  const wint_t &cmd) {
+                                  const util::command &cmd) {
   if (_active_widget) {
     if (_active_widget->on_command(win, cmd)) {
       return true;
     }
   }
-  if (cmd == _injector->keymap("key.next")) {
-    if (next_active()) {
-      win->render();
-      return true;
-    } else {
-      win->render();
-      return false;
+  if (cmd.decode == _injector->keymap("key.next")) {
+    if (!_injector->feature("feature.active_lock")) {
+      if (next_active()) {
+        win->render();
+        return true;
+      } else {
+        win->render();
+        return false;
+      }
     }
   }
   return widget::on_command(win, cmd);
@@ -104,3 +104,4 @@ bool widget_container::next_active() {
 std::vector<core::auto_release<widget>> &widget_container::get_children() {
   return _children;
 }
+void widget_container::on_children_change() {}

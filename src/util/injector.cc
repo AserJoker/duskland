@@ -9,6 +9,7 @@ void injector::initialize() {
   attr("injector.default", COLOR_WHITE, COLOR_BLACK);
   keymap("injector.default", 0);
   style("injector.default", L' ');
+  feature("injector.default", false);
 }
 const uint32_t &injector::attr(const std::string &name) const {
   if (_attributes.contains(name)) {
@@ -51,3 +52,12 @@ bool injector::style_exist(const std::string &name) const {
 
 const std::vector<std::string> &injector::args() const { return _args; };
 std::vector<std::string> &injector::args() { return _args; }
+const bool &injector::feature(const std::string &name) const {
+  if (_features.contains(name)) {
+    return _features.at(name);
+  }
+  return _features.at("injector.default");
+}
+void injector::feature(const std::string &name, const bool &val) {
+  _features[name] = val;
+}

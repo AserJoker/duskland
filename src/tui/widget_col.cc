@@ -13,3 +13,16 @@ void widget_col::render(const core::auto_release<window> &win) {
   }
 }
 widget_col::widget_col(const std::string &name) : widget_container(name) {}
+void widget_col::on_children_change() {
+  auto rc = get_rect();
+  rc.width = 0;
+  rc.height = 0;
+  for (auto &w : get_children()) {
+    auto &wrc = w->get_rect();
+    if (wrc.width > rc.width) {
+      rc.width = wrc.width;
+    }
+    rc.height += wrc.height;
+  }
+  set_rect(rc);
+}

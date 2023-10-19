@@ -13,7 +13,7 @@ bool widget::is_active() const { return _is_active; }
 void widget::on_active() { _is_active = true; }
 void widget::on_dective() { _is_active = false; }
 bool widget::on_command(const core::auto_release<window> &emitter,
-                        const wint_t &cmd) {
+                        const util::command &cmd) {
   return false;
 }
 void widget::set_tab_index(const int32_t &tab_index) {

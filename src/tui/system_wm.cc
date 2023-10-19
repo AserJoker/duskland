@@ -1,4 +1,5 @@
 ﻿#include "tui/system_wm.hpp"
+#include "util/key.hpp"
 using namespace duskland;
 using namespace duskland::tui;
 system_wm::system_wm() : _active_window(nullptr) {}
@@ -13,8 +14,8 @@ void system_wm::uninitialize() {
     win->dispose();
   }
 }
-bool system_wm::on_command(const wint_t &cmd) {
-  if (cmd == KEY_RESIZE) {
+bool system_wm::on_command(const util::command &cmd) {
+  if (cmd.raw[0] == KEY_RESIZE) {
     refresh();
   }
   if (_active_window) {
