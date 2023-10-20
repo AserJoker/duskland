@@ -83,9 +83,9 @@ void application::initialize(int argc, char *argv[]) {
   _injector->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
   _injector->attr("tui.input.cursor", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
 
-  _injector->keymap("key.next", '\t');
-  _injector->keymap("key.last", KEY_BTAB);
-  _injector->keymap("key.select", '\n');
+  _injector->keymap("key.next", VKEY_TAB);
+  _injector->keymap("key.last", VKEY_SHIFT_TAB);
+  _injector->keymap("key.select", VKEY_ENTER);
   _injector->keymap("key.quit", 'q');
   _injector->style("style.border.ls", L'│');
   _injector->style("style.border.rs", L'│');
