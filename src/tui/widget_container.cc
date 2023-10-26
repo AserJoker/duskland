@@ -30,7 +30,7 @@ bool widget_container::on_command(const core::auto_release<window> &win,
       return true;
     }
   }
-  if (cmd.decode == _injector->keymap("key.next")) {
+  if (cmd.name() == _injector->keymap("key.next")) {
     if (!_injector->feature("feature.active_lock")) {
       if (next_active()) {
         win->render();

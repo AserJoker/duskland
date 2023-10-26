@@ -83,10 +83,10 @@ void application::initialize(int argc, char *argv[]) {
   _injector->attr("tui.input.focus", COLOR_WHITE, COLOR_BLACK);
   _injector->attr("tui.input.cursor", COLOR_WHITE, COLOR_BLACK, WA_STANDOUT);
 
-  _injector->keymap("key.next", '\t');
-  _injector->keymap("key.select", '\n');
+  _injector->keymap("key.next", "<tab>");
+  _injector->keymap("key.select", "<eneter>");
 
-  _injector->keymap("key.quit", 'q');
+  _injector->keymap("key.quit", "<q>");
 
   _injector->style("style.border.ls", L'│');
   _injector->style("style.border.rs", L'│');
@@ -113,7 +113,7 @@ void application::clear() { ::clear(); }
 void application::command(const util::key &cmd) {
   if (cmd.raw.empty()) {
     return;
-  } else if (cmd.decode == _injector->keymap("key.quit")) {
+  } else if (cmd.name() == _injector->keymap("key.quit")) {
     exit();
   } else {
     _wm->on_command(cmd);
@@ -139,152 +139,9 @@ void application::read_command() {
 }
 void application::decode_command(const std::vector<wint_t> &codes) {
   util::key cmd = {0, false, false, false, codes};
-  const util::key_encoding keymap = {
-      {{0x1b,
-        {{
-            {0x5b,
-             {{
-                 {0x44, {KEY_LEFT}},
-                 {0x43, {KEY_RIGHT}},
-                 {0x42, {KEY_DOWN}},
-                 {0x41, {KEY_UP}},
-                 {0x46, {KEY_END}},
-                 {0x48, {KEY_HOME}},
-                 {0x5a, util::key{'\t', true}},
-                 {0x31,
-                  {{{0x35,
-                     {{{0x7e, {KEY_F(5)}},
-                       {0x3b,
-                        {{
-                            {0x32, {{{0x7e, util::key{KEY_F(5), true}}}}},
-                            {0x35,
-                             {{{0x7e, util::key{KEY_F(5), false, true}}}}},
-                        }}}}}},
-                    {0x37,
-                     {{{0x7e, {KEY_F(6)}},
-                       {0x3b,
-                        {{
-                            {0x32, {{{0x7e, util::key{KEY_F(6), true}}}}},
-                            {0x35,
-                             {{{0x7e, util::key{KEY_F(6), false, true}}}}},
-                        }}}}}},
-                    {0x38,
-                     {{{0x7e, {KEY_F(7)}},
-                       {0x3b,
-                        {{
-                            {0x32, {{{0x7e, util::key{KEY_F(7), true}}}}},
-                            {0x35,
-                             {{{0x7e, util::key{KEY_F(7), false, true}}}}},
-                        }}}}}},
-                    {0x39,
-                     {{{0x7e, {KEY_F(8)}},
-                       {0x3b,
-                        {{
-                            {0x32, {{{0x7e, util::key{KEY_F(8), true}}}}},
-                            {0x35,
-                             {{{0x7e, util::key{KEY_F(8), false, true}}}}},
-                        }}}}}},
-                    {0x3b,
-                     {{{0x32,
-                        {{
-                            {0x44, util::key{KEY_LEFT, true}},
-                            {0x43, util::key{KEY_RIGHT, true}},
-                            {0x42, util::key{KEY_DOWN, true}},
-                            {0x41, util::key{KEY_UP, true}},
-                            {0x46, util::key{KEY_END, true}},
-                            {0x48, util::key{KEY_HOME, true}},
-                            {0x50, util::key{KEY_F(1), true}},
-                            {0x51, util::key{KEY_F(2), true}},
-                            {0x52, util::key{KEY_F(3), true}},
-                            {0x53, util::key{KEY_F(4), true}},
-                        }}},
-                       {0x35,
-                        {{
-                            {0x44, util::key{KEY_LEFT, false, true}},
-                            {0x43, util::key{KEY_RIGHT, false, true}},
-                            {0x42, util::key{KEY_DOWN, false, true}},
-                            {0x41, util::key{KEY_UP, false, true}},
-                            {0x46, util::key{KEY_END, false, true}},
-                            {0x48, util::key{KEY_HOME, false, true}},
-                            {0x50, util::key{KEY_F(1), false, true}},
-                            {0x51, util::key{KEY_F(2), false, true}},
-                            {0x52, util::key{KEY_F(3), false, true}},
-                            {0x53, util::key{KEY_F(4), false, true}},
-                        }}}}}}}}},
-                 {0x32,
-                  {{
-                      {0x30,
-                       {{{0x3b,
-                          {{
-                              {0x32, {{{0x7e, util::key{KEY_F(9), true}}}}},
-                              {0x35,
-                               {{{0x7e, util::key{KEY_F(9), false, true}}}}},
-                          }}}}}},
-                      {0x7e, util::key{KEY_IC}},
-                      {0x3b,
-                       {{
-                           {0x32, {{{0x7e, util::key{KEY_IC, true}}}}},
-                           {0x35, {{{0x7e, util::key{KEY_IC, false, true}}}}},
-                       }}},
-                      {0x30, {{{0x7e, {KEY_F(9)}}}}},
-                      {0x31,
-                       {{{0x7e, {KEY_F(10)}},
-                         {0x3b,
-                          {{
-                              {0x32, {{{0x7e, util::key{KEY_F(10), true}}}}},
-                              {0x35,
-                               {{{0x7e, util::key{KEY_F(10), false, true}}}}},
-                          }}}}}},
-                      {0x33,
-                       {{{0x7e, {KEY_F(11)}},
-                         {0x3b,
-                          {{
-                              {0x32, {{{0x7e, util::key{KEY_F(11), true}}}}},
-                              {0x35,
-                               {{{0x7e, util::key{KEY_F(11), false, true}}}}},
-                          }}}}}},
-                      {0x34,
-                       {{{0x7e, {KEY_F(12)}},
-                         {0x3b,
-                          {{
-                              {0x32, {{{0x7e, util::key{KEY_F(12), true}}}}},
-                              {0x35,
-                               {{{0x7e, util::key{KEY_F(12), false, true}}}}},
-                          }}}}}},
-                  }}},
-                 {0x33,
-                  {{{0x7e, util::key{KEY_DC}},
-                    {0x3b,
-                     {{
-                         {0x32, {{{0x7e, util::key{KEY_DC, true}}}}},
-                         {0x35, {{{0x7e, util::key{KEY_DC, false, true}}}}},
-                     }}}}}},
-                 {0x35,
-                  {{{0x7e, util::key{KEY_PPAGE}},
-                    {0x3b,
-                     {{
-                         {0x32, {{{0x7e, util::key{KEY_PPAGE, true}}}}},
-                         {0x35, {{{0x7e, util::key{KEY_PPAGE, false, true}}}}},
-                     }}}}}},
-                 {0x36,
-                  {{{0x7e, util::key{KEY_NPAGE}},
-                    {0x3b,
-                     {{
-                         {0x32, {{{0x7e, util::key{KEY_NPAGE, true}}}}},
-                         {0x35, {{{0x7e, util::key{KEY_NPAGE, false, true}}}}},
-                     }}}}}},
-             }}},
-            {0x4f,
-             {{
-                 {0x50, {KEY_F(1)}},
-                 {0x51, {KEY_F(2)}},
-                 {0x52, {KEY_F(3)}},
-                 {0x53, {KEY_F(4)}},
-             }}},
-        }}}}};
   if (!codes.empty()) {
     auto offset = 0;
-    auto k = keymap;
+    auto k = util::keymap;
     for (auto i = 0; i < codes.size(); i++) {
       k = k[codes[i]];
     }
@@ -292,22 +149,48 @@ void application::decode_command(const std::vector<wint_t> &codes) {
       cmd = k.code();
       cmd.raw = codes;
       command(cmd);
-      return;
     } else {
       for (auto &code : codes) {
-        command({
-            code,
-            false,
-            false,
-            false,
-            {code},
-        });
+        cmd.raw = {code};
+        if (code >= 0x1 && code <= 0x18) {
+          cmd.decode = code + 'a';
+          cmd.shift = false;
+          cmd.ctrl = true;
+          cmd.alt = false;
+          // command({code + 'a', false, false, true});
+        } else if (code >= 'A' && code <= 'Z') {
+          cmd.decode = code - 'A' + 'a';
+          cmd.shift = true;
+          cmd.ctrl = false;
+          cmd.alt = false;
+          // command({
+          //     code - 'A' + 'a',
+          //     true,
+          //     false,
+          //     false,
+          //     {code},
+          // });
+        } else {
+          cmd.decode = code;
+          cmd.shift = false;
+          cmd.ctrl = false;
+          cmd.alt = false;
+          // command({
+          //     code,
+          //     false,
+          //     false,
+          //     false,
+          //     {code},
+          // });
+        }
+        command(cmd);
         char str[1024];
         sprintf(str, "0x%x", code);
         mvprintw(10 + offset, 10, str);
         offset++;
       }
-      refresh();
     }
+    mvprintw(9, 10, "%s", cmd.name().c_str());
+    refresh();
   }
 }

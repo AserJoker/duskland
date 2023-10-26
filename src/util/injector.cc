@@ -7,7 +7,7 @@ void injector::initialize() {
     }
   }
   attr("injector.default", COLOR_WHITE, COLOR_BLACK);
-  keymap("injector.default", 0);
+  keymap("injector.default", "");
   style("injector.default", L' ');
   feature("injector.default", false);
 }
@@ -21,10 +21,10 @@ void injector::attr(const std::string &name, const uint16_t &fg,
                     const uint16_t &bg, const uint32_t &style) {
   _attributes[name] = COLOR_PAIR(COLOR_PAIR_INDEX(fg, bg)) | style;
 }
-void injector::keymap(const std::string &name, const chtype &key) {
+void injector::keymap(const std::string &name, const std::string &key) {
   _keymaps[name] = key;
 }
-const chtype &injector::keymap(const std::string &name) const {
+const std::string &injector::keymap(const std::string &name) const {
   if (_keymaps.contains(name)) {
     return _keymaps.at(name);
   }

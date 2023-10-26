@@ -1,5 +1,7 @@
 ﻿#pragma once
+#include <fmt/format.h>
 #include <ncurses.h>
+#include <string>
 #include <vector>
 namespace duskland::util {
 struct key {
@@ -12,6 +14,49 @@ struct key {
   key(const wint_t &decode, const bool &shift = false, const bool &ctrl = false,
       const bool &alt = false, const std::vector<wint_t> &raw = {})
       : decode(decode), shift(shift), ctrl(ctrl), alt(alt), raw(raw) {}
+  std::string name() const {
+    std::string basename;
+
+    if (decode == '\t') {
+      basename = "tab";
+    } else if (decode == '\n') {
+      basename = "enter";
+    } else if (decode == KEY_LEFT) {
+      basename = "left";
+    } else if (decode == KEY_RIGHT) {
+      basename = "right";
+    } else if (decode == KEY_UP) {
+      basename = "up";
+    } else if (decode == KEY_DOWN) {
+      basename = "down";
+    } else if (decode == KEY_IC) {
+      basename = "insert";
+    } else if (decode == KEY_DC) {
+      basename = "delete";
+    } else if (decode == KEY_HOME) {
+      basename = "home";
+    } else if (decode == KEY_END) {
+      basename = "end";
+    } else if (decode == KEY_NPAGE) {
+      basename = "pgdn";
+    } else if (decode == KEY_PPAGE) {
+      basename = "pgup";
+    } else if (decode >= KEY_F(1) && decode <= KEY_F(12)) {
+      basename = fmt::format("f{}", decode - KEY_F(0));
+    } else if (decode < 128) {
+      basename += (char)decode;
+    }
+    if (shift) {
+      basename = fmt::format("s-{}", basename);
+    }
+    if (alt) {
+      basename = fmt::format("m-{}", basename);
+    }
+    if (ctrl) {
+      basename = fmt::format("c-{}", basename);
+    }
+    return fmt::format("<{}>", basename);
+  }
 };
 struct key_encoding {
   enum { data, set } type;
@@ -48,5 +93,5 @@ struct key_encoding {
     }
   }
 };
-
+extern const util::key_encoding keymap;
 } // namespace duskland::util
