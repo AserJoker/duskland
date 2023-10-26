@@ -14,7 +14,7 @@ public:
   void on_initialize() override;
   void on_active() override;
   void on_dective() override;
-  bool on_command(const util::command &cmd) override;
+  bool on_command(const util::key &cmd) override;
   void on_render() override;
   void on_dispose() override;
 };

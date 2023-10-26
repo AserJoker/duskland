@@ -201,7 +201,7 @@ void window::fix_content_rect() {
 
 void window::on_dective() { _is_active = false; }
 void window::on_active() { _is_active = true; }
-bool window::on_command(const util::command &cmd) {
+bool window::on_command(const util::key &cmd) {
   if (cmd.decode == KEY_RESIZE) {
     on_resize();
     return true;

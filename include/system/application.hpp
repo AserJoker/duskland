@@ -28,6 +28,6 @@ public:
   void exit();
   void set_cursor_style(cursor_style style);
   void clear();
-  void command(const util::command& cmd);
+  void command(const util::key &cmd);
 };
 } // namespace duskland::system

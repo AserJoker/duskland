@@ -14,8 +14,8 @@ void system_wm::uninitialize() {
     win->dispose();
   }
 }
-bool system_wm::on_command(const util::command &cmd) {
-  if (cmd.raw[0] == KEY_RESIZE) {
+bool system_wm::on_command(const util::key &cmd) {
+  if (cmd.decode == KEY_RESIZE) {
     refresh();
   }
   if (_active_window) {

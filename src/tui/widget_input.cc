@@ -24,8 +24,8 @@ void widget_input::render(const core::auto_release<window> &win) {
   win->refresh();
 }
 bool widget_input::on_command(const core::auto_release<window> &win,
-                              const util::command &cmd) {
-  if (cmd.decode == VKEY_ENTER) {
+                              const util::key &cmd) {
+  if (cmd.decode == '\n') {
     if (!_is_reading) {
       _injector->feature("feature.active_lock", true);
       _injector->feature("feature.text_input", true);
@@ -41,16 +41,16 @@ bool widget_input::on_command(const core::auto_release<window> &win,
     return true;
   }
   if (_is_reading) {
-    if (cmd.decode == VKEY_END) {
+    if (cmd.decode == KEY_END) {
       _cursor = _value.length();
       if (_cursor == _max_length) {
         _cursor = _max_length - 1;
       }
-    } else if (cmd.decode == VKEY_HOME) {
+    } else if (cmd.decode == KEY_HOME) {
       _cursor = 0;
-    } else if (cmd.decode == VKEY_TAB) {
+    } else if (cmd.raw[0] == '\t') {
       add_char(L' ');
-    } else if (cmd.decode == VKEY_BACKSPACE || cmd.decode == VKEY_DELETE) {
+    } else if (cmd.raw[0] == 0x7f) {
       if (_value.length() == 0) {
         beep();
       } else if (_cursor == 0) {
@@ -76,13 +76,13 @@ bool widget_input::on_command(const core::auto_release<window> &win,
           set_rect({rc.x, rc.y, rc.width - (wcwidth(c) - 1), rc.height});
         }
       }
-    } else if (cmd.decode == VKEY_LEFT) {
+    } else if (cmd.decode == KEY_LEFT) {
       _cursor--;
       if (_cursor < 0) {
         _cursor = 0;
         beep();
       }
-    } else if (cmd.decode == VKEY_RIGHT) {
+    } else if (cmd.decode == KEY_RIGHT) {
       _cursor++;
       if (_cursor > _value.length()) {
         _cursor = _value.length();

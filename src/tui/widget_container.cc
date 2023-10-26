@@ -24,7 +24,7 @@ void widget_container::remove_widget(const core::auto_release<widget> &widget) {
   }
 }
 bool widget_container::on_command(const core::auto_release<window> &win,
-                                  const util::command &cmd) {
+                                  const util::key &cmd) {
   if (_active_widget) {
     if (_active_widget->on_command(win, cmd)) {
       return true;

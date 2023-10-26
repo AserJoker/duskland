@@ -26,6 +26,6 @@ public:
   virtual void on_active();
   virtual void on_dective();
   virtual bool on_command(const core::auto_release<window> &emitter,
-                          const util::command &cmd);
+                          const util::key &cmd);
 };
 } // namespace duskland::tui

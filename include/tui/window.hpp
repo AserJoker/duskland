@@ -71,7 +71,7 @@ public:
   virtual void on_initialize();
   virtual void on_active();
   virtual void on_dective();
-  virtual bool on_command(const util::command &cmd);
+  virtual bool on_command(const util::key &cmd);
   virtual void on_render();
   virtual void on_dispose();
   virtual void on_resize();

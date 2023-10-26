@@ -12,7 +12,7 @@ private:
 
 public:
   system_wm();
-  bool on_command(const util::command &cmd);
+  bool on_command(const util::key &cmd);
   void set_active_window(window *win);
   window *get_active_window();
   void initialize();
