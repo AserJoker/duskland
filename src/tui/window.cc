@@ -376,3 +376,5 @@ void window::set_current_pos(const int32_t &x, const int32_t &y) {
 void window::on_dispose() {}
 void window::on_initialize() {}
 void window::on_resize() {}
+void window::on_emit(const core::auto_release<widget> &win,
+                     const std::string &event) {}

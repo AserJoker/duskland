@@ -7,6 +7,7 @@
 #include "util/rect.hpp"
 #include <ncurses.h>
 namespace duskland::tui {
+class widget;
 class window : public core::object {
 private:
   util::rect _rect;
@@ -72,6 +73,8 @@ public:
   virtual void on_active();
   virtual void on_dective();
   virtual bool on_command(const util::key &cmd);
+  virtual void on_emit(const core::auto_release<widget> &w,
+                       const std::string &event);
   virtual void on_render();
   virtual void on_dispose();
   virtual void on_resize();

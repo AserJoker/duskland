@@ -25,32 +25,36 @@ void widget_input::render(const core::auto_release<window> &win) {
 }
 bool widget_input::on_command(const core::auto_release<window> &win,
                               const util::key &cmd) {
-  if (cmd.decode == '\n') {
+  if (cmd.name() == "<enter>") {
     if (!_is_reading) {
-      _injector->feature("feature.active_lock", true);
-      _injector->feature("feature.text_input", true);
-      keypad(stdscr, FALSE);
       _is_reading = true;
     } else {
-      keypad(stdscr, TRUE);
       _is_reading = false;
-      _injector->feature("feature.text_input", false);
-      _injector->feature("feature.active_lock", false);
+      win->on_emit(this, "change");
     }
     win->render();
     return true;
   }
+  if (cmd.name() == "<esc>") {
+    if (_is_reading) {
+      _is_reading = false;
+      win->on_emit(this, "change");
+      win->render();
+      return true;
+    }
+    return false;
+  }
   if (_is_reading) {
-    if (cmd.decode == KEY_END) {
+    if (cmd.name() == "<end>") {
       _cursor = _value.length();
       if (_cursor == _max_length) {
         _cursor = _max_length - 1;
       }
-    } else if (cmd.decode == KEY_HOME) {
+    } else if (cmd.name() == "<home>") {
       _cursor = 0;
-    } else if (cmd.raw[0] == '\t') {
-      add_char(L' ');
-    } else if (cmd.raw[0] == 0x7f) {
+    } else if (cmd.name() == "<tab>") {
+      add_char(L' ', win);
+    } else if (cmd.name() == "<backspace>") {
       if (_value.length() == 0) {
         beep();
       } else if (_cursor == 0) {
@@ -76,13 +80,14 @@ bool widget_input::on_command(const core::auto_release<window> &win,
           set_rect({rc.x, rc.y, rc.width - (wcwidth(c) - 1), rc.height});
         }
       }
-    } else if (cmd.decode == KEY_LEFT) {
+      win->on_emit(this, "input");
+    } else if (cmd.name() == "<left>") {
       _cursor--;
       if (_cursor < 0) {
         _cursor = 0;
         beep();
       }
-    } else if (cmd.decode == KEY_RIGHT) {
+    } else if (cmd.name() == "<right>") {
       _cursor++;
       if (_cursor > _value.length()) {
         _cursor = _value.length();
@@ -93,7 +98,7 @@ bool widget_input::on_command(const core::auto_release<window> &win,
         beep();
       }
     } else if (cmd.raw.size() == 1) {
-      add_char(cmd.decode);
+      add_char(cmd.decode, win);
     }
     win->render();
     return true;
@@ -101,7 +106,8 @@ bool widget_input::on_command(const core::auto_release<window> &win,
   return widget::on_command(win, cmd);
 }
 
-void widget_input::add_char(const wchar_t &ch) {
+void widget_input::add_char(const wchar_t &ch,
+                            const core::auto_release<window> &win) {
   if (_value.length() < _max_length) {
     wchar_t s[2] = {(wchar_t)ch, 0};
     _value.insert(_cursor, &s[0]);
@@ -113,7 +119,9 @@ void widget_input::add_char(const wchar_t &ch) {
       auto &rc = get_rect();
       set_rect({rc.x, rc.y, rc.width + (uint32_t)wcwidth(ch) - 1, rc.height});
     }
+    win->on_emit(this, "input");
   } else {
     beep();
   }
 }
+const std::wstring &widget_input::get_value() const { return _value; }

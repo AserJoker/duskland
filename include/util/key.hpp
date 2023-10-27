@@ -16,11 +16,14 @@ struct key {
       : decode(decode), shift(shift), ctrl(ctrl), alt(alt), raw(raw) {}
   std::string name() const {
     std::string basename;
-
-    if (decode == '\t') {
+    if (decode == 0x1b) {
+      basename = "esc";
+    } else if (decode == '\t') {
       basename = "tab";
     } else if (decode == '\n') {
       basename = "enter";
+    } else if (decode == KEY_BACKSPACE) {
+      basename = "backspace";
     } else if (decode == KEY_LEFT) {
       basename = "left";
     } else if (decode == KEY_RIGHT) {

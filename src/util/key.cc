@@ -6,6 +6,7 @@ namespace duskland::util {
 const util::key_encoding keymap = {
     {{0x9, {'\t'}},
      {0xa, {'\n'}},
+     {0x107, {KEY_BACKSPACE}},
      {0x1b,
       {{
           {0x5b,

@@ -10,6 +10,7 @@ widget_text::widget_text(const std::string &name, const std::wstring &text)
     rc.width += wcwidth(c);
   }
   set_rect(rc);
+  set_tab_index(-1);
 }
 void widget_text::render(const core::auto_release<window> &win) {
   auto &rc = get_rect();
@@ -17,4 +18,14 @@ void widget_text::render(const core::auto_release<window> &win) {
             is_active() ? _injector->attr("tui.text.focus")
                         : _injector->attr("tui.text.normal"));
   win->refresh();
+}
+void widget_text::set_text(const std::wstring &text) {
+  _text = text;
+  auto rc = get_rect();
+  rc.height = 1;
+  rc.width = 0;
+  for (auto &c : text) {
+    rc.width += wcwidth(c);
+  }
+  set_rect(rc);
 }

@@ -8,5 +8,6 @@ private:
 public:
   widget_text(const std::string &name, const std::wstring &text);
   void render(const core::auto_release<window> &win) override;
+  void set_text(const std::wstring& text);
 };
 } // namespace duskland::tui

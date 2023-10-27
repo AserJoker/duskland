@@ -11,12 +11,13 @@ private:
   uint32_t _max_length;
 
 private:
-  void add_char(const wchar_t &ch);
+  void add_char(const wchar_t &ch,const core::auto_release<window>& win);
 
 public:
   widget_input(const std::string &name, const uint32_t &length);
   void render(const core::auto_release<window> &win) override;
   bool on_command(const core::auto_release<window> &win,
                   const util::key &cmd) override;
+  const std::wstring &get_value() const;
 };
 } // namespace duskland::tui

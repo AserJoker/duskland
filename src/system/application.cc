@@ -16,13 +16,17 @@
 using namespace duskland::system;
 using namespace duskland;
 class window_demo : public tui::window_widget {
+private:
+  tui::widget_input *input;
+  tui::widget_text *text2;
+
 public:
   void on_initialize() override {
     tui::window_widget::on_initialize();
     auto line = new tui::widget_line("line");
     auto text1 = new tui::widget_text("label", L"输入测试:");
-    auto input = new tui::widget_input("input", 12);
-    auto text2 = new tui::widget_text("tail", L"中文Tail");
+    input = new tui::widget_input("input", 12);
+    text2 = new tui::widget_text("tail", L"中文Tail");
     line->add_widget(text1);
     line->add_widget(input);
     line->add_widget(text2);
@@ -31,6 +35,13 @@ public:
     render();
   }
   window_demo() : tui::window_widget("demo window") {}
+  void on_emit(const core::auto_release<tui::widget> &w,
+               const std::string &event) override {
+    if (event == "input") {
+      text2->set_text(input->get_value());
+      render();
+    }
+  }
 };
 application::application() : _is_running(false) {
   _injector = core::singleton<util::injector>::get();
@@ -86,7 +97,7 @@ void application::initialize(int argc, char *argv[]) {
   _injector->keymap("key.next", "<tab>");
   _injector->keymap("key.select", "<eneter>");
 
-  _injector->keymap("key.quit", "<q>");
+  _injector->keymap("key.quit", "<esc>");
 
   _injector->style("style.border.ls", L'│');
   _injector->style("style.border.rs", L'│');
@@ -113,22 +124,18 @@ void application::clear() { ::clear(); }
 void application::command(const util::key &cmd) {
   if (cmd.raw.empty()) {
     return;
-  } else if (cmd.name() == _injector->keymap("key.quit")) {
-    exit();
-  } else {
-    _wm->on_command(cmd);
+  } else if (!_wm->on_command(cmd)) {
+    if (cmd.name() == _injector->keymap("key.quit")) {
+      exit();
+    }
   }
 }
 void application::read_command() {
   std::vector<wint_t> codes;
   for (;;) {
     wint_t c;
-    if (_injector->feature("feature.text_input")) {
-      if (get_wch(&c) == ERR) {
-        c = ERR;
-      }
-    } else {
-      c = getch();
+    if (get_wch(&c) == ERR) {
+      c = ERR;
     }
     if (c == ERR) {
       break;
@@ -140,7 +147,6 @@ void application::read_command() {
 void application::decode_command(const std::vector<wint_t> &codes) {
   util::key cmd = {0, false, false, false, codes};
   if (!codes.empty()) {
-    auto offset = 0;
     auto k = util::keymap;
     for (auto i = 0; i < codes.size(); i++) {
       k = k[codes[i]];
@@ -157,40 +163,14 @@ void application::decode_command(const std::vector<wint_t> &codes) {
           cmd.shift = false;
           cmd.ctrl = true;
           cmd.alt = false;
-          // command({code + 'a', false, false, true});
-        } else if (code >= 'A' && code <= 'Z') {
-          cmd.decode = code - 'A' + 'a';
-          cmd.shift = true;
-          cmd.ctrl = false;
-          cmd.alt = false;
-          // command({
-          //     code - 'A' + 'a',
-          //     true,
-          //     false,
-          //     false,
-          //     {code},
-          // });
         } else {
           cmd.decode = code;
           cmd.shift = false;
           cmd.ctrl = false;
           cmd.alt = false;
-          // command({
-          //     code,
-          //     false,
-          //     false,
-          //     false,
-          //     {code},
-          // });
         }
         command(cmd);
-        char str[1024];
-        sprintf(str, "0x%x", code);
-        mvprintw(10 + offset, 10, str);
-        offset++;
       }
     }
-    mvprintw(9, 10, "%s", cmd.name().c_str());
-    refresh();
   }
 }
