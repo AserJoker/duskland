@@ -16,16 +16,16 @@ private:
   bool _is_selectable;
   bool _is_active;
   bool _is_changed;
+  bool _is_visible;
+  bool _is_request;
   util::border_info _border;
-
-protected:
-  util::rect &get_rect();
 
 protected:
   void draw_border(const core::auto_release<graphic> &g);
   void clear(const core::auto_release<graphic> &g);
   std::vector<core::auto_release<widget>> &get_children();
   widget *get_parent();
+  widget *get_active_widget();
 
 public:
   widget();
@@ -37,15 +37,18 @@ public:
   bool is_active();
   void set_border(const util::border_info &border);
   const util::border_info &get_border() const;
-  void force_update();
+  void request_update();
   void add_child(const core::auto_release<widget> &widget);
   void remove_child(const core::auto_release<widget> &widget);
   bool next_active();
   void set_active_widget(const core::auto_release<widget> &widget);
   void set_rect(const util::rect &rc);
+  void set_visible(bool visible);
+  const bool &is_visible() const;
   virtual bool on_input(const util::key &key);
   virtual void on_dective();
   virtual void on_active();
   virtual void on_render(const core::auto_release<graphic> &g);
+  virtual void on_update();
 };
 } // namespace duskland::tui

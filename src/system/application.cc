@@ -1,5 +1,7 @@
 ﻿#include "system/application.hpp"
+#include "tui/column.hpp"
 #include "tui/document.hpp"
+#include "tui/text.hpp"
 #include "util/event.hpp"
 #include <chrono>
 #include <codecvt>
@@ -44,16 +46,19 @@ void application::initialize(int argc, char *argv[]) {
   set_escdelay(1);
 
   this->_document = new tui::document();
-  auto left = new tui::widget();
-  auto right = new tui::widget();
-  left->set_selectable(true);
-  right->set_selectable(true);
-  left->set_border({true, true, true, true});
-  right->set_border({true, true, true, true});
-  left->set_rect({1, 1, 30, 10});
-  right->set_rect({41, 1, 30, 10});
-  this->_document->add_child(left);
-  this->_document->add_child(right);
+  auto col1 = new tui::column();
+  auto col2 = new tui::column();
+  col2->set_rect({30, 0, 0, 0});
+  this->_document->add_child(col1);
+  this->_document->add_child(col2);
+  auto text1 = new tui::text(L"item1");
+  auto text2 = new tui::text(L"item2");
+  auto text3 = new tui::text(L"item3");
+  auto text4 = new tui::text(L"item4");
+  col1->add_child(text1);
+  col1->add_child(text2);
+  col2->add_child(text3);
+  col2->add_child(text4);
   this->_document->next_active();
 }
 void application::on_command(const util::key &cmd) {

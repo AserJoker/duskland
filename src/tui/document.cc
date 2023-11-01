@@ -6,11 +6,13 @@ document::document() {
   on_active();
 }
 bool document::on_input(const util::key &key) {
-  if (key.name() == "<tab>") {
-    if (!next_active()) {
-      next_active();
+  if (!widget::on_input(key)) {
+    if (key.name() == "<tab>") {
+      if (!next_active()) {
+        next_active();
+      }
+      return true;
     }
-    return true;
   }
   return false;
 }
