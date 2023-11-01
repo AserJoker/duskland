@@ -9,4 +9,5 @@ int main(int argc, char *argv[]) {
   auto app = core::singleton<system::application>::get();
   app->initialize(argc, argv);
   return app->run();
+  return 0;
 }

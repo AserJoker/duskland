@@ -1,20 +1,21 @@
 ﻿#pragma once
 #include "core/object.hpp"
 #include "core/singleton.hpp"
-#include "tui/system_wm.hpp"
+#include "tui/graphic.hpp"
+#include "tui/widget.hpp"
 #include "util/injector.hpp"
+#include "util/key.hpp"
 #include <string>
 #include <vector>
 namespace duskland::system {
 class application : public core::object {
-public:
-  enum cursor_style { CUR_INVISIBLE = 0, CUR_NORMAL = 1, CUR_VERY_VISIBLE = 2 };
 
 private:
   bool _is_running;
   core::auto_release<util::injector> _injector;
-  core::auto_release<tui::system_wm> _wm;
-  core::auto_release<tui::window> _win;
+  core::auto_release<tui::graphic> _graphic;
+
+  core::auto_release<tui::widget> _document;
 
 private:
   void read_command();
@@ -26,8 +27,6 @@ public:
   ~application() override;
   void initialize(int argc, char *argv[]);
   void exit();
-  void set_cursor_style(cursor_style style);
-  void clear();
-  void command(const util::key &cmd);
+  void on_command(const util::key &cmd);
 };
 } // namespace duskland::system
