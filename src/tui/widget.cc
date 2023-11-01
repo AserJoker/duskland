@@ -113,6 +113,11 @@ bool widget::on_input(const util::key &key) {
       return true;
     }
   }
+  if (key.name() == "<tab>") {
+    if (next_active()) {
+      return true;
+    }
+  }
   return false;
 }
 void widget::on_active() {
