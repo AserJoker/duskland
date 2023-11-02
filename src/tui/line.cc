@@ -1,7 +1,7 @@
-﻿#include "tui/column.hpp"
+﻿#include "tui/line.hpp"
 using namespace duskland::tui;
-column::column() { set_selectable(true); }
-void column::on_update() {
+line::line() { set_selectable(true); }
+void line::on_update() {
   auto rc = get_rect();
   auto &content_rc = get_content_rect();
   rc.height = 0;
@@ -10,12 +10,12 @@ void column::on_update() {
   for (auto &c : get_children()) {
     if (c->is_visible()) {
       auto &crc = c->get_rect();
-      rc.height += crc.height;
-      if (crc.width > rc.width) {
-        rc.width = crc.width;
+      rc.width += crc.width;
+      if (crc.height > rc.height) {
+        rc.height = crc.height;
       }
-      c->set_rect({content_rc.x, content_rc.y + offset, crc.width, crc.height});
-      offset += crc.height;
+      c->set_rect({content_rc.x + offset, content_rc.y, crc.width, crc.height});
+      offset += crc.width;
     }
   }
   set_content_rect(rc);
@@ -23,7 +23,7 @@ void column::on_update() {
     get_parent()->request_update();
   }
 }
-void column::on_active() {
+void line::on_active() {
   if (!get_active_widget()) {
     next_active();
   }

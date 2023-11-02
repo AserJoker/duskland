@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "widget.hpp"
 namespace duskland::tui {
-class column : public widget {
+class line : public widget {
 public:
-  column();
+  line();
   void on_update() override;
   void on_active() override;
 };

@@ -43,6 +43,7 @@ public:
   bool next_active();
   void set_active_widget(const core::auto_release<widget> &widget);
   void set_rect(const util::rect &rc);
+  void set_content_rect(const util::rect &rc);
   void set_visible(bool visible);
   const bool &is_visible() const;
   virtual bool on_input(const util::key &key);

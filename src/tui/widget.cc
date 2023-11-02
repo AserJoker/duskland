@@ -144,6 +144,26 @@ void widget::request_update() {
   _is_changed = true;
   on_update();
   _is_request = false;
+  for (auto &c : _children) {
+    c->request_update();
+  }
+}
+
+void widget::set_content_rect(const util::rect &rect) {
+  _rect = rect;
+  if (_border.left) {
+    _rect.width++;
+  }
+  if (_border.right) {
+    _rect.width++;
+  }
+  if (_border.top) {
+    _rect.height++;
+  }
+  if (_border.bottom) {
+    _rect.height++;
+  }
+  request_update();
 }
 std::vector<core::auto_release<widget>> &widget::get_children() {
   return _children;
