@@ -14,7 +14,7 @@ void line::on_update() {
       if (crc.height > rc.height) {
         rc.height = crc.height;
       }
-      c->set_rect({content_rc.x + offset, content_rc.y, crc.width, crc.height});
+      c->set_rect({offset, 0, crc.width, crc.height});
       offset += crc.width;
     }
   }
@@ -22,10 +22,4 @@ void line::on_update() {
   if (get_parent()) {
     get_parent()->request_update();
   }
-}
-void line::on_active() {
-  if (!get_active_widget()) {
-    next_active();
-  }
-  widget::on_active();
 }

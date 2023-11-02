@@ -13,7 +13,6 @@
 #include <thread>
 using namespace duskland::system;
 using namespace duskland;
-tui::column *col1 = nullptr;
 application::application() : _is_running(false) {
   _injector = core::singleton<util::injector>::get();
 }
@@ -48,12 +47,12 @@ void application::initialize(int argc, char *argv[]) {
   set_escdelay(1);
 
   this->_document = new tui::document();
-  auto line1 = new tui::line();
-  col1 = new tui::column();
+  auto col = new tui::column();
+  auto col1 = new tui::column();
   auto col2 = new tui::column();
-  this->_document->add_child(line1);
-  line1->add_child(col1);
-  line1->add_child(col2);
+  this->_document->add_child(col);
+  col->add_child(col1);
+  col->add_child(col2);
   auto text1 = new tui::text(L"item1");
   auto text2 = new tui::text(L"item2");
   auto text3 = new tui::text(L"item3");
@@ -63,7 +62,6 @@ void application::initialize(int argc, char *argv[]) {
   col2->add_child(text3);
   col2->add_child(text4);
   this->_document->next_active();
-  this->_document->request_update();
 }
 void application::on_command(const util::key &cmd) {
   if (cmd.raw.empty()) {
@@ -73,11 +71,9 @@ void application::on_command(const util::key &cmd) {
     if (cmd.name() == "<esc>") {
       exit();
     }
-    if (cmd.name() == "<a>") {
-      col1->set_border({true, true, true, true});
+    if (cmd.name() == "<w>") {
     }
-    if (cmd.name() == "<d>") {
-      col1->set_border({false, false, false, false});
+    if (cmd.name() == "<s>") {
     }
   }
 }

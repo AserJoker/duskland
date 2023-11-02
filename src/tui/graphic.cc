@@ -1,6 +1,7 @@
 ﻿#include "tui/graphic.hpp"
 #include "util/injector.hpp"
 using namespace duskland::tui;
+using namespace duskland;
 graphic::graphic() : _need_update(false), _position({0, 0}) {
   initscr();
   start_color();
@@ -12,6 +13,23 @@ graphic::graphic() : _need_update(false), _position({0, 0}) {
 }
 graphic::~graphic() { endwin(); }
 void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
+  auto xx = x + _position.x;
+  auto yy = y + _position.y;
+  if (xx < _viewport.x || yy < _viewport.y) {
+    return;
+  }
+  auto width = wcwidth(ch);
+  if (xx + width > _viewport.x + _viewport.width) {
+    return;
+  }
+  if (yy + 1 > _viewport.y + _viewport.height) {
+    return;
+  }
+  cchar_t cc = {0, {ch, 0}};
+  mvadd_wch(yy, xx, &cc);
+    _need_update = true;
+}
+void graphic::draw_abstruct(int32_t x, int32_t y, wchar_t ch) {
   cchar_t cc = {0, {ch, 0}};
   mvadd_wch(y, x, &cc);
   _need_update = true;
@@ -32,3 +50,7 @@ bool graphic::present() {
   }
   return false;
 }
+void graphic::set_view_port(const util::rect &rc) { _viewport = rc; }
+void graphic::set_position(const util::position &pos) { _position = pos; }
+
+const util::position &graphic::get_position() { return _position; }

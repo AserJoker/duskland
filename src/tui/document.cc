@@ -16,3 +16,7 @@ bool document::on_input(const util::key &key) {
   }
   return false;
 }
+void document::on_render(const core::auto_release<graphic> &g) {
+  g->set_view_port(get_content_rect());
+  g->set_position({0,0});
+}

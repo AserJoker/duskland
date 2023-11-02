@@ -5,6 +5,5 @@ class line : public widget {
 public:
   line();
   void on_update() override;
-  void on_active() override;
 };
 } // namespace duskland::tui

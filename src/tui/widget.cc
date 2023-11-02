@@ -38,7 +38,10 @@ void widget::render(const core::auto_release<graphic> &g) {
     this->on_render(g);
     _is_changed = false;
   }
+  auto pos = g->get_position();
   for (auto &c : _children) {
+    auto &crc = get_content_rect();
+    g->set_position({crc.x + pos.x, crc.y + pos.y});
     c->render(g);
   }
 }
@@ -125,6 +128,8 @@ bool widget::on_input(const util::key &key) {
 void widget::on_active() {
   if (_active_widget) {
     _active_widget->on_active();
+  } else {
+    next_active();
   }
   _is_active = true;
   request_update();
@@ -223,11 +228,18 @@ void widget::set_active_widget(const core::auto_release<widget> &widget) {
     if (_active_widget) {
       _active_widget->on_active();
     }
+    request_update();
   }
 }
 void widget::set_rect(const util::rect &rc) {
   _rect = rc;
+  if (_rect.width < 10) {
+    _rect.width = 10;
+  }
   request_update();
+  if (_parent) {
+    _parent->request_update();
+  }
 }
 void widget::set_visible(bool visible) {
   _is_visible = visible;
