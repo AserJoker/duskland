@@ -1,8 +1,20 @@
 ﻿#pragma once
 #include <fmt/format.h>
-#include <ncurses.h>
+// #include <curses.h>
 #include <string>
 #include <vector>
+#define KEY_BACKSPACE 127
+#define KEY_LEFT 128
+#define KEY_RIGHT 129
+#define KEY_UP 130
+#define KEY_DOWN 131
+#define KEY_INSERT 132
+#define KEY_DELETE 133
+#define KEY_HOME 134
+#define KEY_END 135
+#define KEY_PGUP 136
+#define KEY_PGDN 137
+#define KEY_F(n) 138+n
 namespace duskland::util {
 struct key {
   wint_t decode;
@@ -32,17 +44,17 @@ struct key {
       basename = "up";
     } else if (decode == KEY_DOWN) {
       basename = "down";
-    } else if (decode == KEY_IC) {
+    } else if (decode == KEY_INSERT) {
       basename = "insert";
-    } else if (decode == KEY_DC) {
+    } else if (decode == KEY_DELETE) {
       basename = "delete";
     } else if (decode == KEY_HOME) {
       basename = "home";
     } else if (decode == KEY_END) {
       basename = "end";
-    } else if (decode == KEY_NPAGE) {
+    } else if (decode == KEY_PGDN) {
       basename = "pgdn";
-    } else if (decode == KEY_PPAGE) {
+    } else if (decode == KEY_PGUP) {
       basename = "pgup";
     } else if (decode >= KEY_F(1) && decode <= KEY_F(12)) {
       basename = fmt::format("f{}", decode - KEY_F(0));

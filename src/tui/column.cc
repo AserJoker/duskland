@@ -2,7 +2,6 @@
 using namespace duskland::tui;
 column::column() {
   set_selectable(true);
-  set_border({true, true, true, true});
 }
 void column::on_update() {
   auto rc = get_rect();

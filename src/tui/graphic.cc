@@ -1,8 +1,10 @@
 ﻿#include "tui/graphic.hpp"
 #include "util/injector.hpp"
+#include <curses.h>
 using namespace duskland::tui;
 using namespace duskland;
-graphic::graphic() : _need_update(false), _position({0, 0}) {
+graphic::graphic()
+    : _need_update(false), _position({0, 0}), _viewport({0, 0, 0, 0}) {
   initscr();
   start_color();
   raw();
@@ -19,15 +21,17 @@ void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
     return;
   }
   auto width = wcwidth(ch);
-  if (xx + width > _viewport.x + _viewport.width) {
-    return;
-  }
-  if (yy + 1 > _viewport.y + _viewport.height) {
-    return;
+  if (_viewport.width && _viewport.height) {
+    if (xx + width > _viewport.x + _viewport.width) {
+      return;
+    }
+    if (yy + 1 > _viewport.y + _viewport.height) {
+      return;
+    }
   }
   cchar_t cc = {0, {ch, 0}};
   mvadd_wch(yy, xx, &cc);
-    _need_update = true;
+  _need_update = true;
 }
 void graphic::draw_abstruct(int32_t x, int32_t y, wchar_t ch) {
   cchar_t cc = {0, {ch, 0}};

@@ -2,7 +2,6 @@
 #include "core/object.hpp"
 #include "util/position.hpp"
 #include "util/rect.hpp"
-#include <curses.h>
 #include <string>
 namespace duskland::tui {
 class graphic : public core::object {
@@ -14,7 +13,7 @@ private:
 public:
   graphic();
   ~graphic() override;
-  void set_attr(chtype attr);
+  void set_attr(uint32_t attr);
   void draw(int32_t x, int32_t y, wchar_t c);
   void draw_abstruct(int32_t x, int32_t y, wchar_t c);
   void draw(int32_t x, int32_t y, const std::wstring &str);

@@ -13,11 +13,13 @@ private:
   widget *_parent;
   widget *_active_widget;
   util::rect _rect;
+  util::position _offset;
   bool _is_selectable;
   bool _is_active;
   bool _is_changed;
   bool _is_visible;
   bool _is_request;
+  bool _is_hidden_overflow;
   util::border_info _border;
 
 protected:
@@ -46,6 +48,13 @@ public:
   void set_content_rect(const util::rect &rc);
   void set_visible(bool visible);
   const bool &is_visible() const;
+  void set_hidden_overflow(bool hiddren_overflow);
+  bool is_hidden_overflow();
+  void emit(const std::string &event);
+  const util::position &get_offset() const;
+  void set_offset(const util::position &pos);
+  util::rect get_absolute_rect();
+  virtual void on_event(const std::string &event, widget *emitter);
   virtual bool on_input(const util::key &key);
   virtual void on_dective();
   virtual void on_active();

@@ -3,10 +3,10 @@
 using namespace duskland::tui;
 using namespace duskland;
 widget::widget()
-    : _rect({0, 0, 0, 0}), _is_selectable(false), _is_active(false),
-      _is_request(false), _border({false, false, false, false}),
-      _parent(nullptr), _is_visible(true), _is_changed(true),
-      _active_widget(nullptr) {}
+    : _rect({0, 0, 0, 0}), _offset({0, 0}), _is_selectable(false),
+      _is_hidden_overflow(false), _is_active(false), _is_request(false),
+      _border({false, false, false, false}), _parent(nullptr),
+      _is_visible(true), _is_changed(true), _active_widget(nullptr) {}
 const util::rect &widget::get_rect() const { return _rect; }
 const util::rect widget::get_content_rect() const {
   util::rect rc = _rect;
@@ -27,6 +27,10 @@ const util::rect widget::get_content_rect() const {
   return rc;
 }
 void widget::render(const core::auto_release<graphic> &g) {
+  if (!_parent) {
+    g->set_position({0, 0});
+    g->set_view_port({0, 0, 0, 0});
+  }
   if (_is_changed) {
     this->clear(g);
     chtype attr = COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK));
@@ -38,11 +42,17 @@ void widget::render(const core::auto_release<graphic> &g) {
     this->on_render(g);
     _is_changed = false;
   }
+  if (_is_hidden_overflow) {
+    g->set_view_port(get_content_rect());
+  }
   auto pos = g->get_position();
   for (auto &c : _children) {
     auto &crc = get_content_rect();
-    g->set_position({crc.x + pos.x, crc.y + pos.y});
+    g->set_position({crc.x + _offset.x + pos.x, crc.y + _offset.y + pos.y});
     c->render(g);
+  }
+  if (_is_hidden_overflow) {
+    g->set_view_port({0, 0, 0, 0});
   }
 }
 void widget::clear(const core::auto_release<graphic> &g) {
@@ -126,20 +136,22 @@ bool widget::on_input(const util::key &key) {
   return false;
 }
 void widget::on_active() {
-  if (_active_widget) {
-    _active_widget->on_active();
+  if (_children.empty()) {
+    emit("focus");
   } else {
-    next_active();
+    if (_active_widget) {
+      _active_widget->on_active();
+    } else {
+      next_active();
+    }
   }
   _is_active = true;
-  request_update();
 }
 void widget::on_dective() {
   if (_active_widget) {
     _active_widget->on_dective();
   }
   _is_active = false;
-  request_update();
 }
 void widget::request_update() {
   if (_is_request) {
@@ -252,3 +264,31 @@ void widget::set_visible(bool visible) {
 }
 const bool &widget::is_visible() const { return _is_visible; }
 void widget::on_update() {}
+
+void widget::emit(const std::string &event) { on_event(event, this); }
+void widget::on_event(const std::string &event, widget *emitter) {
+  if (_parent) {
+    _parent->on_event(event, emitter);
+  }
+}
+const util::position &widget::get_offset() const { return _offset; }
+void widget::set_offset(const util::position &pos) {
+  _offset = pos;
+  request_update();
+}
+util::rect widget::get_absolute_rect() {
+  if (_parent) {
+    auto &rc = get_rect();
+    auto parc = _parent->get_absolute_rect();
+    auto crc = _parent->get_content_rect();
+    auto &prc = _parent->get_rect();
+    return {(crc.x - prc.x) + parc.x + rc.x, (crc.y - prc.y) + parc.y + rc.y,
+            rc.width, rc.height};
+  } else {
+    return get_rect();
+  }
+}
+void widget::set_hidden_overflow(bool hidden_overflow) {
+  _is_hidden_overflow = hidden_overflow;
+}
+bool widget::is_hidden_overflow() { return _is_hidden_overflow; }

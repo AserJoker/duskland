@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <ncurses.h>
+#include <cstdint>
 namespace duskland::util {
 struct border_info {
   bool left;

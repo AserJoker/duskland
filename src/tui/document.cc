@@ -1,4 +1,5 @@
 ﻿#include "tui/document.hpp"
+#include <curses.h>
 using namespace duskland::tui;
 document::document() {
   set_selectable(true);

@@ -1,6 +1,7 @@
 ﻿#include "system/application.hpp"
 #include "tui/column.hpp"
 #include "tui/document.hpp"
+#include "tui/fixcontent.hpp"
 #include "tui/line.hpp"
 #include "tui/text.hpp"
 #include "util/event.hpp"
@@ -13,6 +14,7 @@
 #include <thread>
 using namespace duskland::system;
 using namespace duskland;
+tui::fixcontent *fix = nullptr;
 application::application() : _is_running(false) {
   _injector = core::singleton<util::injector>::get();
 }
@@ -50,17 +52,24 @@ void application::initialize(int argc, char *argv[]) {
   auto col = new tui::column();
   auto col1 = new tui::column();
   auto col2 = new tui::column();
-  this->_document->add_child(col);
+  auto col3 = new tui::column();
+  fix = new tui::fixcontent();
+  fix->set_rect({10, 10, 30, 10});
+  this->_document->add_child(fix);
+  this->_document->add_child(col3);
+  fix->add_child(col);
   col->add_child(col1);
   col->add_child(col2);
   auto text1 = new tui::text(L"item1");
   auto text2 = new tui::text(L"item2");
   auto text3 = new tui::text(L"item3");
   auto text4 = new tui::text(L"item4");
+  auto text5 = new tui::text(L"item5");
   col1->add_child(text1);
   col1->add_child(text2);
   col2->add_child(text3);
   col2->add_child(text4);
+  col3->add_child(text5);
   this->_document->next_active();
 }
 void application::on_command(const util::key &cmd) {
@@ -72,8 +81,20 @@ void application::on_command(const util::key &cmd) {
       exit();
     }
     if (cmd.name() == "<w>") {
+      auto pos = fix->get_position();
+      fix->set_position({pos.x, pos.y + 1});
     }
     if (cmd.name() == "<s>") {
+      auto pos = fix->get_position();
+      fix->set_position({pos.x, pos.y - 1});
+    }
+    if (cmd.name() == "<W>") {
+      auto &rc = fix->get_rect();
+      fix->set_rect({rc.x, rc.y, rc.width, rc.height + 1});
+    }
+    if (cmd.name() == "<S>") {
+      auto &rc = fix->get_rect();
+      fix->set_rect({rc.x, rc.y, rc.width, rc.height - 1});
     }
   }
 }
