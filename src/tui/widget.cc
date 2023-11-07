@@ -43,7 +43,9 @@ void widget::render(const core::auto_release<graphic> &g) {
     _is_changed = false;
   }
   if (_is_hidden_overflow) {
-    g->set_view_port(get_content_rect());
+    auto crc = get_content_rect();
+    auto pos = g->get_position();
+    g->set_view_port({crc.x + pos.x, crc.y + pos.y, crc.width, crc.height});
   }
   auto pos = g->get_position();
   for (auto &c : _children) {

@@ -33,15 +33,19 @@ void fixcontent::fix_rect() {
   if (_max_size.height <= get_content_rect().height) {
     offset.y = 0;
   } else {
-    if (-offset.y > (_max_size.height - get_content_rect().height)) {
-      offset.y = -(_max_size.height - get_content_rect().height);
+    if (-offset.y >
+        ((int32_t)_max_size.height - (int32_t)get_content_rect().height)) {
+      offset.y =
+          -((int32_t)_max_size.height - (int32_t)get_content_rect().height);
     }
   }
-  if (_max_size.width < get_content_rect().width) {
+  if ((int32_t)_max_size.width < (int32_t)get_content_rect().width) {
     offset.x = 0;
   } else {
-    if (-offset.x > (_max_size.width - get_content_rect().width)) {
-      offset.x = -(_max_size.width - get_content_rect().width);
+    if (-offset.x >
+        ((int32_t)_max_size.width - (int32_t)get_content_rect().width)) {
+      offset.x =
+          -((int32_t)_max_size.width - (int32_t)get_content_rect().width);
     }
   }
   set_offset(offset);
@@ -66,22 +70,20 @@ void fixcontent::draw_scroll(const core::auto_release<graphic> &g) {
   auto &offset = get_offset();
   if (border.bottom) {
     std::wstring str;
-    if (_max_size.height > rc.height) {
-      str += fmt::format(
-          L"{}%",
+    if (_max_size.height > rc.height || _max_size.width > rc.width) {
+      uint32_t dy =
           (uint32_t)(offset.y * 1.0f /
-                     ((int32_t)rc.height - (int32_t)_max_size.height) * 100));
-    }
-    if (_max_size.width > rc.width) {
-      auto line = fmt::format(
-          L"{}%",
+                     ((int32_t)rc.height - (int32_t)_max_size.height) * 100);
+      uint32_t dx =
           (uint32_t)(offset.x * 1.0f /
-                     ((int32_t)rc.width - (int32_t)_max_size.width) * 100));
-      if (str.empty()) {
-        str = line;
-      } else {
-        str = fmt::format(L"{} {}", str, line);
+                     ((int32_t)rc.width - (int32_t)_max_size.width) * 100);
+      if (rc.height >= _max_size.height) {
+        dy = 100;
       }
+      if (rc.width >= _max_size.width) {
+        dx = 100;
+      }
+      str += fmt::format(L"{}%:{}%", dy, dx);
     }
     g->draw(get_rect().x + 1, get_rect().y + get_rect().height - 1,
             str.c_str());
@@ -98,11 +100,15 @@ void fixcontent::set_position(const util::position &pos) {
 const util::position &fixcontent::get_position() const { return get_offset(); };
 void fixcontent::on_event(const std::string &event, widget *w) {
   if (event == "focus") {
-    auto wrc = w->get_absolute_rect();
-    auto crc = get_content_rect();
-    _focus.y = wrc.y - crc.y;
-    _focus.x = wrc.x - crc.x;
-    fix_rect();
+    if (w != this) {
+      auto wrc = w->get_absolute_rect();
+      auto rc = get_absolute_rect();
+      auto crc = get_content_rect();
+      _focus.y = wrc.y - rc.y - crc.y;
+      _focus.x = wrc.x - rc.x - crc.x;
+      fix_rect();
+      emit("focus");
+    }
   } else {
     widget::on_event(event, w);
   }

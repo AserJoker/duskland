@@ -61,12 +61,15 @@ void application::initialize(int argc, char *argv[]) {
   auto col2 = new tui::column();
   auto col3 = new tui::column();
   fix = new tui::fixcontent();
-  fix->set_rect({10, 10, 30, 10});
-  this->_document->add_child(fix);
+  auto fix2 = new tui::fixcontent();
+  fix2->set_rect({10, 10, 30, 10});
+  fix->set_rect({0, 0, 30, 10});
+  this->_document->add_child(fix2);
   this->_document->add_child(col3);
   fix->add_child(col);
   col->add_child(col1);
   col->add_child(col2);
+  fix2->add_child(fix);
   auto text1 = new tui::text(L"item1");
   auto text2 = new tui::text(L"item2");
   auto text3 = new tui::text(L"item3");
