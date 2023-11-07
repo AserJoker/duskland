@@ -62,7 +62,7 @@ void application::initialize(int argc, char *argv[]) {
   auto col3 = new tui::column();
   fix = new tui::fixcontent();
   auto fix2 = new tui::fixcontent();
-  fix2->set_rect({10, 10, 30, 10});
+  fix2->set_rect({10, 10, 30, 6});
   fix->set_rect({0, 0, 30, 10});
   this->_document->add_child(fix2);
   this->_document->add_child(col3);

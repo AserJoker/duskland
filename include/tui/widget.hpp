@@ -54,6 +54,7 @@ public:
   const util::position &get_offset() const;
   void set_offset(const util::position &pos);
   util::rect get_absolute_rect();
+  util::rect get_viewport();
   virtual void on_event(const std::string &event, widget *emitter);
   virtual bool on_input(const util::key &key);
   virtual void on_dective();

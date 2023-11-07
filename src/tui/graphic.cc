@@ -54,7 +54,8 @@ bool graphic::present() {
   }
   return false;
 }
-void graphic::set_view_port(const util::rect &rc) { _viewport = rc; }
+void graphic::set_viewport(const util::rect &rc) { _viewport = rc; }
+const util::rect &graphic::get_viewport() const { return _viewport; }
 void graphic::set_position(const util::position &pos) { _position = pos; }
 
 const util::position &graphic::get_position() { return _position; }

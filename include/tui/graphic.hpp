@@ -17,7 +17,8 @@ public:
   void draw(int32_t x, int32_t y, wchar_t c);
   void draw_abstruct(int32_t x, int32_t y, wchar_t c);
   void draw(int32_t x, int32_t y, const std::wstring &str);
-  void set_view_port(const util::rect &rc);
+  void set_viewport(const util::rect &rc);
+  const util::rect& get_viewport() const;
   void set_position(const util::position &rc);
   const util::position& get_position();
   bool present();

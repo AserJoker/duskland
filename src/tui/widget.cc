@@ -29,7 +29,7 @@ const util::rect widget::get_content_rect() const {
 void widget::render(const core::auto_release<graphic> &g) {
   if (!_parent) {
     g->set_position({0, 0});
-    g->set_view_port({0, 0, 0, 0});
+    g->set_viewport({0, 0, 0, 0});
   }
   if (_is_changed) {
     this->clear(g);
@@ -43,9 +43,7 @@ void widget::render(const core::auto_release<graphic> &g) {
     _is_changed = false;
   }
   if (_is_hidden_overflow) {
-    auto crc = get_content_rect();
-    auto pos = g->get_position();
-    g->set_view_port({crc.x + pos.x, crc.y + pos.y, crc.width, crc.height});
+    g->set_viewport(get_viewport());
   }
   auto pos = g->get_position();
   for (auto &c : _children) {
@@ -54,8 +52,31 @@ void widget::render(const core::auto_release<graphic> &g) {
     c->render(g);
   }
   if (_is_hidden_overflow) {
-    g->set_view_port({0, 0, 0, 0});
+    g->set_viewport({0, 0, 0, 0});
   }
+}
+util::rect widget::get_viewport() {
+  auto crc = get_content_rect();
+  auto pos = get_absolute_rect();
+  auto rc = get_rect();
+  util::rect viewport = {crc.x - rc.x + pos.x, crc.y - rc.y + pos.y, crc.width,
+                         crc.height};
+  if (_parent && _parent->_is_hidden_overflow) {
+    auto pviewport = _parent->get_viewport();
+    if (viewport.x < pviewport.x) {
+      viewport.x = pviewport.x;
+    }
+    if (viewport.y < pviewport.y) {
+      viewport.y = pviewport.y;
+    }
+    if (pviewport.y + pviewport.height < viewport.y + viewport.height) {
+      viewport.height = pviewport.y + pviewport.height - viewport.y;
+    }
+    if (pviewport.x + pviewport.width < viewport.x + viewport.width) {
+      viewport.width = pviewport.x + pviewport.width - viewport.x;
+    }
+  }
+  return viewport;
 }
 void widget::clear(const core::auto_release<graphic> &g) {
   for (auto x = 0; x < _rect.width; x++) {

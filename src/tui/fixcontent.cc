@@ -108,6 +108,7 @@ void fixcontent::on_event(const std::string &event, widget *w) {
       _focus.x = wrc.x - rc.x - crc.x;
       fix_rect();
       emit("focus");
+      widget::on_event(event, w);
     }
   } else {
     widget::on_event(event, w);
