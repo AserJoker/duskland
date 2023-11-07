@@ -4,7 +4,9 @@
 using namespace duskland::tui;
 using namespace duskland;
 graphic::graphic()
-    : _need_update(false), _position({0, 0}), _viewport({0, 0, 0, 0}) {
+    : _need_update(false), _position({0, 0}), _viewport({0, 0, 0, 0}) {}
+graphic::~graphic() { endwin(); }
+void graphic::initialize() {
   initscr();
   start_color();
   raw();
@@ -13,7 +15,7 @@ graphic::graphic()
   curs_set(0);
   refresh();
 }
-graphic::~graphic() { endwin(); }
+void graphic::uninitialize() {}
 void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
   auto xx = x + _position.x;
   auto yy = y + _position.y;

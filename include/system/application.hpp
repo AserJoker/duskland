@@ -2,6 +2,7 @@
 #include "core/object.hpp"
 #include "core/singleton.hpp"
 #include "input.hpp"
+#include "resource.hpp"
 #include "tui/graphic.hpp"
 #include "tui/widget.hpp"
 #include "util/injector.hpp"
@@ -17,6 +18,7 @@ private:
   core::auto_release<tui::graphic> _graphic;
   core::auto_release<tui::widget> _document;
   core::auto_release<input> _input;
+  core::auto_release<resource> _resource;
 
 public:
   int run();
