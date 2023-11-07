@@ -68,13 +68,13 @@ void fixcontent::draw_scroll(const core::auto_release<graphic> &g) {
     std::wstring str;
     if (_max_size.height > rc.height) {
       str += fmt::format(
-          L"{}% column",
+          L"{}%",
           (uint32_t)(offset.y * 1.0f /
                      ((int32_t)rc.height - (int32_t)_max_size.height) * 100));
     }
     if (_max_size.width > rc.width) {
       auto line = fmt::format(
-          L"{}% line",
+          L"{}%",
           (uint32_t)(offset.x * 1.0f /
                      ((int32_t)rc.width - (int32_t)_max_size.width) * 100));
       if (str.empty()) {

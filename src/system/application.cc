@@ -17,6 +17,7 @@ using namespace duskland;
 tui::fixcontent *fix = nullptr;
 application::application() : _is_running(false) {
   _injector = core::singleton<util::injector>::get();
+  _input = core::singleton<input>::get();
 }
 application::~application() {
   clrtoeol();
@@ -27,7 +28,13 @@ int application::run() {
     _is_running = true;
     auto now = std::chrono::system_clock::now();
     while (_is_running) {
-      read_command();
+      std::vector<util::key> keys;
+      if (_input->read(keys)) {
+        for (auto &key : keys) {
+          on_command(key);
+        }
+      }
+
       this->_document->render(this->_graphic);
       if (!this->_graphic->present()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(4));
@@ -77,68 +84,24 @@ void application::on_command(const util::key &cmd) {
     return;
   }
   if (!this->_document->on_input(cmd)) {
-    if (cmd.name() == "<esc>") {
+    if (cmd.name == "<esc>") {
       exit();
     }
-    if (cmd.name() == "<w>") {
+    if (cmd.name == "<w>") {
       auto pos = fix->get_position();
       fix->set_position({pos.x, pos.y + 1});
     }
-    if (cmd.name() == "<s>") {
+    if (cmd.name == "<s>") {
       auto pos = fix->get_position();
       fix->set_position({pos.x, pos.y - 1});
     }
-    if (cmd.name() == "<W>") {
+    if (cmd.name == "<W>") {
       auto &rc = fix->get_rect();
       fix->set_rect({rc.x, rc.y, rc.width, rc.height + 1});
     }
-    if (cmd.name() == "<S>") {
+    if (cmd.name == "<S>") {
       auto &rc = fix->get_rect();
       fix->set_rect({rc.x, rc.y, rc.width, rc.height - 1});
-    }
-  }
-}
-void application::read_command() {
-  std::vector<wint_t> codes;
-  for (;;) {
-    wint_t c;
-    if (get_wch(&c) == ERR) {
-      c = ERR;
-    }
-    if (c == ERR) {
-      break;
-    }
-    codes.push_back(c);
-  }
-  decode_command(codes);
-}
-void application::decode_command(const std::vector<wint_t> &codes) {
-  util::key cmd = {0, false, false, false, codes};
-  if (!codes.empty()) {
-    auto k = util::keymap;
-    for (auto i = 0; i < codes.size(); i++) {
-      k = k[codes[i]];
-    }
-    if (k.code().decode != 0) {
-      cmd = k.code();
-      cmd.raw = codes;
-      on_command(cmd);
-    } else {
-      for (auto &code : codes) {
-        cmd.raw = {code};
-        if (code >= 0x1 && code <= 0x18) {
-          cmd.decode = code + 'a';
-          cmd.shift = false;
-          cmd.ctrl = true;
-          cmd.alt = false;
-        } else {
-          cmd.decode = code;
-          cmd.shift = false;
-          cmd.ctrl = false;
-          cmd.alt = false;
-        }
-        on_command(cmd);
-      }
     }
   }
 }

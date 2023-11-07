@@ -8,7 +8,7 @@ document::document() {
 }
 bool document::on_input(const util::key &key) {
   if (!widget::on_input(key)) {
-    if (key.name() == "<tab>") {
+    if (key.name == "<tab>") {
       if (!next_active()) {
         next_active();
       }
@@ -19,5 +19,5 @@ bool document::on_input(const util::key &key) {
 }
 void document::on_render(const core::auto_release<graphic> &g) {
   g->set_view_port(get_content_rect());
-  g->set_position({0,0});
+  g->set_position({0, 0});
 }

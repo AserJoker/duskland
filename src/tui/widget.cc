@@ -128,7 +128,7 @@ bool widget::on_input(const util::key &key) {
       return true;
     }
   }
-  if (key.name() == "<tab>") {
+  if (key.name == "<tab>") {
     if (next_active()) {
       return true;
     }

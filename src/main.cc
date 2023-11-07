@@ -2,6 +2,7 @@
 #include "system/application.hpp"
 #include <signal.h>
 using namespace duskland;
+
 int main(int argc, char *argv[]) {
   signal(SIGINT, SIG_IGN);
   signal(SIGQUIT, SIG_IGN);
@@ -9,5 +10,4 @@ int main(int argc, char *argv[]) {
   auto app = core::singleton<system::application>::get();
   app->initialize(argc, argv);
   return app->run();
-  return 0;
 }

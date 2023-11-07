@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "core/object.hpp"
 #include "core/singleton.hpp"
+#include "input.hpp"
 #include "tui/graphic.hpp"
 #include "tui/widget.hpp"
 #include "util/injector.hpp"
@@ -14,12 +15,8 @@ private:
   bool _is_running;
   core::auto_release<util::injector> _injector;
   core::auto_release<tui::graphic> _graphic;
-
   core::auto_release<tui::widget> _document;
-
-private:
-  void read_command();
-  void decode_command(const std::vector<wint_t> &codes);
+  core::auto_release<input> _input;
 
 public:
   int run();
