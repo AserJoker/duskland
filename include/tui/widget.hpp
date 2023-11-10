@@ -42,5 +42,6 @@ public:
   void remove_child(const core::auto_release<widget> &w);
   void set_focus(const util::point &pos);
   util::point get_focus() const;
+  const util::rect &get_rect() const;
 };
 } // namespace duskland::tui

@@ -13,8 +13,30 @@ void widget::on_event(const std::string &event, widget *w) {
 }
 void widget::on_render(core::auto_release<graphic> &g) {
   for (auto &c : _children) {
-    g->set_position({c->_rect.x, c->_rect.y});
-    g->set_viewport(_rect);
+    if (c->_attr.position == attribute::RELATIVE) {
+      auto crc = c->get_bound_rect();
+      g->set_position({c->_rect.x, c->_rect.y});
+      auto &rc = g->get_viewport();
+      auto rect = _rect;
+      if (rc.width || rc.height) {
+        if (rect.x < rc.x) {
+          rect.x = rc.x;
+        }
+        if (rect.y < rc.y) {
+          rect.y = rc.y;
+        }
+        if (rect.x + rect.width > rc.x + rc.width) {
+          rect.width = rc.x + rc.width - rect.x;
+        }
+        if (rect.y + rect.height > rc.y + rc.height) {
+          rect.height = rc.y + rc.height - rect.y;
+        }
+      }
+      g->set_viewport(rect);
+    } else {
+      g->set_position({0, 0});
+      g->set_viewport({0, 0, 0, 0});
+    }
     c->render(g);
   }
 }
@@ -85,10 +107,10 @@ void widget::calculate_rect() {
       if (c->_attr.position == attribute::RELATIVE) {
         auto rc = c->get_bound_rect();
         if (rc.x + rc.width > _rect.width + _rect.x) {
-          _rect.width = rc.x + rc.width - _fixed_rect.x - _fixed_rect.x;
+          _rect.width = rc.x + rc.width - _rect.x - _fixed_rect.x;
         }
         if (rc.y + rc.height > _rect.height + _rect.y) {
-          _rect.height = rc.y + rc.height - _fixed_rect.y - _fixed_rect.y;
+          _rect.height = rc.y + rc.height - _rect.y - _fixed_rect.y;
         }
       }
     }
@@ -100,17 +122,26 @@ void widget::calculate_rect() {
   if (_attr.max_size.height && _rect.height > _attr.max_size.height) {
     _rect.height = _attr.max_size.height;
   }
+  calculate_fixed();
 }
 void widget::request_update() {
   if (_update_lock) {
     return;
   }
   _update_lock = true;
-  for (auto &c : _children) {
-    c->request_update();
+  if (_attr.overflow == attribute::SCROLL) {
+    for (auto &c : _children) {
+      c->request_update();
+    }
+    on_update();
+    calculate_rect();
+  } else {
+    on_update();
+    calculate_rect();
+    for (auto &c : _children) {
+      c->request_update();
+    }
   }
-  on_update();
-  calculate_rect();
   _is_changed = true;
   _update_lock = false;
 }
@@ -274,3 +305,4 @@ void widget::calculate_fixed() {
     _fixed_rect.y = 0;
   }
 }
+const util::rect &widget::get_rect() const { return _rect; }

@@ -1,4 +1,5 @@
 ﻿#include "system/application.hpp"
+#include "tui/layout_vertical.hpp"
 #include "tui/text.hpp"
 #include "tui/widget.hpp"
 #include "util/event.hpp"
@@ -63,13 +64,11 @@ void application::initialize(int argc, char *argv[]) {
   w->get_attribute().offset.y = 10;
   w->get_attribute().size.width = 6;
   w->get_attribute().size.height = 6;
-  w->get_attribute().overflow = tui::attribute::SCROLL;
+  w->get_attribute().overflow = tui::attribute::FIXED;
+  auto txt = new tui::text(L"aaaabbbbccccddddd");
+  txt->set_auto_wrap(true);
+  w->add_child(txt);
   w->request_update();
-  for (auto i = 0; i < 7; i++) {
-    auto txt = new tui::text(fmt::format(L"item-test-{}", i));
-    txt->get_attribute().offset.y = i;
-    w->add_child(txt);
-  }
 }
 void application::on_command(const util::key &cmd) {
   if (cmd.raw.empty()) {
@@ -79,19 +78,11 @@ void application::on_command(const util::key &cmd) {
     exit();
   }
   if (cmd.name == "<a>") {
-    auto pos = w->get_focus();
-    w->set_focus({pos.x + 1, pos.y});
+    w->get_attribute().size.width--;
+    w->request_update();
   }
   if (cmd.name == "<d>") {
-    auto pos = w->get_focus();
-    w->set_focus({pos.x - 1, pos.y});
-  }
-  if (cmd.name == "<w>") {
-    auto pos = w->get_focus();
-    w->set_focus({pos.x, pos.y + 1});
-  }
-  if (cmd.name == "<s>") {
-    auto pos = w->get_focus();
-    w->set_focus({pos.x, pos.y - 1});
+    w->get_attribute().size.width++;
+    w->request_update();
   }
 }

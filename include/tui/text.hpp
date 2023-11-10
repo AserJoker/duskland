@@ -4,6 +4,7 @@ namespace duskland::tui {
 class text : public widget {
 private:
   std::vector<std::wstring> _lines;
+  bool _auto_wrap;
 
 public:
   text(const std::wstring &text = L"");
@@ -11,5 +12,7 @@ public:
   std::wstring get_text() const;
   void on_render(core::auto_release<graphic> &g) override;
   void on_update() override;
+  void set_auto_wrap(const bool &auto_wrap);
+  const bool &get_auto_wrap() const;
 };
 } // namespace duskland::tui
