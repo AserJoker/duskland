@@ -16,7 +16,6 @@ private:
   bool _is_running;
   core::auto_release<util::injector> _injector;
   core::auto_release<tui::graphic> _graphic;
-  core::auto_release<tui::widget> _document;
   core::auto_release<input> _input;
   core::auto_release<resource> _resource;
 

@@ -3,8 +3,7 @@
 #include <curses.h>
 using namespace duskland::tui;
 using namespace duskland;
-graphic::graphic()
-    : _need_update(false), _position({0, 0}), _viewport({0, 0, 0, 0}) {}
+graphic::graphic() : _need_update(false), _viewport({0, 0, 0, 0}) {}
 graphic::~graphic() { endwin(); }
 void graphic::initialize() {
   initscr();
@@ -37,6 +36,15 @@ void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
 }
 void graphic::draw_abstruct(int32_t x, int32_t y, wchar_t ch) {
   cchar_t cc = {0, {ch, 0}};
+  auto width = wcwidth(ch);
+  if (_viewport.width && _viewport.height) {
+    if (x + width > _viewport.x + _viewport.width) {
+      return;
+    }
+    if (y + 1 > _viewport.y + _viewport.height) {
+      return;
+    }
+  }
   mvadd_wch(y, x, &cc);
   _need_update = true;
 }
@@ -58,6 +66,6 @@ bool graphic::present() {
 }
 void graphic::set_viewport(const util::rect &rc) { _viewport = rc; }
 const util::rect &graphic::get_viewport() const { return _viewport; }
-void graphic::set_position(const util::position &pos) { _position = pos; }
+void graphic::set_position(const util::point &pos) { _position = pos; }
 
-const util::position &graphic::get_position() { return _position; }
+const util::point &graphic::get_position() { return _position; }

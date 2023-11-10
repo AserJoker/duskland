@@ -2,7 +2,7 @@
 #include <cstdint>
 namespace duskland::util {
 struct size {
-  uint32_t width;
-  uint32_t height;
+  int32_t width;
+  int32_t height;
 };
 } // namespace duskland::util
