@@ -72,8 +72,8 @@ void widget::calculate_rect() {
   if (_attr.position == attribute::RELATIVE) {
     if (_parent) {
       _rect.x += _parent->_rect.x;
-      _rect.y += _parent->_rect.y;
       _rect.x += _parent->_fixed_rect.x;
+      _rect.y += _parent->_rect.y;
       _rect.y += _parent->_fixed_rect.y;
     }
   }
@@ -89,7 +89,7 @@ void widget::calculate_rect() {
       _rect.height = _parent->_rect.height;
     }
   }
-  if (_attr.overflow == attribute::SCROLL) {
+  if (_attr.xoverflow == attribute::SCROLL) {
     for (auto &c : _children) {
       if (c->_attr.position == attribute::RELATIVE) {
         auto rc = c->get_bound_rect();
@@ -102,7 +102,7 @@ void widget::calculate_rect() {
       }
     }
   }
-  if (_attr.overflow == attribute::VISIBLE) {
+  if (_attr.xoverflow == attribute::VISIBLE) {
     for (auto &c : _children) {
       if (c->_attr.position == attribute::RELATIVE) {
         auto rc = c->get_bound_rect();
@@ -124,24 +124,129 @@ void widget::calculate_rect() {
   }
   calculate_fixed();
 }
+void widget::calculate_pos() {
+  _rect.x = _attr.offset.x;
+  _rect.y = _attr.offset.y;
+  if (_attr.position == attribute::RELATIVE) {
+    if (_parent) {
+      _rect.x += _parent->_rect.x;
+      _rect.x += _parent->_fixed_rect.x;
+      _rect.y += _parent->_rect.y;
+      _rect.y += _parent->_fixed_rect.y;
+    }
+  }
+}
+
+void widget::calculate_width() {
+  _rect.width = _attr.size.width;
+  if (_rect.width == -1) {
+    if (_parent) {
+      _rect.width = _parent->_rect.width;
+    }
+  }
+  if (_attr.xoverflow == attribute::SCROLL) {
+    for (auto &c : _children) {
+      if (c->_attr.position == attribute::RELATIVE) {
+        auto rc = c->get_bound_rect();
+        if (rc.x + rc.width > _fixed_rect.width + _fixed_rect.x) {
+          _fixed_rect.width = rc.x + rc.width - _rect.x - _fixed_rect.x;
+        }
+      }
+    }
+  }
+  if (_attr.xoverflow == attribute::VISIBLE) {
+    for (auto &c : _children) {
+      if (c->_attr.position == attribute::RELATIVE) {
+        auto rc = c->get_bound_rect();
+        if (rc.x + rc.width > _rect.width + _rect.x) {
+          _rect.width = rc.x + rc.width - _rect.x - _fixed_rect.x;
+        }
+      }
+    }
+    _fixed_rect.x = 0;
+    _fixed_rect.width = _rect.width;
+  }
+  if (_attr.max_size.width && _rect.width > _attr.max_size.width) {
+    _rect.width = _attr.max_size.width;
+  }
+  calculate_fixed();
+}
+void widget::calculate_height() {
+  _rect.height = _attr.size.height;
+  if (_rect.height == -1) {
+    if (_parent) {
+      _rect.height = _parent->_rect.height;
+    }
+  }
+  if (_attr.yoverflow == attribute::SCROLL) {
+    for (auto &c : _children) {
+      if (c->_attr.position == attribute::RELATIVE) {
+        auto rc = c->get_bound_rect();
+        if (rc.y + rc.height > _fixed_rect.height + _fixed_rect.y) {
+          _fixed_rect.height = rc.y + rc.height - _rect.y - _fixed_rect.y;
+        }
+      }
+    }
+  }
+  if (_attr.yoverflow == attribute::VISIBLE) {
+    for (auto &c : _children) {
+      if (c->_attr.position == attribute::RELATIVE) {
+        auto rc = c->get_bound_rect();
+        if (rc.y + rc.height > _rect.height + _rect.y) {
+          _rect.height = rc.y + rc.height - _rect.y - _fixed_rect.y;
+        }
+      }
+    }
+    _fixed_rect.y = 0;
+    _fixed_rect.height = _rect.height;
+  }
+  if (_attr.max_size.height && _rect.height > _attr.max_size.height) {
+    _rect.height = _attr.max_size.height;
+  }
+  calculate_fixed();
+}
 void widget::request_update() {
   if (_update_lock) {
     return;
   }
   _update_lock = true;
-  if (_attr.overflow == attribute::SCROLL) {
-    for (auto &c : _children) {
-      c->request_update();
-    }
-    on_update();
-    calculate_rect();
-  } else {
-    on_update();
-    calculate_rect();
-    for (auto &c : _children) {
-      c->request_update();
-    }
+
+  on_update();
+
+  // if (_attr.xoverflow == attribute::SCROLL) {
+  //   for (auto &c : _children) {
+  //     c->request_update();
+  //   }
+  //   calculate_pos();
+  //   calculate_width();
+  //   calculate_height();
+  // } else {
+  //   calculate_pos();
+  //   calculate_width();
+  //   calculate_height();
+  //   for (auto &c : _children) {
+  //     c->request_update();
+  //   }
+  // }
+  calculate_pos();
+  if (_attr.xoverflow == attribute::FIXED) {
+    calculate_width();
   }
+  if (_attr.yoverflow == attribute::FIXED) {
+    calculate_height();
+  }
+  for (auto &c : _children) {
+    c->request_update();
+  }
+  if (_attr.xoverflow == attribute::SCROLL ||
+      _attr.xoverflow == attribute::VISIBLE) {
+    calculate_width();
+  }
+  if (_attr.yoverflow == attribute::SCROLL ||
+      _attr.yoverflow == attribute::VISIBLE) {
+    calculate_height();
+  }
+  calculate_fixed();
   _is_changed = true;
   _update_lock = false;
 }

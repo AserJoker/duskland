@@ -56,18 +56,17 @@ void application::initialize(int argc, char *argv[]) {
   auto keymap = _resource->query("keyboard.keymap");
   _input->load(std::string(keymap.begin(), keymap.end()));
   w = new tui::widget;
-  w->get_attribute().border.left = true;
-  w->get_attribute().border.right = true;
-  w->get_attribute().border.top = true;
-  w->get_attribute().border.bottom = true;
-  w->get_attribute().offset.x = 10;
-  w->get_attribute().offset.y = 10;
-  w->get_attribute().size.width = 6;
-  w->get_attribute().size.height = 6;
-  w->get_attribute().overflow = tui::attribute::FIXED;
-  auto txt = new tui::text(L"aaaabbbbccccddddd");
-  txt->set_auto_wrap(true);
-  w->add_child(txt);
+  w->get_attribute().border = {true, true, true, true};
+  w->get_attribute().offset = {10, 10};
+  w->get_attribute().size = {6, 6};
+  w->get_attribute().xoverflow = tui::attribute::SCROLL;
+  w->get_attribute().yoverflow = tui::attribute::SCROLL;
+
+  auto layout = new tui::layout_vertical();
+  for (auto i = 0; i < 14; i++) {
+    layout->add_child(new tui::text(fmt::format(L"item-test-{}", i)));
+  }
+  w->add_child(layout);
   w->request_update();
 }
 void application::on_command(const util::key &cmd) {
@@ -84,5 +83,21 @@ void application::on_command(const util::key &cmd) {
   if (cmd.name == "<d>") {
     w->get_attribute().size.width++;
     w->request_update();
+  }
+  if (cmd.name == "<A>") {
+    auto pos = w->get_focus();
+    w->set_focus({pos.x + 1, pos.y});
+  }
+  if (cmd.name == "<D>") {
+    auto pos = w->get_focus();
+    w->set_focus({pos.x - 1, pos.y});
+  }
+  if (cmd.name == "<W>") {
+    auto pos = w->get_focus();
+    w->set_focus({pos.x, pos.y + 1});
+  }
+  if (cmd.name == "<S>") {
+    auto pos = w->get_focus();
+    w->set_focus({pos.x, pos.y - 1});
   }
 }

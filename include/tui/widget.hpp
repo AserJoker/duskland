@@ -21,6 +21,9 @@ private:
   void draw_border(core::auto_release<graphic> &g);
   void draw_scroll(core::auto_release<graphic> &g);
   void calculate_rect();
+  void calculate_pos();
+  void calculate_width();
+  void calculate_height();
   void calculate_fixed();
 
 protected:

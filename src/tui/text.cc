@@ -30,7 +30,7 @@ void text::on_update() {
   auto max_size = attr.max_size.width;
   auto text = get_text();
   if (_auto_wrap && get_parent() &&
-      get_parent()->get_attribute().overflow == attribute::FIXED) {
+      get_parent()->get_attribute().yoverflow == attribute::FIXED) {
     auto &attr = get_attribute();
     attr.size.height = 1;
     for (auto &c : text) {

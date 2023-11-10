@@ -12,7 +12,7 @@ struct attribute {
     bool left = false, right = false, top = false, bottom = false;
     wint_t attribute = 0;
   } border;
-  enum { VISIBLE, SCROLL, FIXED } overflow = VISIBLE;
+  enum { VISIBLE, SCROLL, FIXED } xoverflow = VISIBLE, yoverflow = VISIBLE;
   bool selectable = false;
 };
 } // namespace duskland::tui
