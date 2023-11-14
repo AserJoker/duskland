@@ -1,7 +1,8 @@
 ﻿{
     "palette": {
         "black": "0x0",
-        "white": "0xffffff"
+        "white": "0xffffff",
+        "red": "0xff0000"
     },
     "pairs": {
         "normal": {

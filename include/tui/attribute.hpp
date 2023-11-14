@@ -15,7 +15,7 @@ struct attribute {
     std::string attr = "border";
   } border;
   enum { VISIBLE, SCROLL, FIXED } xoverflow = VISIBLE, yoverflow = VISIBLE;
-  bool selectable = false;
+  bool selectable = true;
   std::string attr = "normal";
   std::string attr_active = "active";
   std::string attr_scroll = "scroll";

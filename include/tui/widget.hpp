@@ -9,6 +9,7 @@ namespace duskland::tui {
 class widget : public core::object {
 private:
   widget *_parent;
+  widget *_active_widget;
   std::vector<core::auto_release<widget>> _children;
   util::rect _rect;
   attribute _attr;
@@ -48,5 +49,8 @@ public:
   void set_focus(const util::point &pos);
   util::point get_focus() const;
   const util::rect &get_rect() const;
+  bool next_active();
+  void set_active(widget *w);
+  widget *get_active();
 };
 } // namespace duskland::tui

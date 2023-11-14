@@ -54,10 +54,24 @@ void application::initialize(int argc, char *argv[]) {
   auto keymap = _resource->query("system.keymap");
   auto color = _resource->query("system.color");
   _input->load(std::string(keymap.begin(), keymap.end()));
-  _colors->load(std::string(color.begin(), color.end()));
   _graphic->initialize(_colors);
   _input->initialize();
+  _colors->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
+  auto layout = new tui::layout_vertical();
+  auto vroot = new tui::layout_vertical();
+  vroot->add_child(layout);
+  for (auto i = 0; i < 5; i++) {
+    layout->add_child(new tui::text(fmt::format(L"item-{}", i)));
+  }
+  layout = new tui::layout_vertical();
+  for (auto i = 5; i < 10; i++) {
+    layout->add_child(new tui::text(fmt::format(L"item-{}", i)));
+  }
+  vroot->add_child(layout);
+  _root->add_child(vroot);
+  _root->next_active();
+  _root->request_update();
 }
 void application::on_command(const util::key &cmd) {
   if (cmd.raw.empty()) {

@@ -2,6 +2,7 @@
 #include <cjson/cJSON.h>
 #include <curses.h>
 #include <sstream>
+#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 using namespace duskland::util;
 void color::load(const std::string &source_json) {
   auto root = cJSON_Parse(source_json.c_str());
@@ -14,9 +15,15 @@ void color::load(const std::string &source_json) {
     auto s_val = child->valuestring;
     std::stringstream ss(s_val);
     uint32_t color;
-    ss >> color;
+    ss >> std::hex >> color;
     auto index = colors.size();
-    init_color(index, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
+    auto r = (color >> 16) & 0xff;
+    auto g = (color >> 8) & 0xff;
+    auto b = color & 0xff;
+    r = r * 1.0f / 0xff * 1000;
+    g = g * 1.0f / 0xff * 1000;
+    b = b * 1.0f / 0xff * 1000;
+    init_color(index, r, g, b);
     colors.insert({name, index});
     child = child->next;
   }
@@ -25,9 +32,11 @@ void color::load(const std::string &source_json) {
   while (child) {
     auto name = child->string;
     wint_t attr = 0;
-    auto fg = cJSON_GetObjectItem(child, "fg")->valuestring;
-    auto bg = cJSON_GetObjectItem(child, "bg")->valuestring;
-    init_pair(pair_index, COLOR_WHITE, COLOR_BLACK);
+    auto s_fg = cJSON_GetObjectItem(child, "fg")->valuestring;
+    auto s_bg = cJSON_GetObjectItem(child, "bg")->valuestring;
+    auto fg = colors.at(s_fg);
+    auto bg = colors.at(s_bg);
+    init_pair(pair_index, fg, bg);
     attr = COLOR_PAIR(pair_index);
     if (cJSON_IsTrue(cJSON_GetObjectItem(child, "dim"))) {
       attr |= WA_DIM;

@@ -3,14 +3,36 @@ using namespace duskland::tui;
 using namespace duskland;
 widget::widget()
     : _parent(nullptr), _is_changed(true), _update_lock(false),
-      _rect({0, 0, 0, 0}), _fixed_rect({0, 0, 0, 0}), _is_active(false) {}
+      _active_widget(nullptr), _rect({0, 0, 0, 0}), _fixed_rect({0, 0, 0, 0}),
+      _is_active(false) {}
 void widget::emit(const std::string &event) { on_event(event, this); }
 void widget::on_event(const std::string &event, widget *w) {
   if (_parent) {
     _parent->on_event(event, w);
   }
 }
-void widget::on_render(core::auto_release<graphic> &g) {
+void widget::on_render(core::auto_release<graphic> &g) {}
+widget *widget::get_parent() { return _parent; }
+std::vector<core::auto_release<widget>> &widget::get_children() {
+  return _children;
+}
+void widget::render(core::auto_release<graphic> &g) {
+  if (!_parent) {
+    g->set_position({_rect.x, _rect.y});
+    g->set_viewport({0, 0, 0, 0});
+  }
+  if (_is_changed) {
+    clear(g);
+    draw_border(g);
+    draw_scroll(g);
+    if (_is_active) {
+      g->set_attr("active");
+    } else {
+      g->set_attr("normal");
+    }
+    on_render(g);
+    _is_changed = false;
+  }
   for (auto &c : _children) {
     if (c->_attr.position == attribute::RELATIVE) {
       auto crc = c->get_bound_rect();
@@ -37,28 +59,6 @@ void widget::on_render(core::auto_release<graphic> &g) {
       g->set_viewport({0, 0, 0, 0});
     }
     c->render(g);
-  }
-}
-widget *widget::get_parent() { return _parent; }
-std::vector<core::auto_release<widget>> &widget::get_children() {
-  return _children;
-}
-void widget::render(core::auto_release<graphic> &g) {
-  if (!_parent) {
-    g->set_position({_rect.x, _rect.y});
-    g->set_viewport({0, 0, 0, 0});
-  }
-  if (_is_changed) {
-    clear(g);
-    draw_border(g);
-    draw_scroll(g);
-    if (this->_is_active) {
-      g->set_attr(_attr.attr_active);
-    } else {
-      g->set_attr(_attr.attr);
-    }
-    on_render(g);
-    _is_changed = false;
   }
 }
 void widget::clear(core::auto_release<graphic> &g) {
@@ -152,6 +152,7 @@ void widget::calculate_height() {
   calculate_fixed();
 }
 void widget::request_update() {
+  _is_changed = true;
   if (_update_lock) {
     return;
   }
@@ -177,10 +178,21 @@ void widget::request_update() {
     calculate_height();
   }
   calculate_fixed();
-  _is_changed = true;
   _update_lock = false;
 }
-bool widget::on_input(const util::key &key) { return false; }
+bool widget::on_input(const util::key &key) {
+  if (_children.size()) {
+    if (_active_widget) {
+      if (_active_widget->on_input(key)) {
+        return true;
+      }
+    }
+    if (key.name == "<tab>") {
+      return next_active();
+    }
+  }
+  return false;
+}
 void widget::draw_border(core::auto_release<graphic> &g) {
   g->set_attr(_attr.border.attr);
   if (_attr.border.left) {
@@ -276,6 +288,12 @@ void widget::add_child(const core::auto_release<widget> &w) {
 void widget::remove_child(const core::auto_release<widget> &w) {
   for (auto it = _children.begin(); it != _children.end(); it++) {
     if (*it == w) {
+      if (w == _active_widget) {
+        next_active();
+        if (w == _active_widget) {
+          set_active(nullptr);
+        }
+      }
       w->_parent = nullptr;
       _children.erase(it);
       break;
@@ -343,10 +361,60 @@ void widget::calculate_fixed() {
 }
 const util::rect &widget::get_rect() const { return _rect; }
 void widget::on_active() {
+  if (_active_widget) {
+    _active_widget->on_active();
+  } else {
+    next_active();
+  }
   _is_active = true;
   request_update();
 }
 void widget::on_dective() {
+  if (_active_widget) {
+    _active_widget->on_dective();
+  }
   _is_active = false;
   request_update();
+}
+void widget::set_active(widget *w) {
+  if (_active_widget) {
+    _active_widget->on_dective();
+  }
+  _active_widget = w;
+  if (_active_widget) {
+    _active_widget->on_active();
+  }
+}
+widget *widget::get_active() { return _active_widget; }
+bool widget::next_active() {
+  if (_children.empty()) {
+    return false;
+  }
+  if (!_active_widget) {
+    for (auto &c : _children) {
+      if (c->_attr.selectable) {
+        set_active(c.get());
+        return true;
+      }
+    }
+  } else {
+    for (auto it = _children.begin(); it != _children.end(); it++) {
+      if (*it == _active_widget) {
+        auto next = it + 1;
+        while (next != _children.end()) {
+          if ((*next)->_attr.selectable) {
+            break;
+          }
+        }
+        if (next == _children.end()) {
+          set_active(nullptr);
+          return false;
+        } else {
+          set_active(next->get());
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }

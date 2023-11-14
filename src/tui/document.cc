@@ -18,10 +18,18 @@ bool document::on_input(const util::key &key) {
     request_update();
     return true;
   }
-  return widget::on_input(key);
-}
-void document::on_render(core::auto_release<graphic> &g) {
-  g->draw(0, 0,
-          fmt::format(L"{},{}", get_attribute().size.width,
-                      get_attribute().size.height));
+  if (get_children().size()) {
+    if (get_active()) {
+      if (get_active()->on_input(key)) {
+        return true;
+      }
+    }
+    if (key.name == "<tab>") {
+      if (!next_active()) {
+        next_active();
+      }
+      return true;
+    }
+  }
+  return false;
 }
