@@ -1,5 +1,4 @@
 ﻿#include "tui/widget.hpp"
-#include "util/injector.hpp"
 using namespace duskland::tui;
 using namespace duskland;
 widget::widget()

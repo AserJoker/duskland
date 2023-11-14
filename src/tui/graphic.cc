@@ -1,5 +1,4 @@
 ﻿#include "tui/graphic.hpp"
-#include "util/injector.hpp"
 #include <curses.h>
 using namespace duskland::tui;
 using namespace duskland;

@@ -7,6 +7,14 @@
         "ctrl": 0,
         "alt": 0
     },
+    "<resize>": {
+        "data": [
+            410
+        ],
+        "shift": 0,
+        "ctrl": 0,
+        "alt": 0
+    },
     "<tab>": {
         "data": [
             9

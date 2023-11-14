@@ -1,8 +1,8 @@
 ﻿#include "system/application.hpp"
+#include "tui/document.hpp"
 #include "tui/layout_vertical.hpp"
 #include "tui/text.hpp"
 #include "tui/widget.hpp"
-#include "util/event.hpp"
 #include <chrono>
 #include <codecvt>
 #include <curses.h>
@@ -57,7 +57,7 @@ void application::initialize(int argc, char *argv[]) {
   _colors->load(std::string(color.begin(), color.end()));
   _graphic->initialize(_colors);
   _input->initialize();
-  _root = new tui::text(L"Hello world");
+  _root = new tui::document();
 }
 void application::on_command(const util::key &cmd) {
   if (cmd.raw.empty()) {
