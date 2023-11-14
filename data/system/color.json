@@ -1,0 +1,26 @@
+﻿{
+    "palette": {
+        "black": "0x0",
+        "white": "0xffffff"
+    },
+    "pairs": {
+        "normal": {
+            "fg": "white",
+            "bg": "black",
+            "dim": true
+        },
+        "active": {
+            "fg": "white",
+            "bg": "black"
+        },
+        "scroll": {
+            "fg": "white",
+            "bg": "black",
+            "standout": true
+        },
+        "border": {
+            "fg": "white",
+            "bg": "black"
+        }
+    }
+}

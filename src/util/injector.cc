@@ -1,5 +1,6 @@
 ﻿#include "util/injector.hpp"
 using namespace duskland::util;
+#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 void injector::initialize() {
   for (int16_t fg = 0; fg < 8; fg++) {
     for (int16_t bg = 0; bg < 8; bg++) {

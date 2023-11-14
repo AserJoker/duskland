@@ -4,7 +4,6 @@
 #include <ncurses.h>
 #include <string>
 #include <vector>
-#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 
 namespace duskland::util {
 class injector : public core::object {

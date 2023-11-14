@@ -9,7 +9,7 @@ private:
 public:
   void set_keymap(const util::key &key);
   bool read(std::vector<util::key> &output);
-  void load(const std::string &keymap);
+  void load(const std::string &keymap_json);
   void initialize();
   void uninitialize();
   input();

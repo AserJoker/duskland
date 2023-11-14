@@ -14,13 +14,13 @@ private:
   attribute _attr;
   bool _is_changed;
   bool _update_lock;
+  bool _is_active;
   util::rect _fixed_rect;
 
 private:
   void clear(core::auto_release<graphic> &g);
   void draw_border(core::auto_release<graphic> &g);
   void draw_scroll(core::auto_release<graphic> &g);
-  void calculate_rect();
   void calculate_pos();
   void calculate_width();
   void calculate_height();
@@ -29,6 +29,8 @@ private:
 protected:
   virtual void on_render(core::auto_release<graphic> &g);
   virtual void on_update();
+  virtual void on_active();
+  virtual void on_dective();
 
 public:
   widget();

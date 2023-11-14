@@ -5,7 +5,7 @@ using namespace duskland::tui;
 using namespace duskland;
 graphic::graphic() : _need_update(false), _viewport({0, 0, 0, 0}) {}
 graphic::~graphic() { endwin(); }
-void graphic::initialize() {
+void graphic::initialize(const core::auto_release<util::color> &color) {
   initscr();
   start_color();
   raw();
@@ -13,6 +13,7 @@ void graphic::initialize() {
   clear();
   curs_set(0);
   refresh();
+  _colors = color;
 }
 void graphic::uninitialize() {}
 void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
@@ -55,7 +56,9 @@ void graphic::draw(int32_t x, int32_t y, const std::wstring &str) {
     offset += wcwidth(c);
   }
 }
-void graphic::set_attr(chtype attr) { attrset(attr); }
+void graphic::set_attr(const std::string &name) {
+  attrset(_colors->query(name));
+}
 bool graphic::present() {
   if (_need_update) {
     refresh();

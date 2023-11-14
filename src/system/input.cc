@@ -42,6 +42,7 @@ bool input::read(std::vector<util::key> &output) {
   }
   for (auto &k : _keylist) {
     if (std::equal(k.raw.begin(), k.raw.end(), codes.begin(), codes.end())) {
+      k.control = true;
       output.push_back(k);
       return true;
     }
@@ -51,6 +52,7 @@ bool input::read(std::vector<util::key> &output) {
                       .shift = false,
                       .ctrl = false,
                       .alt = false,
+                      .control = false,
                       .name = fmt::format("<{}>", (char)code),
                       .raw = {code}});
     return true;

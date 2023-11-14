@@ -4,7 +4,7 @@ using namespace duskland::tui;
 using namespace duskland;
 widget::widget()
     : _parent(nullptr), _is_changed(true), _update_lock(false),
-      _rect({0, 0, 0, 0}), _fixed_rect({0, 0, 0, 0}) {}
+      _rect({0, 0, 0, 0}), _fixed_rect({0, 0, 0, 0}), _is_active(false) {}
 void widget::emit(const std::string &event) { on_event(event, this); }
 void widget::on_event(const std::string &event, widget *w) {
   if (_parent) {
@@ -53,77 +53,24 @@ void widget::render(core::auto_release<graphic> &g) {
     clear(g);
     draw_border(g);
     draw_scroll(g);
-    g->set_attr(COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
+    if (this->_is_active) {
+      g->set_attr(_attr.attr_active);
+    } else {
+      g->set_attr(_attr.attr);
+    }
     on_render(g);
     _is_changed = false;
   }
 }
 void widget::clear(core::auto_release<graphic> &g) {
-  g->set_attr(COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)));
+  g->set_attr(_attr.attr);
   for (auto x = 0; x < _rect.width; x++) {
     for (auto y = 0; y < _rect.height; y++) {
       g->draw(x, y, L' ');
     }
   }
 }
-void widget::calculate_rect() {
-  _rect.x = _attr.offset.x;
-  _rect.y = _attr.offset.y;
-  if (_attr.position == attribute::RELATIVE) {
-    if (_parent) {
-      _rect.x += _parent->_rect.x;
-      _rect.x += _parent->_fixed_rect.x;
-      _rect.y += _parent->_rect.y;
-      _rect.y += _parent->_fixed_rect.y;
-    }
-  }
-  _rect.width = _attr.size.width;
-  _rect.height = _attr.size.height;
-  if (_rect.width == -1) {
-    if (_parent) {
-      _rect.width = _parent->_rect.width;
-    }
-  }
-  if (_rect.height == -1) {
-    if (_parent) {
-      _rect.height = _parent->_rect.height;
-    }
-  }
-  if (_attr.xoverflow == attribute::SCROLL) {
-    for (auto &c : _children) {
-      if (c->_attr.position == attribute::RELATIVE) {
-        auto rc = c->get_bound_rect();
-        if (rc.x + rc.width > _fixed_rect.width + _fixed_rect.x) {
-          _fixed_rect.width = rc.x + rc.width - _rect.x - _fixed_rect.x;
-        }
-        if (rc.y + rc.height > _fixed_rect.height + _fixed_rect.y) {
-          _fixed_rect.height = rc.y + rc.height - _rect.y - _fixed_rect.y;
-        }
-      }
-    }
-  }
-  if (_attr.xoverflow == attribute::VISIBLE) {
-    for (auto &c : _children) {
-      if (c->_attr.position == attribute::RELATIVE) {
-        auto rc = c->get_bound_rect();
-        if (rc.x + rc.width > _rect.width + _rect.x) {
-          _rect.width = rc.x + rc.width - _rect.x - _fixed_rect.x;
-        }
-        if (rc.y + rc.height > _rect.height + _rect.y) {
-          _rect.height = rc.y + rc.height - _rect.y - _fixed_rect.y;
-        }
-      }
-    }
-    _fixed_rect = {0, 0, _rect.width, _rect.height};
-  }
-  if (_attr.max_size.width && _rect.width > _attr.max_size.width) {
-    _rect.width = _attr.max_size.width;
-  }
-  if (_attr.max_size.height && _rect.height > _attr.max_size.height) {
-    _rect.height = _attr.max_size.height;
-  }
-  calculate_fixed();
-}
+
 void widget::calculate_pos() {
   _rect.x = _attr.offset.x;
   _rect.y = _attr.offset.y;
@@ -212,22 +159,6 @@ void widget::request_update() {
   _update_lock = true;
 
   on_update();
-
-  // if (_attr.xoverflow == attribute::SCROLL) {
-  //   for (auto &c : _children) {
-  //     c->request_update();
-  //   }
-  //   calculate_pos();
-  //   calculate_width();
-  //   calculate_height();
-  // } else {
-  //   calculate_pos();
-  //   calculate_width();
-  //   calculate_height();
-  //   for (auto &c : _children) {
-  //     c->request_update();
-  //   }
-  // }
   calculate_pos();
   if (_attr.xoverflow == attribute::FIXED) {
     calculate_width();
@@ -252,7 +183,7 @@ void widget::request_update() {
 }
 bool widget::on_input(const util::key &key) { return false; }
 void widget::draw_border(core::auto_release<graphic> &g) {
-  g->set_attr(_attr.border.attribute);
+  g->set_attr(_attr.border.attr);
   if (_attr.border.left) {
     for (auto y = 0; y < _rect.height; y++) {
       g->draw(-1, y, L'│');
@@ -317,7 +248,9 @@ void widget::draw_border(core::auto_release<graphic> &g) {
 }
 void widget::on_update() {}
 util::rect widget::get_bound_rect() {
-  calculate_rect();
+  calculate_pos();
+  calculate_width();
+  calculate_height();
   util::rect rc = _rect;
   if (_attr.border.left) {
     rc.x--;
@@ -352,8 +285,7 @@ void widget::remove_child(const core::auto_release<widget> &w) {
   request_update();
 }
 void widget::draw_scroll(core::auto_release<graphic> &g) {
-  g->set_attr(COLOR_PAIR(COLOR_PAIR_INDEX(COLOR_WHITE, COLOR_BLACK)) |
-              WA_STANDOUT);
+  g->set_attr(_attr.attr_scroll);
   if (_fixed_rect.height > _rect.height) {
     if (_fixed_rect.height - _rect.height < _rect.height) {
       auto scroll = _rect.height - (_fixed_rect.height - _rect.height);
@@ -411,3 +343,11 @@ void widget::calculate_fixed() {
   }
 }
 const util::rect &widget::get_rect() const { return _rect; }
+void widget::on_active() {
+  _is_active = true;
+  request_update();
+}
+void widget::on_dective() {
+  _is_active = false;
+  request_update();
+}
