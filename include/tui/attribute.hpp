@@ -3,7 +3,6 @@
 #include "util/size.hpp"
 #include <curses.h>
 #include <string>
-#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 namespace duskland::tui {
 struct attribute {
   enum { RELATIVE, ABSOLUTE } position = RELATIVE;

@@ -190,6 +190,11 @@ bool widget::on_input(const util::key &key) {
     if (key.name == "<tab>") {
       return next_active();
     }
+  } else {
+    if (key.name == "<enter>") {
+      emit("focus");
+      return true;
+    }
   }
   return false;
 }

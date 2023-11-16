@@ -2,7 +2,7 @@
 #include "core/object.hpp"
 #include "util/key.hpp"
 namespace duskland::system {
-class input : public core::object {
+class keyboard : public core::object {
 private:
   std::vector<util::key> _keylist;
 
@@ -12,6 +12,6 @@ public:
   void load(const std::string &keymap_json);
   void initialize();
   void uninitialize();
-  input();
+  keyboard();
 };
 } // namespace duskland::system

@@ -1,11 +1,11 @@
-﻿#include "system/input.hpp"
+﻿#include "system/keyboard.hpp"
 #include <cjson/cJSON.h>
 #include <curses.h>
 #include <fstream>
 #include <iostream>
 using namespace duskland::system;
-input::input() {}
-void input::load(const std::string &content) {
+keyboard::keyboard() {}
+void keyboard::load(const std::string &content) {
   auto root = cJSON_Parse(content.c_str());
   auto child = root->child;
   while (child) {
@@ -25,7 +25,7 @@ void input::load(const std::string &content) {
   }
   cJSON_free(root);
 }
-bool input::read(std::vector<util::key> &output) {
+bool keyboard::read(std::vector<util::key> &output) {
   std::vector<wint_t> codes;
   for (;;) {
     wint_t c;
@@ -55,15 +55,17 @@ bool input::read(std::vector<util::key> &output) {
                       .control = false,
                       .name = fmt::format("<{}>", (char)code),
                       .raw = {code}});
+  }
+  if(!output.empty()){
     return true;
   }
   return false;
 }
-void input::initialize() {
+void keyboard::initialize() {
   nodelay(stdscr, TRUE);
   set_escdelay(1);
 }
-void input::uninitialize() {
+void keyboard::uninitialize() {
   clrtoeol();
   refresh();
 }

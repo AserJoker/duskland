@@ -2,7 +2,6 @@
 #include <curses.h>
 using namespace duskland::tui;
 using namespace duskland;
-#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 graphic::graphic() : _need_update(false), _viewport({0, 0, 0, 0}) {}
 graphic::~graphic() { endwin(); }
 void graphic::initialize(const core::auto_release<util::color> &color) {

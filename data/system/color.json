@@ -22,6 +22,11 @@
         "border": {
             "fg": "white",
             "bg": "black"
+        },
+        "cursor": {
+            "fg": "white",
+            "bg": "black",
+            "standout": true
         }
     }
 }

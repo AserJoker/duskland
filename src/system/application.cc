@@ -1,5 +1,7 @@
 ﻿#include "system/application.hpp"
 #include "tui/document.hpp"
+#include "tui/input.hpp"
+#include "tui/layout_horizontal.hpp"
 #include "tui/layout_vertical.hpp"
 #include "tui/text.hpp"
 #include "tui/widget.hpp"
@@ -13,7 +15,7 @@
 using namespace duskland::system;
 using namespace duskland;
 application::application() : _is_running(false) {
-  _input = core::singleton<input>::get();
+  _keyboard = core::singleton<keyboard>::get();
   _resource = core::singleton<resource>::get();
   _graphic = core::singleton<tui::graphic>::get();
   _colors = core::singleton<util::color>::get();
@@ -21,7 +23,7 @@ application::application() : _is_running(false) {
 application::~application() {
   _root = nullptr;
   _graphic->uninitialize();
-  _input->uninitialize();
+  _keyboard->uninitialize();
 }
 int application::run() {
   try {
@@ -29,7 +31,7 @@ int application::run() {
     auto now = std::chrono::system_clock::now();
     while (_is_running) {
       std::vector<util::key> keys;
-      if (_input->read(keys)) {
+      if (_keyboard->read(keys)) {
         for (auto &key : keys) {
           on_command(key);
         }
@@ -53,23 +55,17 @@ void application::initialize(int argc, char *argv[]) {
   _resource->load("data");
   auto keymap = _resource->query("system.keymap");
   auto color = _resource->query("system.color");
-  _input->load(std::string(keymap.begin(), keymap.end()));
+  _keyboard->load(std::string(keymap.begin(), keymap.end()));
   _graphic->initialize(_colors);
-  _input->initialize();
+  _keyboard->initialize();
   _colors->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
-  auto layout = new tui::layout_vertical();
-  auto vroot = new tui::layout_vertical();
-  vroot->add_child(layout);
-  for (auto i = 0; i < 5; i++) {
-    layout->add_child(new tui::text(fmt::format(L"item-{}", i)));
-  }
-  layout = new tui::layout_vertical();
-  for (auto i = 5; i < 10; i++) {
-    layout->add_child(new tui::text(fmt::format(L"item-{}", i)));
-  }
-  vroot->add_child(layout);
-  _root->add_child(vroot);
+  auto layout = new tui::layout_horizontal();
+  layout->add_child(new tui::text(L"Label: "));
+  auto input = new tui::input(13);
+  layout->add_child(input);
+  layout->add_child(new tui::text(L" Stuffix"));
+  _root->add_child(layout);
   _root->next_active();
   _root->request_update();
 }
@@ -77,10 +73,12 @@ void application::on_command(const util::key &cmd) {
   if (cmd.raw.empty()) {
     return;
   }
+  if (_root != nullptr) {
+    if (_root->on_input(cmd)) {
+      return;
+    }
+  }
   if (cmd.name == "<esc>") {
     exit();
-  }
-  if (_root != nullptr) {
-    _root->on_input(cmd);
   }
 }

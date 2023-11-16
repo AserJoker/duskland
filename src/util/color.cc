@@ -2,7 +2,6 @@
 #include <cjson/cJSON.h>
 #include <curses.h>
 #include <sstream>
-#define COLOR_PAIR_INDEX(fg, bg) (int16_t)(fg * 8 + bg)
 using namespace duskland::util;
 void color::load(const std::string &source_json) {
   auto root = cJSON_Parse(source_json.c_str());

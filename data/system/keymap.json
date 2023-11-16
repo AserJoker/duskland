@@ -33,7 +33,7 @@
     },
     "<backspace>": {
         "data": [
-            263
+            127
         ],
         "shift": 0,
         "ctrl": 0,
