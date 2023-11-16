@@ -84,6 +84,7 @@ void widget::calculate_pos() {
 }
 
 void widget::calculate_width() {
+  util::rect rc = _rect;
   _rect.width = _attr.size.width;
   if (_rect.width == -1) {
     if (_parent) {
@@ -116,6 +117,11 @@ void widget::calculate_width() {
     _rect.width = _attr.max_size.width;
   }
   calculate_fixed();
+  if (rc.width != _rect.width || rc.height != _rect.height) {
+    if (_parent) {
+      _parent->request_update();
+    }
+  }
 }
 void widget::calculate_height() {
   _rect.height = _attr.size.height;

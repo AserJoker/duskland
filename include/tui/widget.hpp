@@ -19,7 +19,6 @@ private:
   util::rect _fixed_rect;
 
 private:
-  void clear(core::auto_release<graphic> &g);
   void draw_border(core::auto_release<graphic> &g);
   void draw_scroll(core::auto_release<graphic> &g);
   void calculate_pos();
@@ -34,6 +33,7 @@ protected:
   virtual void on_dective();
 
 public:
+  void clear(core::auto_release<graphic> &g);
   widget();
   void emit(const std::string &event);
   widget *get_parent();

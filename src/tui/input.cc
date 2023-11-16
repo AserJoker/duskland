@@ -90,6 +90,12 @@ void input::on_backspace() {
     _value.pop_back();
     set_cursor(_cursor - 1);
   }
+  auto &attr = get_attribute();
+  attr.size.width = 0;
+  for (auto &c : _value) {
+    attr.size.width += wcwidth(c);
+  }
+  attr.size.width += _max_length - _value.length();
   request_update();
 }
 void input::set_cursor(int32_t cursor) {
