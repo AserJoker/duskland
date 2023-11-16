@@ -62,7 +62,7 @@ void application::initialize(int argc, char *argv[]) {
   _root = new tui::document();
   auto layout = new tui::layout_horizontal();
   layout->add_child(new tui::text(L"Label: "));
-  auto input = new tui::input(13);
+  auto input = new tui::input("demo", 13);
   layout->add_child(input);
   layout->add_child(new tui::text(L" Stuffix"));
   _root->add_child(layout);

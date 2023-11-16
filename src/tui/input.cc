@@ -1,7 +1,8 @@
 ﻿#include "tui/input.hpp"
 using namespace duskland::tui;
-input::input(int32_t max_length)
-    : _is_input(false), _cursor(0), _max_length(max_length) {
+input::input(const std::string &name, int32_t max_length)
+    : _is_input(false), _cursor(0), _max_length(max_length),
+      component<std::wstring>(name) {
   get_attribute().size.width = max_length;
   request_update();
 }
@@ -10,6 +11,7 @@ bool input::on_input(const util::key &key) {
     if (key.name == "<enter>" || key.name == "<esc>") {
       _is_input = false;
       request_update();
+      set_value(_value);
     } else if (key.name == "<backspace>" || key.name == "<delete>") {
       on_backspace();
     } else if (key.name == "<left>") {
@@ -20,6 +22,8 @@ bool input::on_input(const util::key &key) {
       set_cursor(0);
     } else if (key.name == "<end>") {
       set_cursor(_max_length);
+    } else if (key.name == "<tab>") {
+      on_input(L' ');
     } else if (!key.control) {
       on_input(key.raw[0]);
     }
@@ -75,8 +79,12 @@ void input::on_input(wchar_t ch) {
     _cursor = _max_length - 1;
   }
   request_update();
+  emit("input");
 }
 void input::on_backspace() {
+  if (_value.empty()) {
+    return;
+  }
   if (_cursor == _value.length() - 1) {
     _value.pop_back();
   } else if (_cursor < _value.length() - 1) {
@@ -97,6 +105,7 @@ void input::on_backspace() {
   }
   attr.size.width += _max_length - _value.length();
   request_update();
+  emit("input");
 }
 void input::set_cursor(int32_t cursor) {
   _cursor = cursor;
