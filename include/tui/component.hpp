@@ -1,19 +1,28 @@
 ﻿#pragma once
 #include "widget.hpp"
 namespace duskland::tui {
-template <class T> class component : public widget {
+class base_component : public widget {
 private:
   std::wstring _name;
+
+public:
+  base_component(const std::wstring &name) : _name(name) {}
+  const std::wstring &get_name() const { return _name; }
+};
+template <class T> class component : public base_component {
+private:
   T _value;
 
 public:
-  component(const std::wstring &name) : _name(name) {}
-  void on_change() { emit("change"); };
+  component(const std::wstring &name) : base_component(name) {}
+  void on_change() {
+    emit("change");
+    request_update();
+  };
   void set_value(const T &val) {
     _value = val;
     on_change();
   }
   const T &get_value() const { return _value; }
-  const std::wstring &get_name() const { return _name; }
 };
 } // namespace duskland::tui

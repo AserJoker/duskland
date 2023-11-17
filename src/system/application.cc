@@ -3,6 +3,7 @@
 #include "tui/input.hpp"
 #include "tui/layout_horizontal.hpp"
 #include "tui/layout_vertical.hpp"
+#include "tui/list_select.hpp"
 #include "tui/select.hpp"
 #include "tui/text.hpp"
 #include "tui/widget.hpp"
@@ -65,15 +66,16 @@ void application::initialize(int argc, char *argv[]) {
   _colors->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
   auto layout = new tui::layout_horizontal();
-  layout->add_child(new tui::text(L"Label: "));
-  auto input = new tui::input(L"demo", 13);
-  layout->add_child(input);
-  layout->add_child(new tui::text(L" Stuffix"));
-  layout->add_child(new tui::select(L"select", {
-                                                   {L"item1", L"item1"},
-                                                   {L"item2", L"item2"},
-                                                   {L"item3", L"item3"},
-                                               }));
+  layout->add_child(new tui::list_select(L"list1", {
+                                                       {L"item1-1", L"item1-1"},
+                                                       {L"item1-2", L"item1-2"},
+                                                       {L"item1-3", L"item1-3"},
+                                                   }));
+  layout->add_child(new tui::list_select(L"list2", {
+                                                       {L"item2-1", L"item2-1"},
+                                                       {L"item2-2", L"item2-2"},
+                                                       {L"item2-3", L"item2-3"},
+                                                   }));
   _root->add_child(layout);
   _root->next_active();
   _root->request_update();
