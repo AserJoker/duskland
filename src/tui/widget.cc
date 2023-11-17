@@ -8,6 +8,36 @@ widget::widget()
       _is_active(false) {}
 void widget::emit(const std::string &event) { on_event(event, this); }
 void widget::on_event(const std::string &event, widget *w) {
+  if (event == "focus") {
+    if (w != this) {
+      if (_attr.yoverflow == attribute::SCROLL) {
+        auto crc = w->get_bound_rect();
+        if (crc.y < _rect.y) {
+          set_focus({_fixed_rect.x, _fixed_rect.y + (_rect.y - crc.y)});
+        }
+        if (crc.y >= _rect.y + _rect.height) {
+          set_focus({_fixed_rect.x,
+                     _fixed_rect.y + (_rect.y + _rect.height - crc.y - 1)});
+        }
+        request_update();
+      }
+      if (_attr.xoverflow == attribute::SCROLL) {
+        auto crc = w->get_bound_rect();
+        if (crc.x < _rect.x) {
+          set_focus({_fixed_rect.x + (_rect.x - crc.x), _fixed_rect.y});
+        }
+        if (crc.x >= _rect.x + _rect.width) {
+          set_focus({_fixed_rect.x + (_rect.x + _rect.width - crc.x - 1),
+                     _fixed_rect.y});
+        }
+        request_update();
+      }
+      if (_attr.xoverflow == attribute::SCROLL ||
+          _attr.yoverflow == attribute::SCROLL) {
+        return;
+      }
+    }
+  }
   if (_parent) {
     _parent->on_event(event, w);
   }
@@ -391,6 +421,7 @@ void widget::on_active() {
   }
   _is_active = true;
   request_update();
+  emit("focus");
 }
 void widget::on_dective() {
   if (_active_widget) {

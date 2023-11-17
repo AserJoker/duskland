@@ -65,17 +65,17 @@ void application::initialize(int argc, char *argv[]) {
   _keyboard->initialize();
   _colors->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
-  auto layout = new tui::layout_horizontal();
-  layout->add_child(new tui::list_select(L"list1", {
-                                                       {L"item1-1", L"item1-1"},
-                                                       {L"item1-2", L"item1-2"},
-                                                       {L"item1-3", L"item1-3"},
-                                                   }));
-  layout->add_child(new tui::list_select(L"list2", {
-                                                       {L"item2-1", L"item2-1"},
-                                                       {L"item2-2", L"item2-2"},
-                                                       {L"item2-3", L"item2-3"},
-                                                   }));
+  auto layout = new tui::widget();
+  layout->get_attribute().yoverflow = tui::attribute::SCROLL;
+  layout->get_attribute().size.height = 6;
+  layout->get_attribute().offset.x = 10;
+  layout->get_attribute().offset.y = 10;
+  layout->get_attribute().border = {true, true, true, true};
+  auto v = new tui::layout_vertical();
+  for (auto i = 0; i < 12; i++) {
+    v->add_child(new tui::text(fmt::format(L"item-{}", i)));
+  }
+  layout->add_child(v);
   _root->add_child(layout);
   _root->next_active();
   _root->request_update();
