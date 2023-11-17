@@ -2,8 +2,9 @@
 #include <curses.h>
 using namespace duskland::tui;
 using namespace duskland;
-graphic::graphic() : _need_update(false), _viewport({0, 0, 0, 0}) {}
-graphic::~graphic() { endwin(); }
+graphic::graphic()
+    : _need_update(false), _viewport({0, 0, 0, 0}), _ready(false) {}
+graphic::~graphic() {}
 void graphic::initialize(const core::auto_release<util::color> &color) {
   initscr();
   start_color();
@@ -13,9 +14,16 @@ void graphic::initialize(const core::auto_release<util::color> &color) {
   curs_set(0);
   refresh();
   _colors = color;
+  _ready = true;
 }
-void graphic::uninitialize() {}
+void graphic::uninitialize() {
+  endwin();
+  _ready = false;
+}
 void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
+  if (!_ready) {
+    return;
+  }
   auto xx = x + _position.x;
   auto yy = y + _position.y;
   if (xx < _viewport.x || yy < _viewport.y) {

@@ -24,6 +24,7 @@ public:
   application();
   ~application() override;
   void initialize(int argc, char *argv[]);
+  void uninitialize();
   void exit();
   void on_command(const util::key &cmd);
 };

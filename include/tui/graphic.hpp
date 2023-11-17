@@ -12,6 +12,7 @@ private:
   util::point _position;
   util::rect _viewport;
   core::auto_release<util::color> _colors;
+  bool _ready;
 
 public:
   graphic();

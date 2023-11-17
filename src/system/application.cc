@@ -21,31 +21,34 @@ application::application() : _is_running(false) {
   _graphic = core::singleton<tui::graphic>::get();
   _colors = core::singleton<util::color>::get();
 }
-application::~application() {
+application::~application() { uninitialize(); }
+void application::uninitialize() {
   _root = nullptr;
-  _graphic->uninitialize();
-  _keyboard->uninitialize();
+  if (_keyboard != nullptr) {
+    _keyboard->uninitialize();
+    _keyboard = nullptr;
+  }
+  if (_graphic != nullptr) {
+    _graphic->uninitialize();
+    _graphic = nullptr;
+  }
 }
 int application::run() {
-  try {
-    _is_running = true;
-    auto now = std::chrono::system_clock::now();
-    while (_is_running) {
-      std::vector<util::key> keys;
-      if (_keyboard->read(keys)) {
-        for (auto &key : keys) {
-          on_command(key);
-        }
-      }
-      if (_root != nullptr) {
-        _root->render(_graphic);
-      }
-      if (!this->_graphic->present()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(4));
+  _is_running = true;
+  auto now = std::chrono::system_clock::now();
+  while (_is_running) {
+    std::vector<util::key> keys;
+    if (_keyboard->read(keys)) {
+      for (auto &key : keys) {
+        on_command(key);
       }
     }
-  } catch (std::exception &e) {
-    std::cerr << e.what() << std::endl;
+    if (_root != nullptr) {
+      _root->render(_graphic);
+    }
+    if (!this->_graphic->present()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(4));
+    }
   }
   return 0;
 }

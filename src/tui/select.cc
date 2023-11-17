@@ -64,7 +64,7 @@ public:
     auto y = 0;
     for (auto &opt : _options) {
       if (opt.value == _value) {
-        g->set_attr("active");
+        g->set_attr("focus");
       } else {
         g->set_attr("normal");
       }
