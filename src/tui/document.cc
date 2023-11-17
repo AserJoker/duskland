@@ -9,6 +9,7 @@ document::document() {
   attr.offset.x = 0;
   attr.offset.y = 0;
   request_update();
+  widget::_root = this;
 }
 bool document::on_input(const util::key &key) {
   if (key.name == "<resize>") {

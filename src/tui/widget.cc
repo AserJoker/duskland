@@ -1,6 +1,7 @@
 ﻿#include "tui/widget.hpp"
 using namespace duskland::tui;
 using namespace duskland;
+widget *widget::_root = nullptr;
 widget::widget()
     : _parent(nullptr), _is_changed(true), _update_lock(false),
       _active_widget(nullptr), _rect({0, 0, 0, 0}), _fixed_rect({0, 0, 0, 0}),
@@ -55,7 +56,7 @@ void widget::render(core::auto_release<graphic> &g) {
       }
       g->set_viewport(rect);
     } else {
-      g->set_position({0, 0});
+      g->set_position({c->_rect.x, c->_rect.y});
       g->set_viewport({0, 0, 0, 0});
     }
     c->render(g);
@@ -117,13 +118,18 @@ void widget::calculate_width() {
     _rect.width = _attr.max_size.width;
   }
   calculate_fixed();
-  if (rc.width != _rect.width || rc.height != _rect.height) {
+  if (_attr.position == attribute::ABSOLUTE && widget::_root != this) {
+    if (widget::_root) {
+      widget::_root->request_update();
+    }
+  } else {
     if (_parent) {
       _parent->request_update();
     }
   }
 }
 void widget::calculate_height() {
+  auto rc = _rect;
   _rect.height = _attr.size.height;
   if (_rect.height == -1) {
     if (_parent) {
@@ -156,6 +162,17 @@ void widget::calculate_height() {
     _rect.height = _attr.max_size.height;
   }
   calculate_fixed();
+  if (rc.width != _rect.width || rc.height != _rect.height) {
+    if (_attr.position == attribute::ABSOLUTE && widget::_root != this) {
+      if (widget::_root) {
+        widget::_root->request_update();
+      }
+    } else {
+      if (_parent) {
+        _parent->request_update();
+      }
+    }
+  }
 }
 void widget::request_update() {
   _is_changed = true;

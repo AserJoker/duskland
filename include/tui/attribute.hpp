@@ -3,6 +3,9 @@
 #include "util/size.hpp"
 #include <curses.h>
 #include <string>
+#ifdef border
+#undef border
+#endif
 namespace duskland::tui {
 struct attribute {
   enum { RELATIVE, ABSOLUTE } position = RELATIVE;

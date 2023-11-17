@@ -1,6 +1,6 @@
 ﻿#include "tui/input.hpp"
 using namespace duskland::tui;
-input::input(const std::string &name, int32_t max_length)
+input::input(const std::wstring &name, int32_t max_length)
     : _is_input(false), _cursor(0), _max_length(max_length),
       component<std::wstring>(name) {
   get_attribute().size.width = max_length;
@@ -36,13 +36,6 @@ bool input::on_input(const util::key &key) {
     }
   }
   return false;
-}
-void input::on_update() {
-  widget::on_update();
-  auto parent = get_parent();
-  if (parent) {
-    parent->request_update();
-  }
 }
 void input::on_render(core::auto_release<graphic> &g) {
   auto &attr = get_attribute();

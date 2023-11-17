@@ -7,7 +7,7 @@ class document : public widget {
 protected:
   bool on_input(const util::key &key) override;
 
-  std::string name;
+  std::wstring name;
   std::wstring val;
 
 public:
@@ -22,9 +22,7 @@ public:
   }
   void on_render(core::auto_release<graphic> &g) override {
     g->draw(10, 10, val);
-    g->draw(10, 11,
-            std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.from_bytes(
-                name.c_str()));
+    g->draw(10, 11, name);
   }
 };
 } // namespace duskland::tui

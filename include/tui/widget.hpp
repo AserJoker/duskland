@@ -27,6 +27,9 @@ private:
   void calculate_fixed();
 
 protected:
+  static widget *_root;
+
+protected:
   virtual void on_render(core::auto_release<graphic> &g);
   virtual void on_update();
   virtual void on_active();

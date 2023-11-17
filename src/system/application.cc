@@ -3,6 +3,7 @@
 #include "tui/input.hpp"
 #include "tui/layout_horizontal.hpp"
 #include "tui/layout_vertical.hpp"
+#include "tui/select.hpp"
 #include "tui/text.hpp"
 #include "tui/widget.hpp"
 #include <chrono>
@@ -62,9 +63,14 @@ void application::initialize(int argc, char *argv[]) {
   _root = new tui::document();
   auto layout = new tui::layout_horizontal();
   layout->add_child(new tui::text(L"Label: "));
-  auto input = new tui::input("demo", 13);
+  auto input = new tui::input(L"demo", 13);
   layout->add_child(input);
   layout->add_child(new tui::text(L" Stuffix"));
+  layout->add_child(new tui::select(L"select", {
+                                                   {L"item1", L"item1"},
+                                                   {L"item2", L"item2"},
+                                                   {L"item3", L"item3"},
+                                               }));
   _root->add_child(layout);
   _root->next_active();
   _root->request_update();
