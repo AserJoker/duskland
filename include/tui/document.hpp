@@ -12,17 +12,5 @@ protected:
 
 public:
   document();
-  void on_event(const std::string &event, widget *emitter) override {
-    if (event == "change") {
-      input *i = (input *)emitter;
-      name = i->get_name();
-      val = i->get_value();
-      request_update();
-    }
-  }
-  void on_render(core::auto_release<graphic> &g) override {
-    g->draw(10, 10, val);
-    g->draw(10, 11, name);
-  }
 };
 } // namespace duskland::tui

@@ -68,14 +68,21 @@ void application::initialize(int argc, char *argv[]) {
   auto layout = new tui::widget();
   layout->get_attribute().yoverflow = tui::attribute::SCROLL;
   layout->get_attribute().size.height = 6;
-  layout->get_attribute().offset.x = 10;
-  layout->get_attribute().offset.y = 10;
+  layout->get_attribute().offset.x = 1;
+  layout->get_attribute().offset.y = 1;
   layout->get_attribute().border = {true, true, true, true};
-  auto v = new tui::layout_vertical();
-  for (auto i = 0; i < 12; i++) {
-    v->add_child(new tui::text(fmt::format(L"item-{}", i)));
-  }
-  layout->add_child(v);
+  layout->add_child(
+      new tui::list_select(L"list-select", {
+                                               {L"zh_CN", L"简体中文"},
+                                               {L"en_US", L"English"},
+                                               {L"Lang1", L"Lang1"},
+                                               {L"Lang2", L"Lang2"},
+                                               {L"Lang3", L"Lang3"},
+                                               {L"Lang4", L"Lang4"},
+                                               {L"Lang5", L"Lang5"},
+                                               {L"Lang6", L"Lang6"},
+                                               {L"Lang7", L"Lang7"},
+                                           }));
   _root->add_child(layout);
   _root->next_active();
   _root->request_update();
