@@ -453,6 +453,7 @@ bool widget::next_active() {
           if ((*next)->_attr.selectable) {
             break;
           }
+          next++;
         }
         if (next == _children.end()) {
           set_active(nullptr);

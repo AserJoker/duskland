@@ -67,10 +67,10 @@ void application::initialize(int argc, char *argv[]) {
   _colors->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
   auto layout = new tui::layout_vertical();
-  // layout->get_attribute().offset.x = 1;
-  // layout->get_attribute().offset.y = 1;
-  // layout->get_attribute().border = {true, true, true, true};
   auto layout2 = new tui::layout_horizontal();
+  layout2->get_attribute().offset.x = 1;
+  layout2->get_attribute().offset.y = 1;
+  layout2->get_attribute().border = {true, true, true, true};
   layout->add_child(
       new tui::list_select(L"list-select", {
                                                {L"zh_CN", L"简体中文"},

@@ -11,6 +11,12 @@ list_select::list_select(const std::wstring &name,
   request_update();
 }
 bool list_select::on_input(const util::key &key) {
+  if (key.name == "<delete>") {
+    if (_current && _current->is_active()) {
+      _current->set_selected(false);
+      _current = nullptr;
+    }
+  }
   return component::on_input(key);
 }
 void list_select::on_event(const std::string &event, widget *emitter) {
