@@ -1,4 +1,5 @@
 ﻿#include "system/application.hpp"
+#include "tui/checkbox.hpp"
 #include "tui/document.hpp"
 #include "tui/input.hpp"
 #include "tui/layout_horizontal.hpp"
@@ -65,12 +66,11 @@ void application::initialize(int argc, char *argv[]) {
   _keyboard->initialize();
   _colors->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
-  auto layout = new tui::widget();
-  layout->get_attribute().yoverflow = tui::attribute::SCROLL;
-  layout->get_attribute().size.height = 6;
-  layout->get_attribute().offset.x = 1;
-  layout->get_attribute().offset.y = 1;
-  layout->get_attribute().border = {true, true, true, true};
+  auto layout = new tui::layout_vertical();
+  // layout->get_attribute().offset.x = 1;
+  // layout->get_attribute().offset.y = 1;
+  // layout->get_attribute().border = {true, true, true, true};
+  auto layout2 = new tui::layout_horizontal();
   layout->add_child(
       new tui::list_select(L"list-select", {
                                                {L"zh_CN", L"简体中文"},
@@ -83,7 +83,22 @@ void application::initialize(int argc, char *argv[]) {
                                                {L"Lang6", L"Lang6"},
                                                {L"Lang7", L"Lang7"},
                                            }));
-  _root->add_child(layout);
+  layout->add_child(new tui::checkbox(L"enable"));
+  layout->add_child(
+      new tui::list_select(L"list-select", {
+                                               {L"zh_CN", L"简体中文"},
+                                               {L"en_US", L"English"},
+                                               {L"Lang1", L"Lang1"},
+                                               {L"Lang2", L"Lang2"},
+                                               {L"Lang3", L"Lang3"},
+                                               {L"Lang4", L"Lang4"},
+                                               {L"Lang5", L"Lang5"},
+                                               {L"Lang6", L"Lang6"},
+                                               {L"Lang7", L"Lang7"},
+                                           }));
+  layout2->add_child(layout);
+  layout2->add_child(new tui::input(L"demo-text", 12));
+  _root->add_child(layout2);
   _root->next_active();
   _root->request_update();
 }

@@ -56,5 +56,6 @@ public:
   bool is_active();
   void set_active(widget *w);
   widget *get_active();
+  void relayout();
 };
 } // namespace duskland::tui

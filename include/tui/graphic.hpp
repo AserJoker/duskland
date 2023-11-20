@@ -19,7 +19,6 @@ public:
   ~graphic() override;
   void set_attr(const std::string &name);
   void draw(int32_t x, int32_t y, wchar_t c);
-  void draw_abstruct(int32_t x, int32_t y, wchar_t c);
   void draw(int32_t x, int32_t y, const std::wstring &str);
   void set_viewport(const util::rect &rc);
   const util::rect &get_viewport() const;

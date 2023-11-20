@@ -42,20 +42,6 @@ void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
   mvadd_wch(yy, xx, &cc);
   _need_update = true;
 }
-void graphic::draw_abstruct(int32_t x, int32_t y, wchar_t ch) {
-  cchar_t cc = {0, {ch, 0}};
-  auto width = wcwidth(ch);
-  if (_viewport.width && _viewport.height) {
-    if (x + width > _viewport.x + _viewport.width) {
-      return;
-    }
-    if (y + 1 > _viewport.y + _viewport.height) {
-      return;
-    }
-  }
-  mvadd_wch(y, x, &cc);
-  _need_update = true;
-}
 void graphic::draw(int32_t x, int32_t y, const std::wstring &str) {
   auto offset = 0;
   for (auto &c : str) {

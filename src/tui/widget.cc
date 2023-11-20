@@ -64,11 +64,10 @@ void widget::render(core::auto_release<graphic> &g) {
     on_render(g);
     _is_changed = false;
   }
+  auto rc = g->get_viewport();
   for (auto &c : _children) {
     if (c->_attr.position == attribute::RELATIVE) {
-      auto crc = c->get_bound_rect();
       g->set_position({c->_rect.x, c->_rect.y});
-      auto &rc = g->get_viewport();
       auto rect = _rect;
       if (rc.width || rc.height) {
         if (rect.x < rc.x) {
@@ -148,6 +147,8 @@ void widget::calculate_width() {
     _rect.width = _attr.max_size.width;
   }
   calculate_fixed();
+}
+void widget::relayout() {
   if (_attr.position == attribute::ABSOLUTE && widget::_root != this) {
     if (widget::_root) {
       widget::_root->request_update();
@@ -192,17 +193,6 @@ void widget::calculate_height() {
     _rect.height = _attr.max_size.height;
   }
   calculate_fixed();
-  if (rc.width != _rect.width || rc.height != _rect.height) {
-    if (_attr.position == attribute::ABSOLUTE && widget::_root != this) {
-      if (widget::_root) {
-        widget::_root->request_update();
-      }
-    } else {
-      if (_parent) {
-        _parent->request_update();
-      }
-    }
-  }
 }
 void widget::request_update() {
   _is_changed = true;
@@ -213,6 +203,7 @@ void widget::request_update() {
 
   on_update();
   calculate_pos();
+  auto rc = _rect;
   if (_attr.xoverflow == attribute::FIXED) {
     calculate_width();
   }
@@ -231,6 +222,9 @@ void widget::request_update() {
     calculate_height();
   }
   calculate_fixed();
+  if (rc.width != _rect.width || rc.height != _rect.height) {
+    relayout();
+  }
   _update_lock = false;
 }
 bool widget::on_input(const util::key &key) {

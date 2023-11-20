@@ -4,6 +4,7 @@ input::input(const std::wstring &name, int32_t max_length)
     : _is_input(false), _cursor(0), _max_length(max_length),
       component<std::wstring>(name) {
   get_attribute().size.width = max_length;
+  get_attribute().size.height = 1;
   request_update();
 }
 bool input::on_input(const util::key &key) {
