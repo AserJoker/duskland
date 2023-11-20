@@ -235,7 +235,20 @@ bool widget::on_input(const util::key &key) {
       }
     }
     if (key.name == "<tab>") {
-      return next_active();
+      if (!next_active()) {
+        if (!_parent) {
+          next_active();
+        }
+      }
+      return true;
+    }
+    if (key.name == "<s-tab>") {
+      if (!last_active()) {
+        if (!_parent) {
+          last_active();
+        }
+      }
+      return true;
     }
   }
   return false;
@@ -408,18 +421,20 @@ void widget::calculate_fixed() {
 }
 const util::rect &widget::get_rect() const { return _rect; }
 void widget::on_active() {
-  if (_active_widget) {
-    _active_widget->on_active();
-  } else {
-    next_active();
+  if (!_children.empty()) {
+    if (_active_widget) {
+      _active_widget->on_active();
+    }
   }
   _is_active = true;
   request_update();
   emit("focus");
 }
 void widget::on_dective() {
-  if (_active_widget) {
-    _active_widget->on_dective();
+  if (!_children.empty()) {
+    if (_active_widget) {
+      _active_widget->on_dective();
+    }
   }
   _is_active = false;
   request_update();
@@ -435,35 +450,89 @@ void widget::set_active(widget *w) {
 }
 widget *widget::get_active() { return _active_widget; }
 bool widget::next_active() {
-  if (_children.empty()) {
+  std::vector<core::auto_release<widget>> selectables;
+  for (auto &c : _children) {
+    if (c->_attr.selectable) {
+      selectables.push_back(c);
+    }
+  }
+  if (selectables.empty()) {
     return false;
   }
-  if (!_active_widget) {
-    for (auto &c : _children) {
-      if (c->_attr.selectable) {
-        set_active(c.get());
-        return true;
+  if (_active_widget) {
+    auto it = std::find(selectables.begin(), selectables.end(), _active_widget);
+    it++;
+    if (it == selectables.end()) {
+      set_active(nullptr);
+      if (_parent) {
+        return _parent->next_active();
+      } else {
+        widget *w = selectables.begin()->get();
+        if (!w->_children.empty() && !w->_active_widget) {
+          w->next_active();
+        }
+        set_active(selectables.begin()->get());
       }
+      return false;
+    } else {
+      widget *w = it->get();
+      if (!w->_children.empty() && !w->_active_widget) {
+        w->next_active();
+      }
+      set_active(it->get());
+      return true;
     }
   } else {
-    for (auto it = _children.begin(); it != _children.end(); it++) {
-      if (*it == _active_widget) {
-        auto next = it + 1;
-        while (next != _children.end()) {
-          if ((*next)->_attr.selectable) {
-            break;
-          }
-          next++;
-        }
-        if (next == _children.end()) {
-          set_active(nullptr);
-          return false;
-        } else {
-          set_active(next->get());
-          return true;
-        }
-      }
+    auto w = selectables.begin()->get();
+    if (!w->_children.empty() && !w->_active_widget) {
+      w->next_active();
     }
+    set_active(selectables.begin()->get());
+    return true;
+  }
+  return false;
+}
+bool widget::last_active() {
+  std::vector<core::auto_release<widget>> selectables;
+  for (auto &c : _children) {
+    if (c->_attr.selectable) {
+      selectables.push_back(c);
+    }
+  }
+  if (selectables.empty()) {
+    return false;
+  }
+  if (_active_widget) {
+    auto it =
+        std::find(selectables.rbegin(), selectables.rend(), _active_widget);
+    it++;
+    if (it == selectables.rend()) {
+      set_active(nullptr);
+      if (_parent) {
+        return _parent->last_active();
+      } else {
+        widget *w = selectables.rbegin()->get();
+        if (!w->_children.empty() && !w->_active_widget) {
+          w->last_active();
+        }
+        set_active(selectables.rbegin()->get());
+      }
+      return false;
+    } else {
+      widget *w = it->get();
+      if (!w->_children.empty() && !w->_active_widget) {
+        w->last_active();
+      }
+      set_active(w);
+      return true;
+    }
+  } else {
+    auto w = selectables.rbegin()->get();
+    if (!w->_children.empty() && !w->_active_widget) {
+      w->last_active();
+    }
+    set_active(w);
+    return true;
   }
   return false;
 }

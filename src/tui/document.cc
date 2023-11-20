@@ -19,18 +19,5 @@ bool document::on_input(const util::key &key) {
     request_update();
     return true;
   }
-  if (get_children().size()) {
-    if (get_active()) {
-      if (get_active()->on_input(key)) {
-        return true;
-      }
-    }
-    if (key.name == "<tab>") {
-      if (!next_active()) {
-        next_active();
-      }
-      return true;
-    }
-  }
-  return false;
+  return widget::on_input(key);
 }

@@ -53,6 +53,7 @@ public:
   util::point get_focus() const;
   const util::rect &get_rect() const;
   bool next_active();
+  bool last_active();
   bool is_active();
   void set_active(widget *w);
   widget *get_active();
