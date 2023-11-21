@@ -537,3 +537,4 @@ bool widget::last_active() {
   return false;
 }
 bool widget::is_active() { return _is_active; }
+bool widget::process_input(const util::key &key) { return on_input(key); }

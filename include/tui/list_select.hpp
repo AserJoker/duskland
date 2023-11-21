@@ -8,10 +8,12 @@ private:
   bool _is_selecting;
   option *_current;
 
-public:
-  list_select(const std::wstring &name, const std::vector<util::option> &opt);
+protected:
   bool on_input(const util::key &key) override;
   void on_event(const std::string &event, widget *emitter) override;
+
+public:
+  list_select(const std::wstring &name, const std::vector<util::option> &opt);
   void set_options(const std::vector<util::option> &opt);
 };
 } // namespace duskland::tui

@@ -117,7 +117,7 @@ void application::on_command(const util::key &cmd) {
     return;
   }
   if (_root != nullptr) {
-    if (_root->on_input(cmd)) {
+    if (_root->process_input(cmd)) {
       return;
     }
   }

@@ -14,9 +14,11 @@ private:
   void on_input(wchar_t ch);
   void on_backspace();
 
-public:
-  input(const std::wstring &name, int32_t max_length);
+protected:
   bool on_input(const util::key &key) override;
   void on_render(core::auto_release<graphic> &g) override;
+
+public:
+  input(const std::wstring &name, int32_t max_length);
 };
 } // namespace duskland::tui
