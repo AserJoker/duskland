@@ -1,4 +1,5 @@
-﻿#include "core/singleton.hpp"
+﻿#define FMT_HEADER_ONLY
+#include "core/singleton.hpp"
 #include "system/application.hpp"
 #include <iostream>
 #include <signal.h>

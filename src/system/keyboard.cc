@@ -1,6 +1,7 @@
 ﻿#include "system/keyboard.hpp"
 #include <cjson/cJSON.h>
 #include <curses.h>
+#include <fmt/format.h>
 #include <fstream>
 #include <iostream>
 using namespace duskland::system;
@@ -48,15 +49,12 @@ bool keyboard::read(std::vector<util::key> &output) {
     }
   }
   for (auto &code : codes) {
-    std::string name = "<";
-    name += (char)code;
-    name += ">";
     output.push_back({.decode = code,
                       .shift = false,
                       .ctrl = false,
                       .alt = false,
                       .control = false,
-                      .name = name,
+                      .name = fmt::format("<{}>", (char)code),
                       .raw = {code}});
   }
   if (!output.empty()) {
