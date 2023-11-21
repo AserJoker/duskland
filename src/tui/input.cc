@@ -12,7 +12,6 @@ bool input::on_input(const util::key &key) {
     if (key.name == "<enter>" || key.name == "<esc>") {
       _is_input = false;
       clear_timer(L"cursor");
-      _show_cursor = true;
       request_update();
       set_value(_value);
     } else if (key.name == "<backspace>" || key.name == "<delete>") {
@@ -30,12 +29,14 @@ bool input::on_input(const util::key &key) {
     } else if (!key.control) {
       on_input(key.raw[0]);
     }
+    _show_cursor = true;
     return true;
   } else {
     if (key.name == "<enter>") {
       _is_input = true;
       set_timer(L"cursor", 500);
       request_update();
+      _show_cursor = true;
       return true;
     }
   }

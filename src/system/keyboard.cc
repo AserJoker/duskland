@@ -1,6 +1,7 @@
 ﻿#include "system/keyboard.hpp"
 #include <cjson/cJSON.h>
 #include <curses.h>
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 #include <fstream>
 #include <iostream>

@@ -3,6 +3,7 @@
 #include "core/singleton.hpp"
 #include "keyboard.hpp"
 #include "resource.hpp"
+#include "script/runtime.hpp"
 #include "tui/graphic.hpp"
 #include "tui/widget.hpp"
 #include "util/key.hpp"
@@ -18,6 +19,7 @@ private:
   core::auto_release<resource> _resource;
   core::auto_release<util::color> _colors;
   core::auto_release<tui::widget> _root;
+  core::auto_release<script::runtime> _script;
 
 public:
   int run();

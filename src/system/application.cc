@@ -20,6 +20,7 @@ application::application() : _is_running(false) {
   _resource = core::singleton<resource>::get();
   _graphic = core::singleton<tui::graphic>::get();
   _colors = core::singleton<util::color>::get();
+  _script = core::singleton<script::runtime>::get();
 }
 application::~application() { uninitialize(); }
 void application::uninitialize() {
@@ -97,16 +98,6 @@ void application::initialize(int argc, char *argv[]) {
   layout2->add_child(layout);
   layout2->add_child(new tui::input(L"demo-text", 12));
   _root->add_child(layout2);
-  // auto t1 = new tui::text(L"item1");
-  // auto t2 = new tui::text(L"item2");
-  // auto t3 = new tui::text(L"item3");
-  // auto layout = new tui::layout_vertical();
-  // layout->add_child(t1);
-  // layout->add_child(t2);
-  // auto layout2 = new tui::layout_vertical();
-  // layout2->add_child(layout);
-  // layout2->add_child(t3);
-  // _root->add_child(layout2);
   _root->next_active();
   _root->request_update();
 }
