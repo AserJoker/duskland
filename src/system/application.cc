@@ -11,8 +11,6 @@
 #include <chrono>
 #include <codecvt>
 #include <curses.h>
-#include <fmt/format.h>
-#include <fmt/xchar.h>
 #include <iostream>
 #include <thread>
 using namespace duskland::system;

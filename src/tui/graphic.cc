@@ -6,7 +6,11 @@ graphic::graphic()
     : _need_update(false), _viewport({0, 0, 0, 0}), _ready(false) {}
 graphic::~graphic() {}
 void graphic::initialize(const core::auto_release<util::color> &color) {
+
   initscr();
+  if (!has_colors()) {
+    throw std::runtime_error("terminal not support color!");
+  }
   start_color();
   raw();
   noecho();

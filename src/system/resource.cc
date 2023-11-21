@@ -1,6 +1,5 @@
 ﻿#include "system/resource.hpp"
 #include <filesystem>
-#include <fmt/format.h>
 #include <fstream>
 using namespace duskland::system;
 void resource::load(const std::string &root) {

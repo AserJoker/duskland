@@ -13,6 +13,5 @@ public:
   virtual ~object();
   void *operator new(size_t size);
   void operator delete(void *buf);
-  static void memory_leak_check();
 };
 } // namespace duskland::core

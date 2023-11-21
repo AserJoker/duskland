@@ -12,13 +12,13 @@ void keyboard::load(const std::string &content) {
     util::key k;
     k.decode = 0;
     k.name = child->string;
-    k.alt = cJSON_GetNumberValue(cJSON_GetObjectItem(child, "alt"));
-    k.shift = cJSON_GetNumberValue(cJSON_GetObjectItem(child, "shift"));
-    k.ctrl = cJSON_GetNumberValue(cJSON_GetObjectItem(child, "ctrl"));
+    k.alt = cJSON_GetObjectItem(child, "alt")->valueint;
+    k.shift = cJSON_GetObjectItem(child, "shift")->valueint;
+    k.ctrl = cJSON_GetObjectItem(child, "shift")->valueint;
     auto data = cJSON_GetObjectItem(child, "data");
     auto len = cJSON_GetArraySize(data);
     for (auto i = 0; i < len; i++) {
-      k.raw.push_back(cJSON_GetNumberValue(cJSON_GetArrayItem(data, i)));
+      k.raw.push_back(cJSON_GetArrayItem(data, i)->valueint);
     }
     _keylist.push_back(k);
     child = child->next;
@@ -48,15 +48,18 @@ bool keyboard::read(std::vector<util::key> &output) {
     }
   }
   for (auto &code : codes) {
+    std::string name = "<";
+    name += (char)code;
+    name += ">";
     output.push_back({.decode = code,
                       .shift = false,
                       .ctrl = false,
                       .alt = false,
                       .control = false,
-                      .name = fmt::format("<{}>", (char)code),
+                      .name = name,
                       .raw = {code}});
   }
-  if(!output.empty()){
+  if (!output.empty()) {
     return true;
   }
   return false;

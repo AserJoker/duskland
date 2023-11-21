@@ -1,5 +1,4 @@
 ﻿#include "tui/document.hpp"
-#include <fmt/xchar.h>
 using namespace duskland::tui;
 document::document() {
   auto &attr = get_attribute();

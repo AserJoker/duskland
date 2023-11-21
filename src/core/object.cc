@@ -1,5 +1,4 @@
 #include "core/object.hpp"
-#include <fmt/core.h>
 #include <stdexcept>
 using namespace duskland::core;
 static size_t memory_size = 0;
@@ -19,9 +18,4 @@ void object::operator delete(void *buf) {
   size_t size = sbuf[0];
   ::operator delete(sbuf);
   memory_size -= size;
-}
-void object::memory_leak_check() {
-  if (memory_size) {
-    throw std::runtime_error(fmt::format("memory leak: {}\n", memory_size));
-  }
 }
