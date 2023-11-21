@@ -8,6 +8,7 @@ private:
   int _cursor;
   int32_t _max_length;
   std::wstring _value;
+  bool _show_cursor;
 
 private:
   void set_cursor(int32_t cursor);
@@ -17,6 +18,7 @@ private:
 protected:
   bool on_input(const util::key &key) override;
   void on_render(core::auto_release<graphic> &g) override;
+  void on_timer(const std::wstring &name) override;
 
 public:
   input(const std::wstring &name, int32_t max_length);

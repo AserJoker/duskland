@@ -1,7 +1,7 @@
 ﻿#include "tui/input.hpp"
 using namespace duskland::tui;
 input::input(const std::wstring &name, int32_t max_length)
-    : _is_input(false), _cursor(0), _max_length(max_length),
+    : _is_input(false), _cursor(0), _max_length(max_length), _show_cursor(true),
       component<std::wstring>(name) {
   get_attribute().size.width = max_length;
   get_attribute().size.height = 1;
@@ -11,6 +11,8 @@ bool input::on_input(const util::key &key) {
   if (_is_input) {
     if (key.name == "<enter>" || key.name == "<esc>") {
       _is_input = false;
+      clear_timer(L"cursor");
+      _show_cursor = true;
       request_update();
       set_value(_value);
     } else if (key.name == "<backspace>" || key.name == "<delete>") {
@@ -32,6 +34,7 @@ bool input::on_input(const util::key &key) {
   } else {
     if (key.name == "<enter>") {
       _is_input = true;
+      set_timer(L"cursor", 500);
       request_update();
       return true;
     }
@@ -51,8 +54,10 @@ void input::on_render(core::auto_release<graphic> &g) {
       }
       offset += wcwidth(str[index]);
     }
-    g->set_attr("cursor");
-    g->draw(offset, 0, str[_cursor]);
+    if (_show_cursor) {
+      g->set_attr("cursor");
+      g->draw(offset, 0, str[_cursor]);
+    }
   }
 }
 
@@ -113,4 +118,9 @@ void input::set_cursor(int32_t cursor) {
     _cursor = _max_length - 1;
   }
   request_update();
+}
+void input::on_timer(const std::wstring &name) {
+  _show_cursor = !_show_cursor;
+  request_update();
+  set_timer(name, 500L);
 }

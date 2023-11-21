@@ -90,6 +90,21 @@ void widget::render(core::auto_release<graphic> &g) {
     }
     c->render(g);
   }
+  if (!_timers.empty()) {
+    std::vector<std::wstring> workflows;
+    auto now = std::chrono::system_clock::now();
+    for (auto &[name, timer] : _timers) {
+      auto delay = std::chrono::duration_cast<std::chrono::milliseconds>(
+          now - timer.start);
+      if (delay.count() > timer.timeout) {
+        workflows.push_back(name);
+      }
+    }
+    for (auto &name : workflows) {
+      _timers.erase(name);
+      on_timer(name);
+    }
+  }
 }
 void widget::clear(core::auto_release<graphic> &g) {
   g->set_attr(_attr.attr);
@@ -538,3 +553,13 @@ bool widget::last_active() {
 }
 bool widget::is_active() { return _is_active; }
 bool widget::process_input(const util::key &key) { return on_input(key); }
+bool widget::set_timer(const std::wstring &name, const uint64_t &timeout) {
+  if (_timers.contains(name)) {
+    return false;
+  }
+  timer_t timer = {std::chrono::system_clock::now(), timeout};
+  _timers[name] = timer;
+  return true;
+}
+void widget::clear_timer(const std::wstring &name) { _timers.erase(name); }
+void widget::on_timer(const std::wstring &name) {}

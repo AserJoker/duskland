@@ -4,9 +4,16 @@
 #include "core/object.hpp"
 #include "graphic.hpp"
 #include "util/key.hpp"
+#include <chrono>
 #include <vector>
 namespace duskland::tui {
 class widget : public core::object {
+private:
+  struct timer_t {
+    std::chrono::system_clock::time_point start;
+    uint64_t timeout;
+  };
+
 private:
   widget *_parent;
   widget *_active_widget;
@@ -17,6 +24,8 @@ private:
   bool _update_lock;
   bool _is_active;
   util::rect _fixed_rect;
+
+  std::map<std::wstring, timer_t> _timers;
 
 private:
   void draw_border(core::auto_release<graphic> &g);
@@ -37,6 +46,7 @@ protected:
   virtual void on_dective();
   virtual void on_event(const std::string &event, widget *emitter);
   virtual bool on_input(const util::key &key);
+  virtual void on_timer(const std::wstring &name);
 
 public:
   widget();
@@ -59,5 +69,7 @@ public:
   bool is_active();
   void set_active(widget *w);
   bool process_input(const util::key &key);
+  bool set_timer(const std::wstring &name, const uint64_t &timeout = 0L);
+  void clear_timer(const std::wstring &name);
 };
 } // namespace duskland::tui
