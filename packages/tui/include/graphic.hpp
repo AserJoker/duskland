@@ -11,7 +11,7 @@ private:
   bool _need_update;
   util::point _position;
   util::rect _viewport;
-  core::auto_release<attribute> _colors;
+  core::auto_release<attribute> _attributes;
   bool _ready;
 
 public:

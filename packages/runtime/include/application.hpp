@@ -16,7 +16,8 @@ private:
   core::auto_release<tui::graphic> _graphic;
   core::auto_release<keyboard> _keyboard;
   core::auto_release<resource> _resource;
-  core::auto_release<tui::attribute> _colors;
+  core::auto_release<tui::attribute> _attributes;
+
   core::auto_release<tui::widget> _root;
 
 public:

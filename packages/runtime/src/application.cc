@@ -19,7 +19,7 @@ application::application() : _is_running(false) {
   _keyboard = core::singleton<keyboard>::get();
   _resource = core::singleton<resource>::get();
   _graphic = core::singleton<tui::graphic>::get();
-  _colors = core::singleton<tui::attribute>::get();
+  _attributes = core::singleton<tui::attribute>::get();
 }
 application::~application() { uninitialize(); }
 void application::uninitialize() {
@@ -60,9 +60,9 @@ void application::initialize(int argc, char *argv[]) {
   auto keymap = _resource->query("system.keymap");
   auto color = _resource->query("system.color");
   _keyboard->load(std::string(keymap.begin(), keymap.end()));
-  _graphic->initialize(_colors);
+  _graphic->initialize(_attributes);
   _keyboard->initialize();
-  _colors->load(std::string(color.begin(), color.end()));
+  _attributes->load(std::string(color.begin(), color.end()));
   _root = new tui::document();
   auto layout = new tui::layout_vertical();
   auto layout2 = new tui::layout_horizontal();

@@ -49,11 +49,12 @@ void attribute::load(const std::string &source_json) {
     if (cJSON_IsTrue(cJSON_GetObjectItem(child, "bold"))) {
       attr |= WA_BOLD;
     }
-    _colors.insert({name, attr});
+    _attributes.insert({name, attr});
     pair_index++;
     child = child->next;
   }
   cJSON_free(root);
 }
 wint_t attribute::query(const std::string &name) {
-  return _colors.at(name); }
+  return _attributes.at(name);
+}

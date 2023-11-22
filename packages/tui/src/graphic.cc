@@ -1,6 +1,6 @@
 ﻿#include "../include/graphic.hpp"
-#include <curses.h>
 #include "util/include/xchar.hpp"
+#include <curses.h>
 using namespace duskland::tui;
 using namespace duskland;
 graphic::graphic()
@@ -18,7 +18,7 @@ void graphic::initialize(const core::auto_release<attribute> &color) {
   clear();
   curs_set(0);
   refresh();
-  _colors = color;
+  _attributes = color;
   _ready = true;
 }
 void graphic::uninitialize() {
@@ -55,7 +55,7 @@ void graphic::draw(int32_t x, int32_t y, const std::wstring &str) {
   }
 }
 void graphic::set_attr(const std::string &name) {
-  attrset(_colors->query(name));
+  attrset(_attributes->query(name));
 }
 bool graphic::present() {
   if (_need_update) {

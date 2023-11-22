@@ -5,10 +5,10 @@
 namespace duskland::tui {
 class attribute : public core::object {
 private:
-  std::map<std::string, wint_t> _colors;
+  std::map<std::string, wint_t> _attributes;
 
 public:
   void load(const std::string &source_json);
   wint_t query(const std::string &name);
 };
-} // namespace duskland::util
+} // namespace duskland::tui
