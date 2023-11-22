@@ -4,3 +4,4 @@ release
 .vscode
 .cache
 *.run
+*.exec

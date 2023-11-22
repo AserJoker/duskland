@@ -1,0 +1,27 @@
+macro(ListDirectories result current)
+    file(GLOB items LIST_DIRECTORIES true RELATIVE ${current} "${current}/*")
+    set(dirs "")
+
+    foreach(item ${items})
+        if(IS_DIRECTORY ${current}/${item})
+            list(APPEND dirs ${item})
+        endif()
+    endforeach()
+
+    set(${result} ${dirs})
+    set(${dirs} "")
+    set(${items} "")
+endmacro()
+
+macro(LoadModules result current)
+set(sources "")
+ListDirectories(modules ${current}/src)
+foreach(module ${modules})
+  aux_source_directory(${current}/src/${module} src.${module})
+  list(APPEND sources ${src.${module}})
+endforeach()
+aux_source_directory(${current}/src src)
+list(APPEND sources ${src})
+set(${result} ${sources})
+endmacro()
+
