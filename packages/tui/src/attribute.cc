@@ -7,7 +7,7 @@ void attribute::load(const std::string &source_json) {
   auto root = cJSON_Parse(source_json.c_str());
   auto palette = cJSON_GetObjectItem(root, "palette");
   auto pairs = cJSON_GetObjectItem(root, "pairs");
-  std::map<std::string, short> colors;
+  std::unordered_map<std::string, short> colors;
   auto child = palette->child;
   while (child) {
     auto name = child->string;

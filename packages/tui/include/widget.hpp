@@ -25,7 +25,7 @@ private:
   bool _is_active;
   util::rect _fixed_rect;
 
-  std::map<std::wstring, timer_t> _timers;
+  std::unordered_map<std::wstring, timer_t> _timers;
 
 private:
   void draw_border(core::auto_release<graphic> &g);

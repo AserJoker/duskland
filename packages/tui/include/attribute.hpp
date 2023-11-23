@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "core/include/object.hpp"
-#include <map>
+#include <unordered_map>
 #include <string>
 namespace duskland::tui {
 class attribute : public core::object {
 private:
-  std::map<std::string, wint_t> _attributes;
+  std::unordered_map<std::string, wint_t> _attributes;
 
 public:
   void load(const std::string &source_json);

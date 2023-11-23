@@ -1,13 +1,6 @@
 ﻿#include "../include/application.hpp"
-#include "tui/include/checkbox.hpp"
-#include "tui/include/document.hpp"
-#include "tui/include/input.hpp"
-#include "tui/include/layout_horizontal.hpp"
-#include "tui/include/layout_vertical.hpp"
-#include "tui/include/list_select.hpp"
-#include "tui/include/select.hpp"
 #include "tui/include/text.hpp"
-#include "tui/include/widget.hpp"
+#include "tui/include/windows.hpp"
 #include <chrono>
 #include <codecvt>
 #include <curses.h>
@@ -63,44 +56,24 @@ void application::initialize(int argc, char *argv[]) {
   _graphic->initialize(_attributes);
   _keyboard->initialize();
   _attributes->load(std::string(color.begin(), color.end()));
-  _root = new tui::document();
-  auto layout = new tui::layout_vertical();
-  auto layout2 = new tui::layout_horizontal();
-  layout2->get_attribute().offset.x = 1;
-  layout2->get_attribute().offset.y = 1;
-  layout2->get_attribute().border_left = true;
-  layout2->get_attribute().border_right = true;
-  layout2->get_attribute().border_top = true;
-  layout2->get_attribute().border_bottom = true;
-  layout->add_child(
-      new tui::list_select(L"list-select", {
-                                               {L"zh_CN", L"简体中文"},
-                                               {L"en_US", L"English"},
-                                               {L"Lang1", L"Lang1"},
-                                               {L"Lang2", L"Lang2"},
-                                               {L"Lang3", L"Lang3"},
-                                               {L"Lang4", L"Lang4"},
-                                               {L"Lang5", L"Lang5"},
-                                               {L"Lang6", L"Lang6"},
-                                               {L"Lang7", L"Lang7"},
-                                           }));
-  layout->add_child(new tui::checkbox(L"enable"));
-  layout->add_child(
-      new tui::list_select(L"list-select", {
-                                               {L"zh_CN", L"简体中文"},
-                                               {L"en_US", L"English"},
-                                               {L"Lang1", L"Lang1"},
-                                               {L"Lang2", L"Lang2"},
-                                               {L"Lang3", L"Lang3"},
-                                               {L"Lang4", L"Lang4"},
-                                               {L"Lang5", L"Lang5"},
-                                               {L"Lang6", L"Lang6"},
-                                               {L"Lang7", L"Lang7"},
-                                           }));
-  layout2->add_child(layout);
-  layout2->add_child(new tui::input(L"demo-text", 12));
-  _root->add_child(layout2);
-  _root->next_active();
+  auto windows = new tui::windows();
+  auto root = windows->get_root();
+  root->first = new tui::windows::node();
+  root->second = new tui::windows::node();
+  root->offset = 20;
+  root->second->first = new tui::windows::node();
+  root->second->second = new tui::windows::node();
+  root->second->direction = tui::windows::node::HORIZONTAL;
+  root->second->offset = -20;
+  root->first->key = "key-1";
+  root->first->identity = "demo-window";
+  windows->set_root(root);
+  auto win = windows->get_window("demo-window");
+  auto txt = new tui::text(L"text");
+  txt->get_attribute().offset.y = 1;
+  txt->request_update();
+  win->add_child(txt);
+  _root = windows;
   _root->request_update();
 }
 void application::on_command(const util::key &cmd) {
@@ -114,5 +87,11 @@ void application::on_command(const util::key &cmd) {
   }
   if (cmd.name == "<esc>") {
     exit();
+  }
+  if (cmd.name == "<a>") {
+    auto windows = (tui::windows *)_root.get();
+    auto root = windows->get_root();
+    std::swap(root->first, root->second);
+    windows->set_root(root);
   }
 }

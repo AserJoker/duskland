@@ -248,19 +248,11 @@ bool widget::on_input(const util::key &key) {
       }
     }
     if (key.name == "<tab>") {
-      if (!next_active()) {
-        if (!_parent) {
-          next_active();
-        }
-      }
+      next_active();
       return true;
     }
     if (key.name == "<s-tab>") {
-      if (!last_active()) {
-        if (!_parent) {
-          last_active();
-        }
-      }
+      last_active();
       return true;
     }
   }

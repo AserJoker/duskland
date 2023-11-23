@@ -16,7 +16,6 @@ bool document::on_input(const util::key &key) {
     attr.size.width = getmaxx(stdscr);
     attr.size.height = getmaxy(stdscr);
     request_update();
-    return true;
   }
   return widget::on_input(key);
 }
