@@ -6,7 +6,7 @@ using namespace duskland;
 graphic::graphic()
     : _need_update(false), _viewport({0, 0, 0, 0}), _ready(false) {}
 graphic::~graphic() {}
-void graphic::initialize(const core::auto_release<attribute> &color) {
+void graphic::initialize(const core::auto_release<brush> &color) {
 
   initscr();
   if (!has_colors()) {
@@ -18,7 +18,7 @@ void graphic::initialize(const core::auto_release<attribute> &color) {
   clear();
   curs_set(0);
   refresh();
-  _attributes = color;
+  _brush = color;
   _ready = true;
 }
 void graphic::uninitialize() {
@@ -55,7 +55,7 @@ void graphic::draw(int32_t x, int32_t y, const std::wstring &str) {
   }
 }
 void graphic::set_attr(const std::string &name) {
-  attrset(_attributes->query(name));
+  attrset(_brush->query_attribute(name));
 }
 bool graphic::present() {
   if (_need_update) {
@@ -70,3 +70,5 @@ const util::rect &graphic::get_viewport() const { return _viewport; }
 void graphic::set_position(const util::point &pos) { _position = pos; }
 
 const util::point &graphic::get_position() { return _position; }
+
+core::auto_release<brush> graphic::get_brush() { return _brush; }

@@ -262,64 +262,67 @@ void widget::draw_border(core::auto_release<graphic> &g) {
   g->set_attr(_style.border_attr);
   if (_style.border_left) {
     for (auto y = 0; y < _rect.height; y++) {
-      g->draw(-1, y, L'│');
+      g->draw(-1, y, g->get_brush()->query_symbol("box.left"));
     }
   }
   if (_style.border_right) {
     for (auto y = 0; y < _rect.height; y++) {
-      g->draw(_rect.width, y, L'│');
+      g->draw(_rect.width, y, g->get_brush()->query_symbol("box.right"));
     }
   }
   if (_style.border_top) {
     for (auto x = 0; x < _rect.width; x++) {
-      g->draw(x, -1, L'─');
+      g->draw(x, -1, g->get_brush()->query_symbol("box.top"));
     }
   }
   if (_style.border_bottom) {
     for (auto x = 0; x < _rect.width; x++) {
-      g->draw(x, _rect.height, L'─');
+      g->draw(x, _rect.height, g->get_brush()->query_symbol("box.bottom"));
     }
   }
 
   if (_style.border_left && _style.border_top) {
-    g->draw(-1, -1, L'┌');
+    g->draw(-1, -1, g->get_brush()->query_symbol("box.right_bottom"));
   }
   if (_style.border_right && _style.border_top) {
-    g->draw(_rect.width, -1, L'┐');
+    g->draw(_rect.width, -1, g->get_brush()->query_symbol("box.left_bottom"));
   }
   if (_style.border_left && _style.border_bottom) {
-    g->draw(-1, _rect.height, L'└');
+    g->draw(-1, _rect.height, g->get_brush()->query_symbol("box.right_top"));
   }
   if (_style.border_right && _style.border_bottom) {
-    g->draw(_rect.width, _rect.height, L'┘');
+    g->draw(_rect.width, _rect.height,
+            g->get_brush()->query_symbol("box.left_top"));
   }
 
   if (_style.border_left && !_style.border_top) {
-    g->draw(-1, -1, L'│');
+    g->draw(-1, -1, g->get_brush()->query_symbol("box.left"));
   }
   if (!_style.border_left && _style.border_top) {
-    g->draw(-1, -1, L'─');
+    g->draw(-1, -1, g->get_brush()->query_symbol("box.top"));
   }
 
   if (_style.border_right && !_style.border_top) {
-    g->draw(_rect.width, -1, L'│');
+    g->draw(_rect.width, -1, g->get_brush()->query_symbol("box.bottom"));
   }
   if (!_style.border_right && _style.border_top) {
-    g->draw(_rect.width, -1, L'─');
+    g->draw(_rect.width, -1, g->get_brush()->query_symbol("box.top"));
   }
 
   if (_style.border_left && !_style.border_bottom) {
-    g->draw(-1, _rect.height - 1, L'│');
+    g->draw(-1, _rect.height - 1, g->get_brush()->query_symbol("box.left"));
   }
   if (!_style.border_left && _style.border_bottom) {
-    g->draw(-1, _rect.height, L'─');
+    g->draw(-1, _rect.height, g->get_brush()->query_symbol("box.bottom"));
   }
 
   if (_style.border_right && !_style.border_bottom) {
-    g->draw(_rect.width, _rect.height, L'│');
+    g->draw(_rect.width, _rect.height,
+            g->get_brush()->query_symbol("box.right"));
   }
   if (!_style.border_right && _style.border_bottom) {
-    g->draw(_rect.width, _rect.height, L'─');
+    g->draw(_rect.width, _rect.height,
+            g->get_brush()->query_symbol("box.bottom"));
   }
 }
 void widget::on_update() {}

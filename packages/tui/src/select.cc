@@ -97,7 +97,7 @@ select::select(const std::wstring &name,
   request_update();
 }
 void select::on_render(core::auto_release<graphic> &g) {
-  g->draw(0, 0, L'[');
+  g->draw(0, 0, g->get_brush()->query_symbol("select.left"));
   std::wstring str;
   for (auto &opt : _options) {
     if (opt.value == get_value()) {
@@ -108,7 +108,8 @@ void select::on_render(core::auto_release<graphic> &g) {
     str += L'_';
   }
   g->draw(2, 0, str);
-  g->draw(get_rect().width - 1, 0, L']');
+  g->draw(get_rect().width - 1, 0,
+          g->get_brush()->query_symbol("select.right"));
 }
 bool select::on_input(const util::key &key) {
   if (key.name == "<enter>") {

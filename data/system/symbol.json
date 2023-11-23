@@ -1,0 +1,26 @@
+﻿{
+    "box": {
+        "left": "│",
+        "right": "│",
+        "top": "─",
+        "bottom": "─",
+        "right_bottom": "┌",
+        "left_bottom": "┐",
+        "right_top": "└",
+        "left_top": "┘",
+        "left_top_bottom": "┤",
+        "right_top_bottom": "├",
+        "left_right_bottom": "┬",
+        "left_right_top": "┴",
+        "left_right_top_bottom": "┼"
+    },
+    "checkbox": {
+        "enable": "\u26ab",
+        "disable": "\u26aa"
+    },
+    "select": {
+        "option": ">",
+        "left": "[",
+        "right": "]"
+    }
+}

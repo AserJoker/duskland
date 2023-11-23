@@ -22,7 +22,7 @@ void option::set_selected(bool selected) {
 bool option::is_selected() const { return _is_selected; }
 void option::on_render(core::auto_release<graphic> &g) {
   if (_is_selected) {
-    g->draw(0, 0, L'>');
+    g->draw(0, 0, g->get_brush()->query_symbol("select.option"));
   }
   g->draw(1, 0, _opt.display_name.c_str());
 }

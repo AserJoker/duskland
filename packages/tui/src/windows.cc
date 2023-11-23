@@ -195,41 +195,50 @@ void windows::on_render(core::auto_release<graphic> &g) {
   for (auto &[_, node] : _nodes) {
     if (node->right) {
       for (auto x = node->pos.x + 1; x < node->right->pos.x; x++) {
-        g->draw(x, node->pos.y, L'─');
+        g->draw(x, node->pos.y, g->get_brush()->query_symbol("box.top"));
       }
     }
     if (node->bottom) {
       for (auto y = node->pos.y + 1; y < node->bottom->pos.y; y++) {
-        g->draw(node->pos.x, y, L'│');
+        g->draw(node->pos.x, y, g->get_brush()->query_symbol("box.left"));
       }
     }
     for (auto &[_, node] : _nodes) {
       if (node->left && node->right && node->top && node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┼');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.left_right_top_bottom"));
       }
       if (!node->left && node->right && node->top && node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'├');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.right_top_bottom"));
       }
       if (node->left && !node->right && node->top && node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┤');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.left_top_bottom"));
       }
       if (node->left && node->right && !node->top && node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┬');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.left_right_bottom"));
       }
       if (node->left && node->right && node->top && !node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┴');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.left_right_top"));
       }
       if (!node->left && node->right && !node->top && node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┌');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.right_bottom"));
       }
       if (!node->left && node->right && node->top && !node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'└');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.right_top"));
       }
       if (node->left && !node->right && !node->top && node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┐');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.left_bottom"));
       }
       if (node->left && !node->right && node->top && !node->bottom) {
-        g->draw(node->pos.x, node->pos.y, L'┘');
+        g->draw(node->pos.x, node->pos.y,
+                g->get_brush()->query_symbol("box.left_top"));
       }
     }
   }

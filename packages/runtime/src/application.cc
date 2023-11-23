@@ -1,4 +1,5 @@
 ﻿#include "../include/application.hpp"
+#include "tui/include/checkbox.hpp"
 #include "tui/include/text.hpp"
 #include "tui/include/windows.hpp"
 #include <chrono>
@@ -12,7 +13,7 @@ application::application() : _is_running(false) {
   _keyboard = core::singleton<keyboard>::get();
   _resource = core::singleton<resource>::get();
   _graphic = core::singleton<tui::graphic>::get();
-  _attributes = core::singleton<tui::attribute>::get();
+  _brush = core::singleton<tui::brush>::get();
 }
 application::~application() { uninitialize(); }
 void application::uninitialize() {
@@ -52,10 +53,12 @@ void application::initialize(int argc, char *argv[]) {
   _resource->load("data");
   auto keymap = _resource->query("system.keymap");
   auto color = _resource->query("system.color");
+  auto symbol = _resource->query("system.symbol");
   _keyboard->load(std::string(keymap.begin(), keymap.end()));
-  _graphic->initialize(_attributes);
+  _graphic->initialize(_brush);
   _keyboard->initialize();
-  _attributes->load(std::string(color.begin(), color.end()));
+  _brush->load_attribute(std::string(color.begin(), color.end()));
+  _brush->load_symbol(std::string(symbol.begin(), symbol.end()));
   auto windows = new tui::windows();
   auto root = windows->get_root();
   root->first = new tui::windows::node();
@@ -69,7 +72,7 @@ void application::initialize(int argc, char *argv[]) {
   root->first->identity = "demo-window";
   windows->set_root(root);
   auto win = windows->get_window("demo-window");
-  auto txt = new tui::text(L"text");
+  auto txt = new tui::checkbox(L"text");
   txt->get_attribute().offset.y = 1;
   txt->request_update();
   win->add_child(txt);
