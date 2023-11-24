@@ -6,10 +6,12 @@ class selector : public widget {
 private:
   std::vector<util::option> _options;
   std::wstring _value;
+  class select *_owner;
 
 public:
-  selector(const std::vector<util::option> &options, const std::wstring &val)
-      : _options(options), _value(val) {
+  selector(const std::vector<util::option> &options, const std::wstring &val,
+           class select *owner)
+      : _options(options), _value(val), _owner(owner) {
     auto &attr = get_attribute();
     attr.position = style::ABSOLUTE;
     attr.border_left = true;
@@ -39,9 +41,9 @@ public:
   }
   bool on_input(const util::key &key) override {
     if (key.name == "<enter>") {
-      auto s = (class select *)get_parent();
-      s->set_value(_value);
+      _owner->set_value(_value);
       get_parent()->remove_child(this);
+      _owner->active();
       return true;
     }
     if (key.name == "<tab>") {
@@ -56,10 +58,12 @@ public:
         it = _options.begin();
       }
       _value = it->value;
+      request_update();
       return true;
     }
     if (key.name == "<esc>") {
       get_parent()->remove_child(this);
+      _owner->active();
       return true;
     }
     return widget::on_input(key);
@@ -68,7 +72,7 @@ public:
     auto y = 0;
     for (auto &opt : _options) {
       if (opt.value == _value) {
-        g->set_attr("focus");
+        g->set_attr("active");
       } else {
         g->set_attr("normal");
       }
@@ -81,6 +85,7 @@ select::select(const std::wstring &name,
                const std::vector<util::option> &options)
     : _options(options), component(name) {
   auto &attr = get_attribute();
+  attr.size.height = 1;
   if (!attr.size.width) {
     for (auto &opt : options) {
       if (attr.size.width <
@@ -115,9 +120,9 @@ bool select::on_input(const util::key &key) {
   if (key.name == "<enter>") {
     if (get_children().empty()) {
       if (!_options.empty()) {
-        auto win = new selector(_options, get_value());
-        add_child(win);
-        set_active(win);
+        auto win = new selector(_options, get_value(), this);
+        widget::_root->add_child(win);
+        widget::_root->set_active(win);
       }
       return true;
     }

@@ -4,7 +4,7 @@
         "white": "0xffffff",
         "red": "0xff0000"
     },
-    "pairs": {
+    "attributes": {
         "normal": {
             "fg": "white",
             "bg": "black",

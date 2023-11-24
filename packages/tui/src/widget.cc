@@ -556,3 +556,11 @@ bool widget::set_timer(const std::wstring &name, const uint64_t &timeout) {
 }
 void widget::clear_timer(const std::wstring &name) { _timers.erase(name); }
 void widget::on_timer(const std::wstring &name) {}
+void widget::active() {
+  if (_parent) {
+    if (!_parent->is_active()) {
+      _parent->active();
+    }
+    _parent->set_active(this);
+  }
+}

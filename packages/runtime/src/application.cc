@@ -1,5 +1,9 @@
 ﻿#include "../include/application.hpp"
 #include "tui/include/checkbox.hpp"
+#include "tui/include/document.hpp"
+#include "tui/include/input.hpp"
+#include "tui/include/layout_vertical.hpp"
+#include "tui/include/select.hpp"
 #include "tui/include/text.hpp"
 #include "tui/include/windows.hpp"
 #include <chrono>
@@ -52,12 +56,12 @@ void application::initialize(int argc, char *argv[]) {
   setlocale(LC_ALL, "");
   _resource->load("data");
   auto keymap = _resource->query("system.keymap");
-  auto color = _resource->query("system.color");
+  auto attribute = _resource->query("system.attribute");
   auto symbol = _resource->query("system.symbol");
   _keyboard->load(std::string(keymap.begin(), keymap.end()));
   _graphic->initialize(_brush);
   _keyboard->initialize();
-  _brush->load_attribute(std::string(color.begin(), color.end()));
+  _brush->load_attribute(std::string(attribute.begin(), attribute.end()));
   _brush->load_symbol(std::string(symbol.begin(), symbol.end()));
   auto windows = new tui::windows();
   auto root = windows->get_root();
@@ -71,12 +75,15 @@ void application::initialize(int argc, char *argv[]) {
   root->first->key = "key-1";
   root->first->identity = "demo-window";
   windows->set_root(root);
+  _root = new tui::document();
   auto win = windows->get_window("demo-window");
-  auto txt = new tui::checkbox(L"text");
-  txt->get_attribute().offset.y = 1;
-  txt->request_update();
-  win->add_child(txt);
-  _root = windows;
+  auto layout = new tui::layout_vertical();
+  win->add_child(layout);
+  layout->add_child(new tui::input(L"dinput", 12));
+  layout->add_child(new tui::select(
+      L"dinput", {{L"Chinese", L"中文"}, {L"English", L"English"}}));
+  _root->add_child(windows);
+  _root->next_active();
   _root->request_update();
 }
 void application::on_command(const util::key &cmd) {

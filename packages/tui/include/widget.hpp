@@ -71,5 +71,6 @@ public:
   bool process_input(const util::key &key);
   bool set_timer(const std::wstring &name, const uint64_t &timeout = 0L);
   void clear_timer(const std::wstring &name);
+  void active();
 };
 } // namespace duskland::tui

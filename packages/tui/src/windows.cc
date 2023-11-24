@@ -3,20 +3,6 @@
 #include <fmt/format.h>
 using namespace duskland::tui;
 using namespace duskland;
-class window : public widget {
-public:
-  void on_render(duskland::core::auto_release<graphic> &g) {
-    if (get_children().size() != 2) {
-      // g->set_attr("scroll");
-      for (auto x = 0; x < get_rect().width; x++) {
-        for (auto y = 0; y < get_rect().height; y++) {
-          g->draw(x, y, L' ');
-        }
-      }
-      g->draw(0, 0, L"window");
-    }
-  }
-};
 windows::windows() : _root(nullptr) {
   _root = new node();
   _root->first = nullptr;
@@ -78,12 +64,12 @@ void windows::process_node(
       if (cache.contains(node->key)) {
         w = cache.at(node->key).get();
       } else {
-        w = new window();
+        w = new widget();
       }
       _keyed_windows[node->key] = w;
     }
     if (!w) {
-      w = new window();
+      w = new widget();
     }
     w->get_attribute().offset.x = rc.x;
     w->get_attribute().offset.y = rc.y;
@@ -168,7 +154,9 @@ bool windows::on_input(const util::key &key) {
     get_attribute().border_bottom = true;
     get_attribute().offset.x = 0;
     get_attribute().offset.y = 0;
+    auto active = get_active();
     relayout();
+    set_active(active);
   }
   return widget::on_input(key);
 }
@@ -187,7 +175,6 @@ void windows::relayout() {
   auto cache = _keyed_windows;
   _keyed_windows.clear();
   process_node(_root, {0, 0, attr.size.width, attr.size.height}, cache);
-  next_active();
   request_update();
 }
 void windows::on_render(core::auto_release<graphic> &g) {

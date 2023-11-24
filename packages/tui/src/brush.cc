@@ -31,7 +31,7 @@ void resolve_nodes(std::unordered_map<std::string, wchar_t> &store, cJSON *obj,
 void brush::load_attribute(const std::string &source_json) {
   auto root = cJSON_Parse(source_json.c_str());
   auto palette = cJSON_GetObjectItem(root, "palette");
-  auto pairs = cJSON_GetObjectItem(root, "pairs");
+  auto pairs = cJSON_GetObjectItem(root, "attributes");
   std::unordered_map<std::string, short> colors;
   auto child = palette->child;
   while (child) {
@@ -89,5 +89,9 @@ void brush::load_symbol(const std::string &source_json) {
   cJSON_free(root);
 }
 wchar_t brush::query_symbol(const std::string &name) {
-  return _symbols.at(name);
+  try {
+    return _symbols.at(name);
+  } catch (std::exception &e) {
+    throw e;
+  }
 }
