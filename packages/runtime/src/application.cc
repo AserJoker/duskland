@@ -18,6 +18,11 @@ application::application() : _is_running(false) {
   _resource = core::singleton<resource>::get();
   _graphic = core::singleton<tui::graphic>::get();
   _brush = core::singleton<tui::brush>::get();
+
+  _system_scene = core::singleton<game::system_scene>::get();
+  _system_entity = core::singleton<game::system_entity>::get();
+  _system_map = core::singleton<game::system_map>::get();
+  _system_hud = core::singleton<game::system_hud>::get();
 }
 application::~application() { uninitialize(); }
 void application::uninitialize() {
@@ -63,26 +68,11 @@ void application::initialize(int argc, char *argv[]) {
   _keyboard->initialize();
   _brush->load_attribute(std::string(attribute.begin(), attribute.end()));
   _brush->load_symbol(std::string(symbol.begin(), symbol.end()));
-  auto windows = new tui::windows();
-  auto root = windows->get_root();
-  root->first = new tui::windows::node();
-  root->second = new tui::windows::node();
-  root->offset = 20;
-  root->second->first = new tui::windows::node();
-  root->second->second = new tui::windows::node();
-  root->second->direction = tui::windows::node::HORIZONTAL;
-  root->second->offset = -20;
-  root->first->key = "key-1";
-  root->first->identity = "demo-window";
-  windows->set_root(root);
   _root = new tui::document();
-  auto win = windows->get_window("demo-window");
-  auto layout = new tui::layout_vertical();
-  win->add_child(layout);
-  layout->add_child(new tui::input(L"dinput", 12));
-  layout->add_child(new tui::select(
-      L"dinput", {{L"Chinese", L"中文"}, {L"English", L"English"}}));
-  _root->add_child(windows);
+  _system_map->initialize();
+  _system_entity->initialize();
+  _system_hud->initialize();
+  _system_scene->initialize(_root);
   _root->next_active();
   _root->request_update();
 }
@@ -97,11 +87,5 @@ void application::on_command(const util::key &cmd) {
   }
   if (cmd.name == "<esc>") {
     exit();
-  }
-  if (cmd.name == "<a>") {
-    auto windows = (tui::windows *)_root.get();
-    auto root = windows->get_root();
-    std::swap(root->first, root->second);
-    windows->set_root(root);
   }
 }

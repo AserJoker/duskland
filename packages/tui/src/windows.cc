@@ -137,6 +137,9 @@ void windows::process_node(
   }
 }
 void windows::set_root(node *root) {
+  if (_root && _root != root) {
+    delete _root;
+  }
   _root = root;
   relayout();
 }
