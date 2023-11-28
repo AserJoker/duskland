@@ -5,6 +5,7 @@ using namespace duskland;
 void scene_main::initialize(core::auto_release<tui::windows> &layout) {
   auto node = new tui::windows::node();
   node->identity = "canvas-main";
+  node->key = "canvas-main";
   layout->set_root(node);
   auto win = layout->get_window("canvas-main");
   win->add_child(new canvas_main());

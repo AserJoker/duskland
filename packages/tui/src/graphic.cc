@@ -66,9 +66,9 @@ void graphic::draw(int32_t x, int32_t y, const util::tile &tile) {
     if (!ch.chars[0]) {
       ch.chars[0] = L' ';
     }
-    draw(xx, yy, ch.chars[0]);
+    draw(x, y, ch.chars[0]);
   } else {
-    draw(xx, yy, tile.ch);
+    draw(x, y, tile.ch);
   }
 }
 void graphic::draw(int32_t x, int32_t y, const std::wstring &str) {

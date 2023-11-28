@@ -12,11 +12,14 @@ canvas_main::canvas_main() {
   _player->set_tile(0, 0, {L'@', "player"});
   _face->set_tile(0, 0, {0, "face"});
   _face->set_rect({1, 0, 1, 1});
+  _status = new tui::widget();
+  _status->get_attribute().position = tui::style::ABSOLUTE;
   get_attribute().size.width = -1;
   get_attribute().size.height = -1;
   add_child(_system_map->get_renderer().get());
   add_child(_system_entity->get_renderer().get());
   add_child(_system_hud->get_renderer().get());
+  _system_hud->get_renderer()->add_child(_status);
   request_update();
 }
 bool canvas_main::on_input(const util::key &key) {
@@ -73,4 +76,15 @@ bool canvas_main::on_input(const util::key &key) {
     return true;
   }
   return tui::widget::on_input(key);
+}
+void canvas_main::on_update() {
+  auto &rc = get_rect();
+  _status->get_attribute().offset.y = 1;
+  _status->get_attribute().offset.x = rc.width - 17;
+  _status->get_attribute().size.width = 16;
+  _status->get_attribute().size.height = 8;
+  _status->get_attribute().border_bottom = true;
+  _status->get_attribute().border_top = true;
+  _status->get_attribute().border_left = true;
+  _status->get_attribute().border_right = true;
 }

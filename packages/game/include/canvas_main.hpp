@@ -13,8 +13,11 @@ private:
   core::auto_release<entity_base> _player;
   core::auto_release<entity_base> _face;
 
+  core::auto_release<tui::widget> _status;
+
 protected:
   bool on_input(const util::key &key) override;
+  void on_update() override;
 
 public:
   canvas_main();

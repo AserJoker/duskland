@@ -2,7 +2,10 @@
 #include "core/include/singleton.hpp"
 using namespace duskland::game;
 using namespace duskland;
-void system_entity::initialize() { _renderer = new renderer(); }
+void system_entity::initialize() {
+  _renderer = new renderer();
+  _renderer->get_attribute().position = tui::style::ABSOLUTE;
+}
 void system_entity::uninitialize() { _renderer = nullptr; }
 
 const std::vector<core::auto_release<entity_base>> &

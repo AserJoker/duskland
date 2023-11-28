@@ -11,8 +11,8 @@ public:
   };
   struct chunk : public core::object {
     block data[256];
-    uint32_t x;
-    uint32_t y;
+    int32_t x;
+    int32_t y;
   };
   class renderer : public tui::widget {
   public:

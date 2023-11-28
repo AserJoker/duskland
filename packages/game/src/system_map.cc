@@ -3,7 +3,10 @@
 #include <fmt/format-inl.h>
 using namespace duskland::game;
 using namespace duskland;
-void system_map::initialize() { _renderer = new renderer(); }
+void system_map::initialize() {
+  _renderer = new renderer();
+  _renderer->get_attribute().position = tui::style::ABSOLUTE;
+}
 void system_map::uninitialize() { _renderer = nullptr; }
 const core::auto_release<system_map::renderer> &system_map::get_renderer() {
   return _renderer;
@@ -24,15 +27,15 @@ void system_map::set_position(int32_t x, int32_t y) {
   int32_t chunky = y / 16;
   std::unordered_map<std::string, core::auto_release<chunk>> chunks;
   for (auto &[_, chunk] : _chunks) {
-    if (chunk->x < chunkx - 6 || chunk->y < chunky - 3 ||
-        chunk->x > chunkx + 6 || chunk->y > chunky + 3) {
+    if (chunk->x < chunkx || chunk->y < chunky || chunk->x > chunkx ||
+        chunk->y > chunky) {
       unload_chunk(chunk);
     } else {
       chunks[fmt::format("{}x{}", chunk->x, chunk->y)] = chunk;
     }
   }
-  for (auto yy = -3; yy < 3; yy++) {
-    for (auto xx = -6; xx < 6; xx++) {
+  for (auto yy = 0; yy < 1; yy++) {
+    for (auto xx = 0; xx < 1; xx++) {
       auto name = fmt::format("{}x{}", xx + chunkx, yy + chunky);
       if (!chunks.contains(name)) {
         chunks[name] = load_chunk(chunkx + xx, chunky + yy);
