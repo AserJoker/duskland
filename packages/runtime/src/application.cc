@@ -26,6 +26,12 @@ application::application() : _is_running(false) {
 }
 application::~application() { uninitialize(); }
 void application::uninitialize() {
+  _system_entity->uninitialize();
+  _system_entity = nullptr;
+  _system_map->uninitialize();
+  _system_map = nullptr;
+  _system_hud->uninitialize();
+  _system_hud = nullptr;
   _root = nullptr;
   if (_keyboard != nullptr) {
     _keyboard->uninitialize();

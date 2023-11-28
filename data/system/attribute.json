@@ -2,7 +2,10 @@
     "palette": {
         "black": "0x0",
         "white": "0xffffff",
-        "red": "0xff0000"
+        "red": "0xff0000",
+        "blue": "0xafafff",
+        "green": "0xa6e22e",
+        "brown": "0x504945"
     },
     "attributes": {
         "normal": {
@@ -25,6 +28,24 @@
         },
         "cursor": {
             "fg": "white",
+            "bg": "black",
+            "standout": true
+        },
+        "player": {
+            "fg": "blue",
+            "bg": "black"
+        },
+        "face": {
+            "fg": "white",
+            "bg": "black",
+            "standout": true
+        },
+        "grass": {
+            "fg": "green",
+            "bg": "black"
+        },
+        "dirt": {
+            "fg": "brown",
             "bg": "black",
             "standout": true
         }

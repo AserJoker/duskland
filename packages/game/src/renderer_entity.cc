@@ -1,1 +1,0 @@
-﻿#include "../include/renderer_entity.hpp"

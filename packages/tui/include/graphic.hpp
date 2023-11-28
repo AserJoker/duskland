@@ -4,6 +4,7 @@
 #include "core/include/object.hpp"
 #include "util/include/point.hpp"
 #include "util/include/rect.hpp"
+#include "util/include/tile.hpp"
 #include <string>
 namespace duskland::tui {
 class graphic : public core::object {
@@ -20,6 +21,7 @@ public:
   void set_attr(const std::string &name);
   void draw(int32_t x, int32_t y, wchar_t c);
   void draw(int32_t x, int32_t y, const std::wstring &str);
+  void draw(int32_t x, int32_t y, const util::tile& tile);
   void set_viewport(const util::rect &rc);
   const util::rect &get_viewport() const;
   void set_position(const util::point &rc);

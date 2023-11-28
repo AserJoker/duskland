@@ -47,6 +47,30 @@ void graphic::draw(int32_t x, int32_t y, wchar_t ch) {
   mvadd_wch(yy, xx, &cc);
   _need_update = true;
 }
+
+void graphic::draw(int32_t x, int32_t y, const util::tile &tile) {
+  if (!tile.attr.empty()) {
+    set_attr(tile.attr);
+  }
+  if (!_ready) {
+    return;
+  }
+  auto xx = x + _position.x;
+  auto yy = y + _position.y;
+  if (xx < _viewport.x || yy < _viewport.y) {
+    return;
+  }
+  if (!tile.ch) {
+    cchar_t ch;
+    mvin_wch(yy, xx, &ch);
+    if (!ch.chars[0]) {
+      ch.chars[0] = L' ';
+    }
+    draw(xx, yy, ch.chars[0]);
+  } else {
+    draw(xx, yy, tile.ch);
+  }
+}
 void graphic::draw(int32_t x, int32_t y, const std::wstring &str) {
   auto offset = 0;
   for (auto &c : str) {

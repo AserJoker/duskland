@@ -1,5 +1,9 @@
 ﻿#include "../include/system_hud.hpp"
 using namespace duskland::game;
-void system_hud::initialize() {}
-void system_hud::uninitialize() {}
-void system_hud::on_render(core::auto_release<tui::graphic> &g) {}
+using namespace duskland;
+void system_hud::initialize() { _renderer = new renderer(); }
+void system_hud::uninitialize() { _renderer = nullptr; }
+
+const core::auto_release<system_hud::renderer> &system_hud::get_renderer() {
+  return _renderer;
+}
