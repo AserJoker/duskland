@@ -1,20 +1,18 @@
 ﻿#pragma once
+#include "core/include/auto_release.hpp"
 #include "widget.hpp"
+#include <string>
 namespace duskland::tui {
 class text : public widget {
 private:
-  std::vector<std::wstring> _lines;
-  bool _auto_wrap;
+  std::wstring _text;
 
 protected:
-  void on_render(core::auto_release<graphic> &g) override;
-  void on_update() override;
+  void render(core::auto_release<graphic> &g) override;
 
 public:
-  text(const std::wstring &text = L"");
+  text(const std::wstring &text);
   void set_text(const std::wstring &text);
-  std::wstring get_text() const;
-  void set_auto_wrap(const bool &auto_wrap);
-  const bool &get_auto_wrap() const;
+  const std::wstring &get_text() const;
 };
 } // namespace duskland::tui

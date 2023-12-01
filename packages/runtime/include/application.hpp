@@ -1,10 +1,6 @@
 ﻿#pragma once
 #include "core/include/object.hpp"
 #include "core/include/singleton.hpp"
-#include "game/include/system_entity.hpp"
-#include "game/include/system_hud.hpp"
-#include "game/include/system_map.hpp"
-#include "game/include/system_scene.hpp"
 #include "keyboard.hpp"
 #include "resource.hpp"
 #include "tui/include/graphic.hpp"
@@ -23,11 +19,6 @@ private:
   core::auto_release<tui::brush> _brush;
 
   core::auto_release<tui::widget> _root;
-
-  core::auto_release<game::system_scene> _system_scene;
-  core::auto_release<game::system_hud> _system_hud;
-  core::auto_release<game::system_map> _system_map;
-  core::auto_release<game::system_entity> _system_entity;
 
 public:
   int run();

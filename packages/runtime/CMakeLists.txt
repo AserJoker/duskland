@@ -3,4 +3,4 @@ project(${PACKAGE_NAME})
 
 LoadModules(modules ${PROJECT_SOURCE_DIR})
 add_library(${PROJECT_NAME} ${modules})
-target_link_libraries(${PROJECT_NAME} ${ROOT_PROJECT_NAME}.game)
+target_link_libraries(${PROJECT_NAME})
